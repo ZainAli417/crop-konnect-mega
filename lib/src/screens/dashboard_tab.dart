@@ -231,7 +231,7 @@ class DashboardTab extends StatelessWidget {
           backgroundColor: _T.white,
           displacement: 40,
           child: Container(
-            color: _T.bg,
+            color: const Color(0xFFF6F8FB),
             child: ListView(
               physics: const BouncingScrollPhysics(
                   parent: AlwaysScrollableScrollPhysics()),

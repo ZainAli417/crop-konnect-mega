@@ -1,10 +1,3 @@
-// ════════════════════════════════════════════════════════════════════════════
-//  ESS Water Depth Pro — Station Dashboard Screen
-//  Aesthetic : Deep-Space Industrial · Electric Teal · Glassmorphic Nav
-//  Fixes     : ① No grey hover flicker (animated teal highlight)
-//              ② Buttery-smooth tab transitions (fade + micro-scale)
-//              ③ Dark-themed splash, nav, drawer, quick-settings
-// ════════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,7 +10,6 @@ import '../viewmodels/station_dashboard_controller.dart';
 import 'dashboard_tab.dart';
 import 'dss_center_tab.dart';
 import 'health_tab.dart';
-import 'irrigation_tab.dart';
 import 'settings_tab.dart';
 import 'trends_tab.dart';
 
@@ -25,8 +17,6 @@ import 'trends_tab.dart';
 
 class _C {
   // Primary palette — forest botanical
-  static const forest800 = Color(0xFF14532D);
-  static const forest600 = Color(0xFF166534);
   static const forest500 = Color(0xFF16A34A);
 
   // Semantic Mappings
@@ -106,11 +96,13 @@ class _NavItem {
     required this.icon,
     required this.activeIcon,
     required this.label,
+    required this.short,
     this.badge,
   });
   final IconData icon;
   final IconData activeIcon;
   final String   label;
+  final String   short; // compact label for the floating bottom bar
   final String?  badge;
 }
 
@@ -119,33 +111,32 @@ const _navItems = <_NavItem>[
     icon: Icons.grid_view_outlined,
     activeIcon: Icons.grid_view_rounded,
     label: 'Live Dashboard',
+    short: 'Live',
   ),
   _NavItem(
-    icon: Icons.psychology_rounded,
+    icon: Icons.psychology_outlined,
     activeIcon: Icons.psychology_rounded,
     label: 'DSS Center',
+    short: 'DSS',
   ),
-
   _NavItem(
     icon: Icons.stacked_bar_chart_outlined,
     activeIcon: Icons.stacked_bar_chart,
     label: 'Data Trends',
+    short: 'Trends',
   ),
   _NavItem(
     icon: Icons.favorite_outline_rounded,
     activeIcon: Icons.favorite_rounded,
     label: 'Logger Health',
+    short: 'Health',
     badge: '2',
-  ),
-  _NavItem(
-    icon: Icons.water_drop_outlined,
-    activeIcon: Icons.water_drop_rounded,
-    label: 'Irrigation Manager',
   ),
   _NavItem(
     icon: Icons.tune_outlined,
     activeIcon: Icons.tune_rounded,
     label: 'Logger Configuration',
+    short: 'Setup',
   ),
 ];
 
@@ -174,6 +165,8 @@ class _StationDashboardScreenState extends State<StationDashboardScreen>
   late StationDashboardController _controller;
   late AppDataMode                _mode;
   int _currentIndex = 0;
+  StationDashboardController? _tabsController;
+  List<Widget>? _cachedTabs;
 
   // Entry animation
   late AnimationController _entryCtrl;
@@ -195,14 +188,16 @@ class _StationDashboardScreenState extends State<StationDashboardScreen>
     );
     _entryCtrl.forward();
 
-    // Dark system UI
+    // Light system UI — dark status/nav icons so battery, clock and nav
+    // buttons stay visible on the near-white app background.
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
-        statusBarBrightness: Brightness.dark,
-        statusBarIconBrightness: Brightness.light,
         statusBarColor: Colors.transparent,
-        systemNavigationBarColor: Color(0xFF07111F),
-        systemNavigationBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.light, // iOS: dark icons
+        statusBarIconBrightness: Brightness.dark, // Android: dark icons
+        systemNavigationBarColor: Color(0xFFF6F8FB),
+        systemNavigationBarIconBrightness: Brightness.dark,
+        systemNavigationBarDividerColor: Colors.transparent,
       ),
     );
   }
@@ -238,6 +233,8 @@ class _StationDashboardScreenState extends State<StationDashboardScreen>
     setState(() {
       _mode       = mode;
       _controller = next;
+      _tabsController = null;
+      _cachedTabs = null;
     });
     prev.dispose();
     await next.start();
@@ -259,28 +256,35 @@ class _StationDashboardScreenState extends State<StationDashboardScreen>
         onModeChanged:  _switchMode,
         onGoToSettings: () {
           Navigator.pop(context);
-          setState(() => _currentIndex = 5);
+          setState(() => _currentIndex = 4);
         },
       ),
     );
   }
 
-  List<Widget> _buildTabs() => [
-    DashboardTab(
-      controller:    _controller,
-      onSettingsTap: _showQuickSettings,
-    ),
-    DssCenterTab(controller: _controller),
-    TrendsTab(controller: _controller),
-    HealthTab(controller: _controller),
-    IrrigationTab(controller: _controller),
-
-    SettingsTab(
-      controller:    _controller,
-      mode:          _mode,
-      onModeChanged: _switchMode,
-    ),
-  ];
+  List<Widget> _buildTabs() {
+    final cached = _cachedTabs;
+    if (cached != null && identical(_tabsController, _controller)) {
+      return cached;
+    }
+    final tabs = <Widget>[
+      DashboardTab(
+        controller:    _controller,
+        onSettingsTap: _showQuickSettings,
+      ),
+      DssCenterTab(controller: _controller),
+      TrendsTab(controller: _controller),
+      HealthTab(controller: _controller),
+      SettingsTab(
+        controller:    _controller,
+        mode:          _mode,
+        onModeChanged: _switchMode,
+      ),
+    ];
+    _tabsController = _controller;
+    _cachedTabs = tabs;
+    return tabs;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -290,7 +294,7 @@ class _StationDashboardScreenState extends State<StationDashboardScreen>
         final reading = _controller.latestReading;
 
         return Scaffold(
-          backgroundColor: _C.canvas,
+          backgroundColor: const Color(0xFFF6F8FB),
           body: FadeTransition(
             opacity: _entryAnim,
             child: SafeArea(
@@ -369,28 +373,12 @@ class _TabSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 400),
-      switchInCurve: Curves.easeOutQuart,
-      switchOutCurve: Curves.easeInQuart,
-      transitionBuilder: (child, anim) {
-        final slideAnim = Tween<Offset>(
-          begin: const Offset(0, 0.03),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(parent: anim, curve: Curves.easeOutQuart));
-        
-        return FadeTransition(
-          opacity: anim,
-          child: SlideTransition(
-            position: slideAnim,
-            child: child,
-          ),
-        );
-      },
-      child: KeyedSubtree(
-        key: ValueKey(index),
-        child: children[index],
-      ),
+    // Keep every tab built and alive. Switching is then instant — no rebuild,
+    // no re-running entrance animations, no jerk. Scroll positions are kept too.
+    return IndexedStack(
+      index: index,
+      sizing: StackFit.expand,
+      children: children,
     );
   }
 }
@@ -442,7 +430,7 @@ class _SplashLoaderState extends State<_SplashLoader>
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Color(0xFF0EA5C0), Color(0xFF00D9FF)],
+                    colors: [Color(0xFF16A34A), Color(0xFF10B981)],
                   ),
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
@@ -547,6 +535,8 @@ class _LiveDotState extends State<_LiveDot>
 
 // ─── Bottom Navigation Bar (Mobile) ──────────────────────────────────────────
 
+// Floating bottom bar — a detached pill with depth, a sliding active lozenge,
+// and icons that pop & lift on selection.
 class _BottomNav extends StatelessWidget {
   const _BottomNav({required this.currentIndex, required this.onTap});
   final int               currentIndex;
@@ -556,40 +546,44 @@ class _BottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final bottomPad = MediaQuery.of(context).padding.bottom;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: _C.surface0,
-        border: const Border(top: BorderSide(color: _C.border, width: 1)),
-        // subtle glow above bar
-        boxShadow: [
-          BoxShadow(
-            color: _C.cyan.withValues(alpha: 0.04),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
-          ),
-        ],
-      ),
-      padding: EdgeInsets.only(
-        bottom: bottomPad + 6,
-        top:    8,
-        left:   4,
-        right:  4,
-      ),
-      child: Row(
-        children: List.generate(_navItems.length, (i) {
-          return Expanded(
-            child: _BottomNavItem(
-              item:     _navItems[i],
-              selected: i == currentIndex,
-              onTap:    () => onTap(i),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(14, 4, 14, bottomPad + 12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: _C.surface0,
+          borderRadius: BorderRadius.circular(26),
+          border: Border.all(color: _C.border, width: 1),
+          // layered shadow = floating depth
+          boxShadow: [
+            BoxShadow(
+              color: _C.ink0.withValues(alpha: 0.12),
+              blurRadius: 28,
+              offset: const Offset(0, 12),
             ),
-          );
-        }),
+            BoxShadow(
+              color: _C.cyan.withValues(alpha: 0.07),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 9),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(_navItems.length, (i) {
+            return _BottomNavItem(
+              item: _navItems[i],
+              selected: i == currentIndex,
+              onTap: () => onTap(i),
+            );
+          }),
+        ),
       ),
     );
   }
 }
 
+// Active item = accent pill with icon + label in one row; inactive = icon only.
 class _BottomNavItem extends StatelessWidget {
   const _BottomNavItem({
     required this.item,
@@ -602,60 +596,87 @@ class _BottomNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? _C.cyan : _C.ink3;
-
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutBack,
-        margin: const EdgeInsets.symmetric(horizontal: 6),
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        duration: const Duration(milliseconds: 320),
+        curve: Curves.easeOutCubic,
+        padding: selected
+            ? const EdgeInsets.symmetric(horizontal: 13, vertical: 9)
+            : const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: selected ? _C.cyan.withValues(alpha: 0.12) : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
+          gradient: selected
+              ? const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF16A34A), Color(0xFF10B981)],
+                )
+              : null,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: _C.cyan.withValues(alpha: 0.38),
+                    blurRadius: 14,
+                    offset: const Offset(0, 5),
+                  ),
+                ]
+              : null,
         ),
-        child: Center(
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 250),
-                transitionBuilder: (child, animation) {
-                  return ScaleTransition(
-                    scale: Tween<double>(begin: 0.8, end: 1.0).animate(
-                      CurvedAnimation(parent: animation, curve: Curves.easeOutBack)
-                    ),
-                    child: FadeTransition(opacity: animation, child: child),
-                  );
-                },
-                child: Icon(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
                   selected ? item.activeIcon : item.icon,
-                  key: ValueKey(selected),
-                  color: color,
-                  size: 26,
+                  color: selected ? Colors.white : _C.ink3,
+                  size: 22,
                 ),
-              ),
-              if (item.badge != null)
-                Positioned(
-                  top: -4, right: -6,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                    decoration: BoxDecoration(
-                      color: _C.amber,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(item.badge!,
+                if (item.badge != null)
+                  Positioned(
+                    top: -5,
+                    right: -7,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: selected ? Colors.white : _C.amber,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        item.badge!,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 9,
                           fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                        )),
+                          color: selected ? _C.cyan : Colors.white,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-            ],
-          ),
+              ],
+            ),
+            // label only on the active item — smoothly expands the pill
+            AnimatedSize(
+              duration: const Duration(milliseconds: 280),
+              curve: Curves.easeOutCubic,
+              child: selected
+                  ? Padding(
+                      padding: const EdgeInsets.only(left: 9),
+                      child: Text(
+                        item.short,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ],
         ),
       ),
     );
@@ -693,7 +714,7 @@ class _CompactRail extends StatelessWidget {
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF0EA5C0), Color(0xFF00D9FF)],
+                colors: [Color(0xFF16A34A), Color(0xFF10B981)],
               ),
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
@@ -879,7 +900,7 @@ class _SideDrawer extends StatelessWidget {
                     gradient: const LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [Color(0xFF0EA5C0), Color(0xFF00D9FF)],
+                      colors: [Color(0xFF16A34A), Color(0xFF10B981)],
                     ),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
@@ -897,7 +918,7 @@ class _SideDrawer extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('ESS Crop Konnect',
+                      Text('Crop Konnect',
                           style: _Txt.display(size: 15, letterSpacing: -0.4)),
                       const SizedBox(height: 4),
                       Row(
@@ -970,7 +991,7 @@ class _SideDrawer extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Ess Crop Konnect v1.0',
+                        Text('Crop Konnect v1.0',
                             style: _Txt.body(size: 12, weight: FontWeight.w700, color: _C.ink1)),
                       ],
                     ),
@@ -1242,7 +1263,7 @@ class _QuickSettingsSheet extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF0EA5C0), Color(0xFF00D9FF)],
+                      colors: [Color(0xFF16A34A), Color(0xFF10B981)],
                     ),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [

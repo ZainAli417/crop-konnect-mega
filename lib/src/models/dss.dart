@@ -22,12 +22,23 @@ class DssEvidence {
     required this.label,
     required this.value,
     required this.status,
+    this.tone = DssTone.info,
+    this.note = '',
   });
 
   final String label;
   final String value;
   final String status;
+
+  /// Traffic-light meaning of this reading (good / watch / bad / neutral info).
+  final DssTone tone;
+
+  /// Optional plain-language hint, e.g. "healthy band 45–75%".
+  final String note;
 }
+
+/// Simple traffic-light tone for a reading so farmers read colour, not numbers.
+enum DssTone { good, warn, bad, info }
 
 class DssRecommendation {
   const DssRecommendation({
@@ -257,6 +268,11 @@ class DssCropStage {
     required this.pDemand,
     required this.kDemand,
     required this.actionNote,
+    this.startDay = 0,
+    this.endDay = 0,
+    this.tempOptMin = 18,
+    this.tempOptMax = 32,
+    this.icon = 'leaf',
   });
 
   final String name;
@@ -268,6 +284,13 @@ class DssCropStage {
   final String kDemand;
   final String actionNote;
 
+  // Timeline-driven extras (days after sowing + stage-optimal temperature band).
+  final int startDay;
+  final int endDay;
+  final double tempOptMin;
+  final double tempOptMax;
+  final String icon;
+
   factory DssCropStage.fromJson(Map<String, dynamic> json) {
     return DssCropStage(
       name: json['name'] as String? ?? 'General',
@@ -278,7 +301,12 @@ class DssCropStage {
       pDemand: json['p_demand'] as String? ?? 'medium',
       kDemand: json['k_demand'] as String? ?? 'medium',
       actionNote: json['action_note'] as String? ??
-          'Watch this stage closely and confirm with field observation.',
+          'Keep conditions steady through this stage.',
+      startDay: (json['start_day'] as num?)?.round() ?? 0,
+      endDay: (json['end_day'] as num?)?.round() ?? 0,
+      tempOptMin: _asDouble(json['temp_opt_min']) ?? 18,
+      tempOptMax: _asDouble(json['temp_opt_max']) ?? 32,
+      icon: json['icon'] as String? ?? 'leaf',
     );
   }
 }
@@ -291,6 +319,9 @@ class DssInput {
     required this.trends,
     required this.monitoring,
     required this.irrigationProfile,
+    this.daysAfterSowing,
+    this.cycleDays,
+    this.pastHarvest = false,
   });
 
   final DssCropProfile crop;
@@ -299,6 +330,11 @@ class DssInput {
   final StationTrends? trends;
   final MonitoringStatus? monitoring;
   final IrrigationProfile? irrigationProfile;
+
+  /// Days since sowing (computed from the sowing date) and the full cycle length.
+  final int? daysAfterSowing;
+  final int? cycleDays;
+  final bool pastHarvest;
 }
 
 List<String> _stringList(dynamic value) {

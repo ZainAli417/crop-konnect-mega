@@ -360,7 +360,7 @@ class _SensorHealthCard extends StatelessWidget {
               ),
             ],
           ),
-          const Spacer(),
+          const SizedBox(height: 16),
           Text(
             label,
             style: GoogleFonts.plusJakartaSans(

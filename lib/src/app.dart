@@ -10,7 +10,7 @@ class SensorMonitorApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Crop Konnect Monitor',
+      title: 'Crop Konnect',
       theme: buildAppTheme(),
       home: StationDashboardScreen(
         baseUrl: AppConfig.baseUrl,

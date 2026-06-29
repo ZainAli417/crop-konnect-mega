@@ -94,7 +94,7 @@ class TrendsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF6F8FB),
       body: SafeArea(
         child: AnimatedBuilder(
           animation: controller,

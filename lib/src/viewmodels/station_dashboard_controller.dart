@@ -10,7 +10,9 @@ import '../models/station_settings.dart';
 import '../models/station_summary.dart';
 import '../models/station_trends.dart';
 import '../models/dss.dart';
+import '../models/crop_timeline.dart';
 import '../services/dss_crop_repository.dart';
+import '../services/crop_timeline_repository.dart';
 import '../services/dss_engine.dart';
 import '../services/station_data_source.dart';
 import '../services/station_live_stream.dart';
@@ -38,6 +40,35 @@ class StationDashboardController extends ChangeNotifier {
   DssCropProfile? activeDssCrop;
   DssCropStage? activeDssStage;
   DssAnalysis? dssAnalysis;
+
+  // ── Crop stage timeline (sowing-date driven) ──────────────────────────────
+  List<CropTimeline> cropTimelines = const <CropTimeline>[];
+  CropTimeline? activeTimeline;
+  String selectedCropId = 'wheat';
+  // Default to a mid-season sowing so the timeline reads as live on first open.
+  DateTime sowingDate =
+      DateTime.now().subtract(const Duration(days: 75));
+
+  /// Whole days since sowing (never negative).
+  int get daysAfterSowing {
+    final diff = DateTime.now().difference(sowingDate).inHours / 24.0;
+    return diff < 0 ? 0 : diff.floor();
+  }
+
+  TimelineStage? get currentTimelineStage {
+    final t = activeTimeline;
+    if (t == null || t.stages.isEmpty) return null;
+    return t.stageForDay(daysAfterSowing);
+  }
+
+  int get currentStageIndex {
+    final t = activeTimeline;
+    if (t == null || t.stages.isEmpty) return 0;
+    return t.stageIndexForDay(daysAfterSowing);
+  }
+
+  bool get isPastHarvest =>
+      activeTimeline?.isPastHarvest(daysAfterSowing) ?? false;
   GpsReading? gpsReading;
   String? errorMessage;
   String? dssErrorMessage;
@@ -53,8 +84,11 @@ class StationDashboardController extends ChangeNotifier {
   StreamSubscription<SensorReading>? _liveSubscription;
   StreamSubscription<SensorReading>? _realtimeSubscription;
   bool _refreshingFromStream = false;
+  Future<void>? _dssRefreshInFlight;
+  String? _lastDssSignature;
   final DssCropKnowledgeRepository _dssCropRepository =
       DssCropKnowledgeRepository();
+  final CropTimelineRepository _timelineRepository = CropTimelineRepository();
   final DssEngine _dssEngine = const DssEngine();
 
   AppDataMode get mode => _client.mode;
@@ -93,10 +127,10 @@ class StationDashboardController extends ChangeNotifier {
 
     await Future.wait<void>([
       refreshSummary(notify: false),
-      refreshMonitoringStatus(notify: false),
-      refreshTrends(notify: false),
+      refreshMonitoringStatus(notify: false, updateDss: false),
+      refreshTrends(notify: false, updateDss: false),
       refreshSettings(notify: false),
-      refreshIrrigation(notify: false),
+      refreshIrrigation(notify: false, updateDss: false),
       refreshGpsReading(notify: false),
     ]);
     await refreshDss(notify: false);
@@ -109,17 +143,17 @@ class StationDashboardController extends ChangeNotifier {
     latestReading = reading;
     hasConnection = true;
     errorMessage = null;
-    notifyListeners();
 
     if (_refreshingFromStream) {
+      notifyListeners();
       return;
     }
 
     _refreshingFromStream = true;
     try {
-      await refreshMonitoringStatus(notify: false);
+      await refreshMonitoringStatus(notify: false, updateDss: false);
       if (irrigationProfile?.smartIrrigationEnabled ?? false) {
-        await refreshIrrigation(notify: false);
+        await refreshIrrigation(notify: false, updateDss: false);
       }
       await refreshGpsReading(notify: false);
       await refreshDss(notify: false);
@@ -160,12 +194,17 @@ class StationDashboardController extends ChangeNotifier {
     }
   }
 
-  Future<void> refreshMonitoringStatus({bool notify = true}) async {
+  Future<void> refreshMonitoringStatus({
+    bool notify = true,
+    bool updateDss = true,
+  }) async {
     try {
       final status = await _client.fetchMonitoringStatus();
       monitoringStatus = status;
       latestReading = status.latest ?? latestReading;
-      await refreshDss(notify: false);
+      if (updateDss) {
+        await refreshDss(notify: false);
+      }
       hasConnection = true;
       errorMessage = null;
     } catch (error) {
@@ -178,10 +217,15 @@ class StationDashboardController extends ChangeNotifier {
     }
   }
 
-  Future<void> refreshTrends({bool notify = true}) async {
+  Future<void> refreshTrends({
+    bool notify = true,
+    bool updateDss = true,
+  }) async {
     try {
       trends = await _client.fetchTrends();
-      await refreshDss(notify: false);
+      if (updateDss) {
+        await refreshDss(notify: false);
+      }
     } catch (error) {
       if (trends == null && !hasConnection) {
         errorMessage = error.toString();
@@ -209,7 +253,10 @@ class StationDashboardController extends ChangeNotifier {
     }
   }
 
-  Future<void> refreshIrrigation({bool notify = true}) async {
+  Future<void> refreshIrrigation({
+    bool notify = true,
+    bool updateDss = true,
+  }) async {
     try {
       if (irrigationPresets.isEmpty) {
         irrigationPresets = await _client.fetchIrrigationPresets();
@@ -218,7 +265,9 @@ class StationDashboardController extends ChangeNotifier {
       latestIrrigationAdvisory = irrigationProfile!.smartIrrigationEnabled
           ? await _client.fetchLatestIrrigationAdvisory()
           : null;
-      await refreshDss(notify: false);
+      if (updateDss) {
+        await refreshDss(notify: false);
+      }
       hasConnection = true;
       errorMessage = null;
     } catch (error) {
@@ -233,17 +282,64 @@ class StationDashboardController extends ChangeNotifier {
   }
 
   Future<void> refreshDss({bool notify = true}) async {
+    final inFlight = _dssRefreshInFlight;
+    if (inFlight != null) {
+      await inFlight;
+      if (notify) {
+        notifyListeners();
+      }
+      return;
+    }
+
+    final refresh = _refreshDssInternal();
+    _dssRefreshInFlight = refresh;
+    await refresh;
+    if (identical(_dssRefreshInFlight, refresh)) {
+      _dssRefreshInFlight = null;
+    }
+
+    if (notify) {
+      notifyListeners();
+    }
+  }
+
+  Future<void> _refreshDssInternal() async {
     try {
       if (dssCropProfiles.isEmpty) {
         dssCropProfiles = await _dssCropRepository.loadProfiles();
       }
-      final crop = _dssCropRepository.resolveCrop(
-        dssCropProfiles,
+      if (cropTimelines.isEmpty) {
+        cropTimelines = await _timelineRepository.load();
+      }
+
+      // Resolve the selected timeline and auto-compute the current stage from
+      // the sowing date — there is no manual stage picking anymore.
+      final timeline = _timelineRepository.resolve(cropTimelines, selectedCropId);
+      activeTimeline = timeline;
+      selectedCropId = timeline.id;
+      final das = daysAfterSowing;
+      final tStage = timeline.stageForDay(das);
+      final signature = [
+        selectedCropId,
+        sowingDate.toIso8601String(),
+        latestReading?.recordedAt.toIso8601String(),
+        monitoringStatus?.lastUpdated?.toIso8601String(),
+        _trendsSignature(trends),
         irrigationProfile?.crop,
-      );
-      final stage = crop.stageByName(irrigationProfile?.cropStage);
+        irrigationProfile?.cropStage,
+      ].join('|');
+
+      if (signature == _lastDssSignature && dssAnalysis != null) {
+        dssErrorMessage = null;
+        return;
+      }
+
+      // Crop-level agronomy from the knowledge base; stage targets from timeline.
+      final crop = _dssCropRepository.resolveCrop(dssCropProfiles, timeline.kbName);
+      final stage = _stageFromTimeline(tStage);
       activeDssCrop = crop;
       activeDssStage = stage;
+
       dssAnalysis = _dssEngine.analyze(
         DssInput(
           crop: crop,
@@ -252,16 +348,63 @@ class StationDashboardController extends ChangeNotifier {
           trends: trends,
           monitoring: monitoringStatus,
           irrigationProfile: irrigationProfile,
+          daysAfterSowing: das,
+          cycleDays: timeline.totalDays,
+          pastHarvest: timeline.isPastHarvest(das),
         ),
       );
       dssErrorMessage = null;
+      _lastDssSignature = signature;
     } catch (error) {
       dssErrorMessage = error.toString();
     }
+  }
 
-    if (notify) {
-      notifyListeners();
+  String _trendsSignature(StationTrends? value) {
+    if (value == null) return '';
+    final parts = <String>['${value.hours}'];
+    final keys = value.series.keys.toList()..sort();
+    for (final key in keys) {
+      final points = value.series[key] ?? const <TrendPoint>[];
+      final last = points.isEmpty ? null : points.last.timestamp;
+      parts.add('$key:${points.length}:${last?.toIso8601String() ?? ''}');
     }
+    return parts.join(',');
+  }
+
+  DssCropStage _stageFromTimeline(TimelineStage s) {
+    return DssCropStage(
+      name: s.name,
+      moistureLower: s.moistureLower,
+      moistureUpper: s.moistureUpper,
+      sensitivity: s.sensitivity,
+      nDemand: s.nDemand,
+      pDemand: s.pDemand,
+      kDemand: s.kDemand,
+      actionNote: s.focus,
+      startDay: s.startDay,
+      endDay: s.endDay,
+      tempOptMin: s.tempOptMin,
+      tempOptMax: s.tempOptMax,
+      icon: s.icon,
+    );
+  }
+
+  /// Change the selected crop (by timeline id) and rebuild the advisory.
+  Future<void> setCrop(String cropId) async {
+    if (cropId == selectedCropId) return;
+    selectedCropId = cropId;
+    await refreshDss(notify: false);
+    notifyListeners();
+  }
+
+  /// Change the sowing date (auto-recomputes the growth stage) and rebuild.
+  Future<void> setSowingDate(DateTime date) async {
+    final normalized = DateTime(date.year, date.month, date.day);
+    if (normalized == sowingDate) return;
+    sowingDate = normalized;
+    await refreshDss(notify: false);
+    notifyListeners();
   }
 
   Future<void> refreshGpsReading({bool notify = true}) async {
