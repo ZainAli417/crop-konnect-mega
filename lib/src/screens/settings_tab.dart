@@ -27,10 +27,10 @@ class _T {
   static const Color kSub = Color(0xFF5A6B7C);
 
   static BoxDecoration card() => BoxDecoration(
-    color: kCard,
-    borderRadius: BorderRadius.circular(kCardRadius),
-    border: Border.all(color: kBorder, width: 1),
-  );
+        color: kCard,
+        borderRadius: BorderRadius.circular(kCardRadius),
+        border: Border.all(color: kBorder, width: 1),
+      );
 
   static TextStyle micro({
     double size = 9,
@@ -64,29 +64,6 @@ class _T {
           letterSpacing: spacing);
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const List<_RegionOption> _regionOptions = [
-  _RegionOption(label: 'Pakistan', timezone: 'Asia/Karachi'),
-  _RegionOption(label: 'India', timezone: 'Asia/Kolkata'),
-  _RegionOption(label: 'UAE', timezone: 'Asia/Dubai'),
-  _RegionOption(label: 'Saudi Arabia', timezone: 'Asia/Riyadh'),
-  _RegionOption(label: 'UK', timezone: 'Europe/London'),
-  _RegionOption(label: 'US Eastern', timezone: 'America/New_York'),
-  _RegionOption(label: 'US Central', timezone: 'America/Chicago'),
-  _RegionOption(label: 'US Pacific', timezone: 'America/Los_Angeles'),
-];
-
-const Map<String, String> _dayLabels = {
-  'mon': 'M',
-  'tue': 'T',
-  'wed': 'W',
-  'thu': 'T',
-  'fri': 'F',
-  'sat': 'S',
-  'sun': 'S',
-};
-
 // ─── Settings Tab ─────────────────────────────────────────────────────────────
 
 class SettingsTab extends StatefulWidget {
@@ -108,12 +85,6 @@ class SettingsTab extends StatefulWidget {
 class _SettingsTabState extends State<SettingsTab> {
   int? _pollIntervalSeconds;
   double? _interReadDelay;
-  bool? _scheduleEnabled;
-  Set<String>? _selectedDays;
-  String? _startTime;
-  String? _endTime;
-  String? _timezone;
-  String? _region;
 
   @override
   void initState() {
@@ -126,12 +97,6 @@ class _SettingsTabState extends State<SettingsTab> {
     if (s == null) return;
     _pollIntervalSeconds ??= s.polling.pollIntervalSeconds;
     _interReadDelay ??= s.polling.interReadDelayMs.toDouble();
-    _scheduleEnabled ??= s.polling.schedule.enabled;
-    _selectedDays ??= s.polling.schedule.days.toSet();
-    _startTime ??= s.polling.schedule.startTime;
-    _endTime ??= s.polling.schedule.endTime;
-    _timezone ??= s.polling.schedule.timezone;
-    _region ??= s.polling.schedule.region;
   }
 
   @override
@@ -163,6 +128,10 @@ class _SettingsTabState extends State<SettingsTab> {
               const SizedBox(height: 8),
               _ModeSwitcher(
                   mode: widget.mode, onSelected: widget.onModeChanged),
+              if (widget.controller.errorMessage != null) ...[
+                const SizedBox(height: 10),
+                _SettingsErrorStrip(message: widget.controller.errorMessage!),
+              ],
 
               if (settings == null) ...[
                 const SizedBox(height: 32),
@@ -177,73 +146,45 @@ class _SettingsTabState extends State<SettingsTab> {
                   final wide = constraints.maxWidth >= _T.kColBreak;
                   return wide
                       ? _WideLayout(
-                    settings: settings,
-                    busy: busy,
-                    controller: widget.controller,
-                    pollIntervalSeconds: _pollIntervalSeconds!,
-                    interReadDelay: _interReadDelay!,
-                    scheduleEnabled: _scheduleEnabled!,
-                    selectedDays: _selectedDays!,
-                    startTime: _startTime!,
-                    endTime: _endTime!,
-                    timezone: _timezone!,
-                    region: _region!,
-                    onIntervalChanged: (v) {
-                      setState(() => _pollIntervalSeconds = v);
-                      widget.controller
-                          .updatePolling(pollIntervalSeconds: v);
-                    },
-                    onDelayChanged: (v) =>
-                        setState(() => _interReadDelay = v),
-                    onDelayEnd: (v) => widget.controller.updatePolling(
-                        interReadDelayMs: v.round()),
-                    onToggleSensor: (k, val) =>
-                        widget.controller.setSensorEnabled(k, val),
-                    onEnabled: _onScheduleEnabled,
-                    onDayToggle: _toggleDay,
-                    onTimePick: _pickScheduleTime,
-                    onRegionSelect: _selectRegion,
-                    onModeChanged: (m) => widget.controller
-                        .updateSchedule(
-                        StationScheduleSettingsPatch(mode: m)),
-                    onIntervalDaysChanged: (d) =>
-                        widget.controller.updateSchedule(
-                            StationScheduleSettingsPatch(intervalDays: d)),
-                  )
+                          settings: settings,
+                          busy: busy,
+                          controller: widget.controller,
+                          pollIntervalSeconds: _pollIntervalSeconds!,
+                          interReadDelay: _interReadDelay!,
+                          onIntervalChanged: (v) {
+                            setState(() => _pollIntervalSeconds = v);
+                            widget.controller
+                                .updatePolling(pollIntervalSeconds: v);
+                          },
+                          onDelayChanged: (v) =>
+                              setState(() => _interReadDelay = v),
+                          onDelayEnd: (v) => widget.controller
+                              .updatePolling(interReadDelayMs: v.round()),
+                          onToggleSensor: (k, val) =>
+                              widget.controller.setSensorEnabled(k, val),
+                          onSensorIntervalChanged:
+                              widget.controller.updateSensorInterval,
+                        )
                       : _NarrowLayout(
-                    settings: settings,
-                    busy: busy,
-                    controller: widget.controller,
-                    pollIntervalSeconds: _pollIntervalSeconds!,
-                    interReadDelay: _interReadDelay!,
-                    scheduleEnabled: _scheduleEnabled!,
-                    selectedDays: _selectedDays!,
-                    startTime: _startTime!,
-                    endTime: _endTime!,
-                    timezone: _timezone!,
-                    region: _region!,
-                    onIntervalChanged: (v) {
-                      setState(() => _pollIntervalSeconds = v);
-                      widget.controller
-                          .updatePolling(pollIntervalSeconds: v);
-                    },
-                    onDelayChanged: (v) =>
-                        setState(() => _interReadDelay = v),
-                    onDelayEnd: (v) => widget.controller.updatePolling(
-                        interReadDelayMs: v.round()),
-                    onToggleSensor: (k, val) =>
-                        widget.controller.setSensorEnabled(k, val),
-                    onEnabled: _onScheduleEnabled,
-                    onDayToggle: _toggleDay,
-                    onTimePick: _pickScheduleTime,
-                    onRegionSelect: _selectRegion,
-                    onModeChanged: (m) => widget.controller
-                        .updateSchedule(
-                        StationScheduleSettingsPatch(mode: m)),
-                    onIntervalDaysChanged: (d) =>
-                        widget.controller.updateSchedule(
-                            StationScheduleSettingsPatch(intervalDays: d)),
-                  );
+                          settings: settings,
+                          busy: busy,
+                          controller: widget.controller,
+                          pollIntervalSeconds: _pollIntervalSeconds!,
+                          interReadDelay: _interReadDelay!,
+                          onIntervalChanged: (v) {
+                            setState(() => _pollIntervalSeconds = v);
+                            widget.controller
+                                .updatePolling(pollIntervalSeconds: v);
+                          },
+                          onDelayChanged: (v) =>
+                              setState(() => _interReadDelay = v),
+                          onDelayEnd: (v) => widget.controller
+                              .updatePolling(interReadDelayMs: v.round()),
+                          onToggleSensor: (k, val) =>
+                              widget.controller.setSensorEnabled(k, val),
+                          onSensorIntervalChanged:
+                              widget.controller.updateSensorInterval,
+                        );
                 }),
               ],
             ],
@@ -252,54 +193,41 @@ class _SettingsTabState extends State<SettingsTab> {
       },
     );
   }
+}
 
-  void _onScheduleEnabled(bool v) {
-    setState(() => _scheduleEnabled = v);
-    widget.controller
-        .updateSchedule(StationScheduleSettingsPatch(enabled: v));
-  }
+class _SettingsErrorStrip extends StatelessWidget {
+  const _SettingsErrorStrip({required this.message});
 
-  Future<void> _toggleDay(String day) async {
-    final keys = _dayLabels.keys.toList();
-    final days = Set<String>.from(_selectedDays ?? keys);
-    days.contains(day) ? days.remove(day) : days.add(day);
-    if (days.isEmpty) return;
-    final ordered = keys.where(days.contains).toList();
-    setState(() => _selectedDays = ordered.toSet());
-    await widget.controller
-        .updateSchedule(StationScheduleSettingsPatch(days: ordered));
-  }
+  final String message;
 
-  Future<void> _pickScheduleTime(bool isStart) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _parseTime(isStart ? _startTime : _endTime),
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF1F2),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFFECACA)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.error_outline_rounded,
+              size: 18, color: Color(0xFFBE123C)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: _T.body(
+                size: 12,
+                weight: FontWeight.w700,
+                color: const Color(0xFF9F1239),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
-    if (picked == null) return;
-    final fmt =
-        '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-    setState(() => isStart ? _startTime = fmt : _endTime = fmt);
-    await widget.controller.updateSchedule(StationScheduleSettingsPatch(
-      startTime: isStart ? fmt : null,
-      endTime: isStart ? null : fmt,
-    ));
-  }
-
-  Future<void> _selectRegion(String tz) async {
-    final opt = _regionOptions.firstWhere((o) => o.timezone == tz,
-        orElse: () => _RegionOption(label: tz, timezone: tz));
-    setState(() {
-      _timezone = tz;
-      _region = opt.label;
-    });
-    await widget.controller.updateSchedule(
-        StationScheduleSettingsPatch(timezone: tz, region: opt.label));
-  }
-
-  TimeOfDay _parseTime(String? v) {
-    final p = (v ?? '00:00').split(':');
-    return TimeOfDay(
-        hour: int.tryParse(p[0]) ?? 0, minute: int.tryParse(p[1]) ?? 0);
   }
 }
 
@@ -312,22 +240,11 @@ class _WideLayout extends StatelessWidget {
     required this.controller,
     required this.pollIntervalSeconds,
     required this.interReadDelay,
-    required this.scheduleEnabled,
-    required this.selectedDays,
-    required this.startTime,
-    required this.endTime,
-    required this.timezone,
-    required this.region,
     required this.onIntervalChanged,
     required this.onDelayChanged,
     required this.onDelayEnd,
     required this.onToggleSensor,
-    required this.onEnabled,
-    required this.onDayToggle,
-    required this.onTimePick,
-    required this.onRegionSelect,
-    required this.onModeChanged,
-    required this.onIntervalDaysChanged,
+    required this.onSensorIntervalChanged,
   });
 
   final StationSettings settings;
@@ -335,19 +252,11 @@ class _WideLayout extends StatelessWidget {
   final StationDashboardController controller;
   final int pollIntervalSeconds;
   final double interReadDelay;
-  final bool scheduleEnabled;
-  final Set<String> selectedDays;
-  final String startTime, endTime, timezone, region;
   final ValueChanged<int> onIntervalChanged;
   final ValueChanged<double> onDelayChanged;
   final ValueChanged<double> onDelayEnd;
   final void Function(String, bool) onToggleSensor;
-  final ValueChanged<bool> onEnabled;
-  final ValueChanged<String> onDayToggle;
-  final ValueChanged<bool> onTimePick;
-  final ValueChanged<String> onRegionSelect;
-  final ValueChanged<String> onModeChanged;
-  final ValueChanged<int> onIntervalDaysChanged;
+  final void Function(String, int) onSensorIntervalChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -366,8 +275,7 @@ class _WideLayout extends StatelessWidget {
               ),
               const SizedBox(height: _T.kGap),
               _SectionLabel(
-                  title: 'Sensor Modules',
-                  sub: 'Enable / disable sensors'),
+                  title: 'Sensor Modules', sub: 'Enable / disable sensors'),
               const SizedBox(height: 8),
               _SensorTogglesCard(
                   sensors: settings.sensors,
@@ -383,8 +291,7 @@ class _WideLayout extends StatelessWidget {
           child: Column(
             children: [
               _SectionLabel(
-                  title: 'Polling Config',
-                  sub: 'Hardware & polling matrix'),
+                  title: 'Backend Loop', sub: 'Fallback poll and read gap'),
               const SizedBox(height: 8),
               _PollingCard(
                 interval: pollIntervalSeconds,
@@ -397,24 +304,14 @@ class _WideLayout extends StatelessWidget {
               ),
               const SizedBox(height: _T.kGap),
               _SectionLabel(
-                  title: 'Sampling Schedule',
-                  sub: 'Time-window or interval mode'),
+                  title: 'Sensor Intervals',
+                  sub: 'Dedicated read timing per sensor'),
               const SizedBox(height: 8),
-              _ScheduleCard(
-                schedule: settings.polling.schedule,
-                enabled: scheduleEnabled,
-                selectedDays: selectedDays,
-                startTime: startTime,
-                endTime: endTime,
-                timezone: timezone,
-                region: region,
+              _SensorIntervalsCard(
+                sensors: settings.sensors,
+                intervals: settings.polling.sensorIntervals,
                 busy: busy,
-                onEnabled: onEnabled,
-                onDayToggle: onDayToggle,
-                onTimePick: onTimePick,
-                onRegionSelect: onRegionSelect,
-                onModeChanged: onModeChanged,
-                onIntervalDaysChanged: onIntervalDaysChanged,
+                onChanged: onSensorIntervalChanged,
               ),
             ],
           ),
@@ -431,22 +328,11 @@ class _NarrowLayout extends StatelessWidget {
     required this.controller,
     required this.pollIntervalSeconds,
     required this.interReadDelay,
-    required this.scheduleEnabled,
-    required this.selectedDays,
-    required this.startTime,
-    required this.endTime,
-    required this.timezone,
-    required this.region,
     required this.onIntervalChanged,
     required this.onDelayChanged,
     required this.onDelayEnd,
     required this.onToggleSensor,
-    required this.onEnabled,
-    required this.onDayToggle,
-    required this.onTimePick,
-    required this.onRegionSelect,
-    required this.onModeChanged,
-    required this.onIntervalDaysChanged,
+    required this.onSensorIntervalChanged,
   });
 
   final StationSettings settings;
@@ -454,19 +340,11 @@ class _NarrowLayout extends StatelessWidget {
   final StationDashboardController controller;
   final int pollIntervalSeconds;
   final double interReadDelay;
-  final bool scheduleEnabled;
-  final Set<String> selectedDays;
-  final String startTime, endTime, timezone, region;
   final ValueChanged<int> onIntervalChanged;
   final ValueChanged<double> onDelayChanged;
   final ValueChanged<double> onDelayEnd;
   final void Function(String, bool) onToggleSensor;
-  final ValueChanged<bool> onEnabled;
-  final ValueChanged<String> onDayToggle;
-  final ValueChanged<bool> onTimePick;
-  final ValueChanged<String> onRegionSelect;
-  final ValueChanged<String> onModeChanged;
-  final ValueChanged<int> onIntervalDaysChanged;
+  final void Function(String, int) onSensorIntervalChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -484,7 +362,7 @@ class _NarrowLayout extends StatelessWidget {
         _SensorTogglesCard(
             sensors: settings.sensors, busy: busy, onToggle: onToggleSensor),
         const SizedBox(height: _T.kGap + 4),
-        _SectionLabel(title: 'Polling Config', sub: 'Hardware & polling matrix'),
+        _SectionLabel(title: 'Backend Loop', sub: 'Fallback poll and read gap'),
         const SizedBox(height: 8),
         _PollingCard(
           interval: pollIntervalSeconds,
@@ -497,23 +375,13 @@ class _NarrowLayout extends StatelessWidget {
         ),
         const SizedBox(height: _T.kGap + 4),
         _SectionLabel(
-            title: 'Sampling Schedule', sub: 'Time-window or interval mode'),
+            title: 'Sensor Intervals', sub: 'Dedicated read timing per sensor'),
         const SizedBox(height: 8),
-        _ScheduleCard(
-          schedule: settings.polling.schedule,
-          enabled: scheduleEnabled,
-          selectedDays: selectedDays,
-          startTime: startTime,
-          endTime: endTime,
-          timezone: timezone,
-          region: region,
+        _SensorIntervalsCard(
+          sensors: settings.sensors,
+          intervals: settings.polling.sensorIntervals,
           busy: busy,
-          onEnabled: onEnabled,
-          onDayToggle: onDayToggle,
-          onTimePick: onTimePick,
-          onRegionSelect: onRegionSelect,
-          onModeChanged: onModeChanged,
-          onIntervalDaysChanged: onIntervalDaysChanged,
+          onChanged: onSensorIntervalChanged,
         ),
       ],
     );
@@ -543,7 +411,7 @@ class _PageHeader extends StatelessWidget {
           children: [
             Text('Station Settings', style: _T.heading(size: 20)),
             Text(
-              'Configure sensors, polling & schedule',
+              'Configure sensors, polling & intervals',
               style: _T.micro(size: 11, spacing: 0),
             ),
           ],
@@ -623,9 +491,9 @@ class _ModeSwitcher extends StatelessWidget {
 class _ModeChip extends StatelessWidget {
   const _ModeChip(
       {required this.label,
-        required this.icon,
-        required this.sel,
-        required this.onTap});
+      required this.icon,
+      required this.sel,
+      required this.onTap});
 
   final String label;
   final IconData icon;
@@ -651,10 +519,7 @@ class _ModeChip extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon,
-                  size: 18,
-                  color:
-                  sel ? AppTokens.primary : _T.kMuted),
+              Icon(icon, size: 18, color: sel ? AppTokens.primary : _T.kMuted),
               const SizedBox(height: 3),
               Text(label,
                   style: _T.micro(
@@ -694,8 +559,8 @@ class _StationInfoCard extends StatelessWidget {
               color: AppTokens.primary.withValues(alpha: 0.09),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(Icons.router_rounded,
-                color: AppTokens.primary, size: 20),
+            child:
+                Icon(Icons.router_rounded, color: AppTokens.primary, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -705,8 +570,7 @@ class _StationInfoCard extends StatelessWidget {
                 Text(stationName ?? 'ESS Station',
                     style: _T.body(size: 14, weight: FontWeight.w800)),
                 const SizedBox(height: 2),
-                Text('ID · $deviceId',
-                    style: _T.micro(size: 10, spacing: 0.4)),
+                Text('ID · $deviceId', style: _T.micro(size: 10, spacing: 0.4)),
               ],
             ),
           ),
@@ -718,7 +582,9 @@ class _StationInfoCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   _fmtDate(updatedAt!),
-                  style: _T.body(size: 11, weight: FontWeight.w800,
+                  style: _T.body(
+                      size: 11,
+                      weight: FontWeight.w800,
                       color: AppTokens.primary),
                 ),
               ],
@@ -740,17 +606,14 @@ class _StationInfoCard extends StatelessWidget {
 
 class _SensorTogglesCard extends StatelessWidget {
   const _SensorTogglesCard(
-      {required this.sensors,
-        required this.busy,
-        required this.onToggle});
+      {required this.sensors, required this.busy, required this.onToggle});
 
   final StationSensorSettings sensors;
   final bool busy;
   final void Function(String, bool) onToggle;
 
   static const _items = [
-    (Icons.air_rounded, 'Wind Speed', 'wind_speed'),
-    (Icons.explore_rounded, 'Wind Direction', 'wind_direction'),
+    (Icons.air_rounded, 'Wind Sensor', 'wind'),
     (Icons.water_drop_rounded, 'Soil Sensors', 'soil'),
     (Icons.grain_rounded, 'Rain Gauge', 'rain'),
     (Icons.wb_sunny_rounded, 'Solar / UV', 'uv'),
@@ -758,12 +621,16 @@ class _SensorTogglesCard extends StatelessWidget {
 
   bool _val(String key, StationSensorSettings s) {
     switch (key) {
-      case 'wind_speed': return s.windSpeedEnabled;
-      case 'wind_direction': return s.windDirectionEnabled;
-      case 'soil': return s.soilEnabled;
-      case 'rain': return s.rainEnabled;
-      case 'uv': return s.uvEnabled;
-      default: return false;
+      case 'wind':
+        return s.windEnabled;
+      case 'soil':
+        return s.soilEnabled;
+      case 'rain':
+        return s.rainEnabled;
+      case 'uv':
+        return s.uvEnabled;
+      default:
+        return false;
     }
   }
 
@@ -774,14 +641,18 @@ class _SensorTogglesCard extends StatelessWidget {
       child: Column(
         children: List.generate(_items.length * 2 - 1, (i) {
           if (i.isOdd) {
-            return const Divider(height: 1, thickness: 1, color: _T.kDivider,
-                indent: _T.kPad, endIndent: _T.kPad);
+            return const Divider(
+                height: 1,
+                thickness: 1,
+                color: _T.kDivider,
+                indent: _T.kPad,
+                endIndent: _T.kPad);
           }
           final item = _items[i ~/ 2];
           final enabled = _val(item.$3, sensors);
           return Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: _T.kPad, vertical: 10),
+            padding:
+                const EdgeInsets.symmetric(horizontal: _T.kPad, vertical: 10),
             child: Row(
               children: [
                 AnimatedContainer(
@@ -795,8 +666,7 @@ class _SensorTogglesCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(item.$1,
-                      size: 15,
-                      color: enabled ? AppTokens.primary : _T.kMuted),
+                      size: 15, color: enabled ? AppTokens.primary : _T.kMuted),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -812,13 +682,10 @@ class _SensorTogglesCard extends StatelessWidget {
                   child: Switch.adaptive(
                     value: enabled,
                     activeThumbColor: AppTokens.primary,
-                    activeTrackColor:
-                    AppTokens.primary.withValues(alpha: 0.20),
+                    activeTrackColor: AppTokens.primary.withValues(alpha: 0.20),
                     inactiveThumbColor: const Color(0xFFCDD5DF),
                     inactiveTrackColor: const Color(0xFFEDF0F4),
-                    onChanged: busy
-                        ? null
-                        : (v) => onToggle(item.$3, v),
+                    onChanged: busy ? null : (v) => onToggle(item.$3, v),
                   ),
                 ),
               ],
@@ -862,7 +729,7 @@ class _PollingCard extends StatelessWidget {
           // ── Interval ──
           _RowLabel(
             icon: Icons.timer_outlined,
-            title: 'Polling Frequency',
+            title: 'Fallback Poll',
             badge: _fmtInterval(interval),
             badgeColor: AppTokens.primary,
           ),
@@ -873,11 +740,15 @@ class _PollingCard extends StatelessWidget {
             icon: Icons.repeat_rounded,
             items: ({5, 15, 30, 60, 300, 3600, interval}.toList()..sort())
                 .map((s) => DropdownMenuItem(
-              value: s,
-              child: Text('Every ${_fmtInterval(s)}'),
-            ))
+                      value: s,
+                      child: Text(_fmtEveryInterval(s)),
+                    ))
                 .toList(),
-            onChanged: busy ? null : (v) { if (v != null) onIntervalChanged(v); },
+            onChanged: busy
+                ? null
+                : (v) {
+                    if (v != null) onIntervalChanged(v);
+                  },
           ),
 
           const SizedBox(height: _T.kPad),
@@ -895,10 +766,8 @@ class _PollingCard extends StatelessWidget {
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
               trackHeight: 3,
-              thumbShape:
-              const RoundSliderThumbShape(enabledThumbRadius: 7),
-              overlayShape:
-              const RoundSliderOverlayShape(overlayRadius: 14),
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
               activeTrackColor: AppTokens.primary,
               inactiveTrackColor: _T.kChipBg,
               thumbColor: AppTokens.primary,
@@ -930,8 +799,7 @@ class _PollingCard extends StatelessWidget {
             runSpacing: 6,
             children: List.generate(sensorReadOrder.length, (i) {
               return Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 9, vertical: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                 decoration: BoxDecoration(
                   color: _T.kChipBg,
                   borderRadius: BorderRadius.circular(7),
@@ -948,10 +816,7 @@ class _PollingCard extends StatelessWidget {
                             weight: FontWeight.w800)),
                     const SizedBox(width: 5),
                     Text(sensorReadOrder[i].toUpperCase(),
-                        style: _T.micro(
-                            size: 9,
-                            spacing: 0.7,
-                            color: _T.kSub)),
+                        style: _T.micro(size: 9, spacing: 0.7, color: _T.kSub)),
                   ],
                 ),
               );
@@ -963,321 +828,152 @@ class _PollingCard extends StatelessWidget {
   }
 }
 
-// ─── Schedule Card ────────────────────────────────────────────────────────────
+// ─── Sensor Intervals Card ─────────────────────────────────────────────────────
 
-class _ScheduleCard extends StatelessWidget {
-  const _ScheduleCard({
-    required this.schedule,
-    required this.enabled,
-    required this.selectedDays,
-    required this.startTime,
-    required this.endTime,
-    required this.timezone,
-    required this.region,
+class _SensorIntervalsCard extends StatelessWidget {
+  const _SensorIntervalsCard({
+    required this.sensors,
+    required this.intervals,
     required this.busy,
-    required this.onEnabled,
-    required this.onDayToggle,
-    required this.onTimePick,
-    required this.onRegionSelect,
-    required this.onModeChanged,
-    required this.onIntervalDaysChanged,
+    required this.onChanged,
   });
 
-  final StationScheduleSettings schedule;
-  final bool enabled;
-  final Set<String> selectedDays;
-  final String startTime, endTime, timezone, region;
+  final StationSensorSettings sensors;
+  final Map<String, SensorIntervalSettings> intervals;
   final bool busy;
-  final ValueChanged<bool> onEnabled;
-  final ValueChanged<String> onDayToggle;
-  final ValueChanged<bool> onTimePick;
-  final ValueChanged<String> onRegionSelect;
-  final ValueChanged<String> onModeChanged;
-  final ValueChanged<int> onIntervalDaysChanged;
+  final void Function(String, int) onChanged;
 
-  bool get _isWindow => schedule.mode == 'window';
+  static const _items = [
+    (Icons.air_rounded, 'Wind Sensor', 'wind', Color(0xFF0EA5E9)),
+    (Icons.water_drop_rounded, 'Soil Sensors', 'soil', Color(0xFF10B981)),
+    (Icons.grain_rounded, 'Rain Gauge', 'rain', Color(0xFF6366F1)),
+    (Icons.wb_sunny_rounded, 'Solar / UV', 'uv', Color(0xFFF59E0B)),
+  ];
+
+  static const List<int> _intervalOptions = <int>[
+    5,
+    15,
+    30,
+    60,
+    120,
+    300,
+    600,
+    900,
+    1800,
+    2700,
+    3600,
+    7200,
+    14400,
+    21600,
+    43200,
+    86400,
+  ];
+
+  bool _sensorEnabled(String key) {
+    switch (key) {
+      case 'wind':
+        return sensors.windEnabled;
+      case 'soil':
+        return sensors.soilEnabled;
+      case 'rain':
+        return sensors.rainEnabled;
+      case 'uv':
+        return sensors.uvEnabled;
+      default:
+        return false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(_T.kPad),
       decoration: _T.card(),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Toggle row
-          Row(
-            children: [
-              Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: enabled
-                      ? AppTokens.primary.withValues(alpha: 0.10)
-                      : _T.kChipBg,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(Icons.calendar_today_rounded,
-                    size: 14,
-                    color: enabled ? AppTokens.primary : _T.kMuted),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Sampling Schedule',
-                        style: _T.body(size: 13, weight: FontWeight.w800)),
-                    Text(enabled ? 'Active' : 'Disabled',
-                        style: _T.micro(
-                            size: 10,
-                            spacing: 0,
-                            color: enabled
-                                ? AppTokens.primary
-                                : _T.kMuted)),
-                  ],
-                ),
-              ),
-              Transform.scale(
-                scale: 0.82,
-                alignment: Alignment.centerRight,
-                child: Switch.adaptive(
-                  value: enabled,
-                  activeThumbColor: AppTokens.primary,
-                  activeTrackColor: AppTokens.primary.withValues(alpha: 0.20),
-                  inactiveThumbColor: const Color(0xFFCDD5DF),
-                  inactiveTrackColor: const Color(0xFFEDF0F4),
-                  onChanged: busy ? null : onEnabled,
-                ),
-              ),
-            ],
-          ),
-
-          if (enabled) ...[
-            const SizedBox(height: _T.kPad),
-            const Divider(height: 1, color: _T.kDivider),
-            const SizedBox(height: _T.kPad),
-
-            // Mode toggle pill
-            _ModeTogglePill(
-                currentMode: schedule.mode,
-                busy: busy,
-                onChanged: onModeChanged),
-
-            const SizedBox(height: _T.kPad),
-
-            // Region
-            Row(
+        children: List.generate(_items.length * 2 - 1, (i) {
+          if (i.isOdd) {
+            return const Divider(
+              height: 1,
+              thickness: 1,
+              color: _T.kDivider,
+              indent: _T.kPad,
+              endIndent: _T.kPad,
+            );
+          }
+          final item = _items[i ~/ 2];
+          final key = item.$3;
+          final enabled = _sensorEnabled(key);
+          final current =
+              intervals[key]?.intervalSeconds ?? kDefaultSensorIntervalSeconds;
+          final options = ({..._intervalOptions, current}.toList()..sort());
+          return Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: _T.kPad, vertical: 10),
+            child: Row(
               children: [
-                Text('REGION', style: _T.micro(size: 9, spacing: 1.1)),
-                const SizedBox(width: 8),
-                Expanded(
-                    child: Divider(color: _T.kBorder, thickness: 1)),
-              ],
-            ),
-            const SizedBox(height: 6),
-            _TintedDropdown<String>(
-              value: timezone,
-              accentColor: const Color(0xFF0EA5E9),
-              icon: Icons.public_rounded,
-              items: (() {
-                final opts = _regionOptions
-                    .map((o) => DropdownMenuItem(
-                  value: o.timezone,
-                  child: Text('${o.label}  ·  ${o.timezone}',
-                      overflow: TextOverflow.ellipsis),
-                ))
-                    .toList();
-                if (!_regionOptions.any((o) => o.timezone == timezone)) {
-                  opts.add(DropdownMenuItem(
-                      value: timezone,
-                      child: Text('Custom · $timezone',
-                          overflow: TextOverflow.ellipsis)));
-                }
-                return opts;
-              })(),
-              onChanged: busy
-                  ? null
-                  : (v) { if (v != null) onRegionSelect(v); },
-            ),
-
-            const SizedBox(height: _T.kPad),
-
-            if (_isWindow) ...[
-              // Day picker
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: _dayLabels.entries.map((e) {
-                  final sel = selectedDays.contains(e.key);
-                  return GestureDetector(
-                    onTap: busy ? null : () => onDayToggle(e.key),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 180),
-                      width: 34,
-                      height: 34,
-                      decoration: BoxDecoration(
-                        color: sel
-                            ? AppTokens.primary
-                            : _T.kChipBg,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: sel
-                              ? AppTokens.primary
-                              : _T.kBorder,
-                          width: 1,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(e.value,
-                            style: _T.micro(
-                                size: 11,
-                                spacing: 0,
-                                weight: FontWeight.w800,
-                                color: sel
-                                    ? Colors.white
-                                    : _T.kMuted)),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: _T.kPad),
-
-              // Time tiles
-              Row(
-                children: [
-                  Expanded(
-                      child: _TimeTileCompact(
-                          label: 'Start',
-                          time: startTime,
-                          onTap: () => onTimePick(true))),
-                  const SizedBox(width: _T.kGap),
-                  Expanded(
-                      child: _TimeTileCompact(
-                          label: 'End',
-                          time: endTime,
-                          onTap: () => onTimePick(false))),
-                ],
-              ),
-            ] else ...[
-              // Interval mode
-              Row(
-                children: [
-                  Text('REPEAT EVERY', style: _T.micro(size: 9, spacing: 1.1)),
-                  const SizedBox(width: 8),
-                  Expanded(child: Divider(color: _T.kBorder)),
-                ],
-              ),
-              const SizedBox(height: 6),
-              _TintedDropdown<int>(
-                value: schedule.intervalDays,
-                accentColor: const Color(0xFFF59E0B),
-                icon: Icons.repeat_one_rounded,
-                items: List.generate(30, (i) => i + 1)
-                    .map((d) => DropdownMenuItem(
-                  value: d,
-                  child: Text(
-                      '$d ${d == 1 ? 'Day' : 'Days'}'),
-                ))
-                    .toList(),
-                onChanged: busy
-                    ? null
-                    : (v) {
-                  if (v != null) onIntervalDaysChanged(v);
-                },
-              ),
-
-              if (schedule.runTimes.isNotEmpty) ...[
-                const SizedBox(height: _T.kPad),
-                _RowLabel(
-                  icon: Icons.access_time_rounded,
-                  title: 'Run Times',
-                  badge: '${schedule.runTimes.length}',
-                  badgeColor: const Color(0xFFF59E0B),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: schedule.runTimes
-                      .map((t) => Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 9, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFFBEB),
-                      borderRadius: BorderRadius.circular(7),
-                      border: Border.all(
-                          color: const Color(0xFFFDE68A)),
-                    ),
-                    child: Text(t,
-                        style: _T.body(
-                            size: 11,
-                            weight: FontWeight.w800,
-                            color: const Color(0xFFB45309))),
-                  ))
-                      .toList(),
-                ),
-              ],
-            ],
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Mode Toggle Pill ─────────────────────────────────────────────────────────
-
-class _ModeTogglePill extends StatelessWidget {
-  const _ModeTogglePill(
-      {required this.currentMode,
-        required this.busy,
-        required this.onChanged});
-
-  final String currentMode;
-  final bool busy;
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        color: _T.kChipBg,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: _T.kBorder),
-      ),
-      child: Row(
-        children: ['window', 'interval'].map((m) {
-          final sel = currentMode == m;
-          return Expanded(
-            child: GestureDetector(
-              onTap: busy ? null : () => onChanged(m),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  color: sel ? Colors.white : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                  border: sel
-                      ? Border.all(color: _T.kBorder, width: 1)
-                      : null,
-                ),
-                child: Center(
-                  child: Text(
-                    m == 'window' ? 'Window' : 'Interval',
-                    style: _T.micro(
-                      size: 11,
-                      spacing: 0,
-                      weight: FontWeight.w800,
-                      color: sel ? _T.kText : _T.kMuted,
-                    ),
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color:
+                        enabled ? item.$4.withValues(alpha: 0.10) : _T.kChipBg,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    item.$1,
+                    size: 15,
+                    color: enabled ? item.$4 : _T.kMuted,
                   ),
                 ),
-              ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.$2,
+                        style: _T.body(
+                          size: 13,
+                          weight: FontWeight.w800,
+                          color: enabled ? _T.kText : _T.kMuted,
+                        ),
+                      ),
+                      Text(
+                        enabled ? _fmtEveryInterval(current) : 'Off',
+                        style: _T.micro(
+                          size: 10,
+                          spacing: 0,
+                          color: enabled ? item.$4 : _T.kMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                SizedBox(
+                  width: 150,
+                  child: _TintedDropdown<int>(
+                    value: current,
+                    accentColor: item.$4,
+                    icon: Icons.timer_outlined,
+                    items: options
+                        .map(
+                          (seconds) => DropdownMenuItem<int>(
+                            value: seconds,
+                            child: Text(_fmtEveryInterval(seconds)),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: busy || !enabled
+                        ? null
+                        : (value) {
+                            if (value != null) onChanged(key, value);
+                          },
+                  ),
+                ),
+              ],
             ),
           );
-        }).toList(),
+        }),
       ),
     );
   }
@@ -1307,14 +1003,14 @@ class _TintedDropdown<T> extends StatelessWidget {
       decoration: BoxDecoration(
         color: accentColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(_T.kInnerRadius),
-        border: Border.all(color: accentColor.withValues(alpha: 0.18), width: 1),
+        border:
+            Border.all(color: accentColor.withValues(alpha: 0.18), width: 1),
       ),
       child: DropdownButtonFormField<T>(
         initialValue: value,
         isExpanded: true,
         dropdownColor: Colors.white,
-        icon: Icon(Icons.unfold_more_rounded,
-            size: 16, color: _T.kMuted),
+        icon: Icon(Icons.unfold_more_rounded, size: 16, color: _T.kMuted),
         style: _T.body(size: 13),
         decoration: InputDecoration(
           prefixIcon: Padding(
@@ -1322,64 +1018,16 @@ class _TintedDropdown<T> extends StatelessWidget {
             child: Icon(icon, size: 15, color: accentColor),
           ),
           prefixIconConstraints:
-          const BoxConstraints(minWidth: 32, minHeight: 0),
+              const BoxConstraints(minWidth: 32, minHeight: 0),
           filled: false,
           contentPadding:
-          const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
         ),
         items: items,
         onChanged: onChanged,
-      ),
-    );
-  }
-}
-
-/// Compact time tile
-class _TimeTileCompact extends StatelessWidget {
-  const _TimeTileCompact(
-      {required this.label, required this.time, required this.onTap});
-
-  final String label, time;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding:
-        const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppTokens.primary.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(_T.kInnerRadius),
-          border: Border.all(
-              color: AppTokens.primary.withValues(alpha: 0.18), width: 1),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.access_time_rounded,
-                size: 14, color: AppTokens.primary),
-            const SizedBox(width: 7),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label.toUpperCase(),
-                    style: _T.micro(
-                        size: 8,
-                        spacing: 0.8,
-                        color: AppTokens.primary)),
-                Text(time,
-                    style: _T.body(
-                        size: 14,
-                        weight: FontWeight.w800,
-                        color: _T.kText)),
-              ],
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -1406,10 +1054,9 @@ class _RowLabel extends StatelessWidget {
         const SizedBox(width: 6),
         Expanded(
             child:
-            Text(title, style: _T.body(size: 12, weight: FontWeight.w700))),
+                Text(title, style: _T.body(size: 12, weight: FontWeight.w700))),
         Container(
-          padding:
-          const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
           decoration: BoxDecoration(
             color: badgeColor.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(5),
@@ -1434,7 +1081,7 @@ String _fmtInterval(int s) {
   return '${s ~/ 3600}h';
 }
 
-class _RegionOption {
-  const _RegionOption({required this.label, required this.timezone});
-  final String label, timezone;
+String _fmtEveryInterval(int seconds) {
+  if (seconds == 5) return 'Live (5s)';
+  return 'Every ${_fmtInterval(seconds)}';
 }

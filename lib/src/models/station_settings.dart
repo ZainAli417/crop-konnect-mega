@@ -1,3 +1,92 @@
+List<String> _normalizeSensorReadOrder(Iterable<String> values) {
+  final order = <String>[];
+
+  void add(String key) {
+    if (key.isNotEmpty && !order.contains(key)) {
+      order.add(key);
+    }
+  }
+
+  for (final value in values) {
+    final key = value.trim().toLowerCase();
+    if (key == 'wind' || key == 'wind_sensor') {
+      add('wind_speed');
+      add('wind_direction');
+    } else if (key == 'solar') {
+      add('uv');
+    } else {
+      add(key);
+    }
+  }
+
+  return order;
+}
+
+const int kDefaultSensorIntervalSeconds = 3600;
+
+const Map<String, int> kDefaultSensorIntervals = <String, int>{
+  'wind': kDefaultSensorIntervalSeconds,
+  'soil': kDefaultSensorIntervalSeconds,
+  'rain': kDefaultSensorIntervalSeconds,
+  'uv': kDefaultSensorIntervalSeconds,
+};
+
+String _normalizeSensorIntervalKey(String value) {
+  final key = value.trim().toLowerCase();
+  if (key == 'wind' ||
+      key == 'wind_sensor' ||
+      key == 'wind_speed' ||
+      key == 'wind_direction') {
+    return 'wind';
+  }
+  return key == 'solar' ? 'uv' : key;
+}
+
+int _readsPerDayFromIntervalSeconds(int intervalSeconds) {
+  final safeInterval = intervalSeconds < 1 ? 1 : intervalSeconds;
+  final reads = (86400 / safeInterval).round();
+  return reads < 1 ? 1 : reads;
+}
+
+int? _intervalSecondsFromCadence(Map<String, dynamic> value) {
+  final intervalSeconds = (value['interval_seconds'] as num?)?.toInt();
+  if (intervalSeconds != null && intervalSeconds > 0) {
+    return intervalSeconds;
+  }
+  final readsPerDay = (value['reads_per_day'] as num?)?.toInt();
+  if (readsPerDay != null && readsPerDay > 0) {
+    return (86400 / readsPerDay).round();
+  }
+  return null;
+}
+
+Map<String, SensorIntervalSettings> _parseSensorIntervals(
+  Map<String, dynamic>? json,
+) {
+  final intervals = <String, SensorIntervalSettings>{
+    for (final entry in kDefaultSensorIntervals.entries)
+      entry.key: SensorIntervalSettings(
+        enabled: false,
+        intervalSeconds: entry.value,
+      ),
+  };
+  final rawItems = json?['items'];
+  if (rawItems is Map) {
+    rawItems.forEach((rawKey, rawValue) {
+      if (rawValue is! Map) return;
+      final key = _normalizeSensorIntervalKey(rawKey.toString());
+      if (!intervals.containsKey(key)) return;
+      final value = Map<String, dynamic>.from(rawValue);
+      intervals[key] = SensorIntervalSettings(
+        enabled: value['enabled'] == true,
+        intervalSeconds:
+            _intervalSecondsFromCadence(value) ?? kDefaultSensorIntervalSeconds,
+      );
+    });
+  }
+  return intervals;
+}
+
 class StationSettings {
   const StationSettings({
     required this.deviceId,
@@ -43,6 +132,8 @@ class StationSensorSettings {
   final bool rainEnabled;
   final bool uvEnabled;
 
+  bool get windEnabled => windSpeedEnabled || windDirectionEnabled;
+
   factory StationSensorSettings.fromJson(Map<String, dynamic> json) {
     bool enabledFor(String key) {
       final raw = json[key];
@@ -67,21 +158,18 @@ class StationPollingSettings {
     required this.pollIntervalSeconds,
     required this.interReadDelayMs,
     required this.sensorReadOrder,
-    required this.schedule,
+    required this.sensorIntervals,
   });
 
   final int pollIntervalSeconds;
   final int interReadDelayMs;
   final List<String> sensorReadOrder;
-  final StationScheduleSettings schedule;
+  final Map<String, SensorIntervalSettings> sensorIntervals;
 
   factory StationPollingSettings.fromJson(Map<String, dynamic> json) {
     final rawOrder = json['sensor_read_order'];
     final order = rawOrder is List
-        ? rawOrder
-            .whereType<String>()
-            .map((value) => value.toLowerCase())
-            .toList()
+        ? _normalizeSensorReadOrder(rawOrder.whereType<String>())
         : <String>[];
 
     return StationPollingSettings(
@@ -89,69 +177,20 @@ class StationPollingSettings {
           (json['poll_interval_seconds'] as num?)?.toInt() ?? 0,
       interReadDelayMs: (json['inter_read_delay_ms'] as num?)?.toInt() ?? 0,
       sensorReadOrder: order,
-      schedule: StationScheduleSettings.fromJson(
-          json['schedule'] as Map<String, dynamic>? ?? <String, dynamic>{}),
+      sensorIntervals: _parseSensorIntervals(
+          json['sensor_schedule'] as Map<String, dynamic>?),
     );
   }
 }
 
-class StationScheduleSettings {
-  const StationScheduleSettings({
+class SensorIntervalSettings {
+  const SensorIntervalSettings({
     required this.enabled,
-    required this.mode,
-    required this.intervalDays,
-    required this.runTimes,
-    required this.anchorDate,
-    required this.days,
-    required this.startTime,
-    required this.endTime,
-    required this.timezone,
-    required this.region,
+    required this.intervalSeconds,
   });
 
   final bool enabled;
-  final String mode;
-  final int intervalDays;
-  final List<String> runTimes;
-  final DateTime? anchorDate;
-  final List<String> days;
-  final String startTime;
-  final String endTime;
-  final String timezone;
-  final String region;
-
-  factory StationScheduleSettings.fromJson(Map<String, dynamic> json) {
-    final rawDays = json['days'];
-    final days = rawDays is List
-        ? rawDays
-            .whereType<String>()
-            .map((value) => value.toLowerCase())
-            .toList()
-        : const <String>[];
-    final rawRunTimes = json['run_times'];
-    final runTimes = rawRunTimes is List
-        ? rawRunTimes
-            .whereType<String>()
-            .map((value) => value.trim())
-            .where((value) => value.isNotEmpty)
-            .toList()
-        : <String>[];
-
-    return StationScheduleSettings(
-      enabled: json['enabled'] == true,
-      mode: (json['mode'] as String? ?? 'window').toLowerCase(),
-      intervalDays: (json['interval_days'] as num?)?.toInt() ?? 1,
-      runTimes: runTimes,
-      anchorDate: json['anchor_date'] == null
-          ? null
-          : DateTime.tryParse(json['anchor_date'].toString())?.toLocal(),
-      days: days,
-      startTime: json['start_time'] as String? ?? '00:00',
-      endTime: json['end_time'] as String? ?? '23:59',
-      timezone: json['timezone'] as String? ?? 'Asia/Karachi',
-      region: json['region'] as String? ?? 'Pakistan',
-    );
-  }
+  final int intervalSeconds;
 }
 
 class StationSettingsPatch {
@@ -160,22 +199,30 @@ class StationSettingsPatch {
     this.pollIntervalSeconds,
     this.interReadDelayMs,
     this.sensorReadOrder,
-    this.schedule,
+    this.sensorIntervals,
   });
 
   final Map<String, bool>? sensorEnabled;
   final int? pollIntervalSeconds;
   final int? interReadDelayMs;
   final List<String>? sensorReadOrder;
-  final StationScheduleSettingsPatch? schedule;
+  final Map<String, int>? sensorIntervals;
 
   Map<String, dynamic> toJson() {
     final payload = <String, dynamic>{};
 
     if (sensorEnabled != null && sensorEnabled!.isNotEmpty) {
-      payload['sensors'] = sensorEnabled!.map(
+      final sensors = sensorEnabled!.map(
         (key, value) => MapEntry(key, <String, dynamic>{'enabled': value}),
       );
+      if (sensors.containsKey('wind')) {
+        final enabled = sensorEnabled!['wind'] ?? false;
+        sensors
+          ..remove('wind')
+          ..['wind_speed'] = <String, dynamic>{'enabled': enabled}
+          ..['wind_direction'] = <String, dynamic>{'enabled': enabled};
+      }
+      payload['sensors'] = sensors;
     }
 
     final polling = <String, dynamic>{};
@@ -186,10 +233,19 @@ class StationSettingsPatch {
       polling['inter_read_delay_ms'] = interReadDelayMs;
     }
     if (sensorReadOrder != null && sensorReadOrder!.isNotEmpty) {
-      polling['sensor_read_order'] = sensorReadOrder;
+      polling['sensor_read_order'] =
+          _normalizeSensorReadOrder(sensorReadOrder!);
     }
-    if (schedule != null) {
-      polling['schedule'] = schedule!.toJson();
+    if (sensorIntervals != null && sensorIntervals!.isNotEmpty) {
+      final items = <String, dynamic>{};
+      sensorIntervals!.forEach((key, intervalSeconds) {
+        final normalized = _normalizeSensorIntervalKey(key);
+        items[normalized] = <String, dynamic>{
+          'mode': 'reads_per_day',
+          'reads_per_day': _readsPerDayFromIntervalSeconds(intervalSeconds),
+        };
+      });
+      polling['sensor_schedule'] = <String, dynamic>{'items': items};
     }
     if (polling.isNotEmpty) {
       payload['polling'] = polling;
@@ -197,73 +253,4 @@ class StationSettingsPatch {
 
     return payload;
   }
-}
-
-class StationScheduleSettingsPatch {
-  const StationScheduleSettingsPatch({
-    this.enabled,
-    this.mode,
-    this.intervalDays,
-    this.runTimes,
-    this.anchorDate,
-    this.days,
-    this.startTime,
-    this.endTime,
-    this.timezone,
-    this.region,
-  });
-
-  final bool? enabled;
-  final String? mode;
-  final int? intervalDays;
-  final List<String>? runTimes;
-  final DateTime? anchorDate;
-  final List<String>? days;
-  final String? startTime;
-  final String? endTime;
-  final String? timezone;
-  final String? region;
-
-  Map<String, dynamic> toJson() {
-    final payload = <String, dynamic>{};
-    if (enabled != null) {
-      payload['enabled'] = enabled;
-    }
-    if (mode != null) {
-      payload['mode'] = mode;
-    }
-    if (intervalDays != null) {
-      payload['interval_days'] = intervalDays;
-    }
-    if (runTimes != null) {
-      payload['run_times'] = runTimes;
-    }
-    if (anchorDate != null) {
-      payload['anchor_date'] = _formatDate(anchorDate!);
-    }
-    if (days != null) {
-      payload['days'] = days;
-    }
-    if (startTime != null) {
-      payload['start_time'] = startTime;
-    }
-    if (endTime != null) {
-      payload['end_time'] = endTime;
-    }
-    if (timezone != null) {
-      payload['timezone'] = timezone;
-    }
-    if (region != null) {
-      payload['region'] = region;
-    }
-    return payload;
-  }
-}
-
-String _formatDate(DateTime value) {
-  final local = value.toLocal();
-  final year = local.year.toString().padLeft(4, '0');
-  final month = local.month.toString().padLeft(2, '0');
-  final day = local.day.toString().padLeft(2, '0');
-  return '$year-$month-$day';
 }

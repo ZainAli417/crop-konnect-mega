@@ -21,15 +21,21 @@ class MockStationDataSource implements StationDataSource {
 
   int _tick = 0;
   final Map<String, bool> _sensorEnabled = <String, bool>{
-    'wind_speed': true,
-    'wind_direction': true,
-    'soil': true,
-    'rain': true,
-    'uv': true,
+    'wind_speed': false,
+    'wind_direction': false,
+    'soil': false,
+    'rain': false,
+    'uv': false,
   };
 
   int _pollIntervalSeconds = 12;
   int _interReadDelayMs = 700;
+  final Map<String, int> _sensorIntervals = <String, int>{
+    'wind': kDefaultSensorIntervalSeconds,
+    'soil': kDefaultSensorIntervalSeconds,
+    'rain': kDefaultSensorIntervalSeconds,
+    'uv': kDefaultSensorIntervalSeconds,
+  };
   List<String> _sensorReadOrder = <String>[
     'uv',
     'wind_speed',
@@ -37,24 +43,6 @@ class MockStationDataSource implements StationDataSource {
     'soil',
     'rain'
   ];
-  bool _scheduleEnabled = false;
-  String _scheduleMode = 'window';
-  int _scheduleIntervalDays = 1;
-  List<String> _scheduleRunTimes = <String>[];
-  DateTime? _scheduleAnchorDate;
-  List<String> _scheduleDays = <String>[
-    'mon',
-    'tue',
-    'wed',
-    'thu',
-    'fri',
-    'sat',
-    'sun'
-  ];
-  String _scheduleStartTime = '00:00';
-  String _scheduleEndTime = '23:59';
-  String _scheduleTimezone = 'Asia/Karachi';
-  String _scheduleRegion = 'Pakistan';
   String _crop = 'Wheat';
   String _cropStage = 'Flowering';
   bool _smartIrrigationEnabled = false;
@@ -148,7 +136,7 @@ class MockStationDataSource implements StationDataSource {
     final alerts = _buildAlerts(reading, conditions);
 
     SensorHealth healthFor(String key) {
-      final enabled = _sensorEnabled[key] ?? true;
+      final enabled = _sensorEnabled[key] ?? false;
       if (!enabled) {
         return const SensorHealth(
             status: 'disabled', freshness: 'disabled', lastUpdated: null);
@@ -170,16 +158,16 @@ class MockStationDataSource implements StationDataSource {
               : 'normal',
       sensorHealth: {
         'wind': SensorHealth(
-          status: (_sensorEnabled['wind_speed'] ?? true) ||
-                  (_sensorEnabled['wind_direction'] ?? true)
+          status: (_sensorEnabled['wind_speed'] ?? false) ||
+                  (_sensorEnabled['wind_direction'] ?? false)
               ? 'online'
               : 'disabled',
-          freshness: (_sensorEnabled['wind_speed'] ?? true) ||
-                  (_sensorEnabled['wind_direction'] ?? true)
+          freshness: (_sensorEnabled['wind_speed'] ?? false) ||
+                  (_sensorEnabled['wind_direction'] ?? false)
               ? 'fresh'
               : 'disabled',
-          lastUpdated: (_sensorEnabled['wind_speed'] ?? true) ||
-                  (_sensorEnabled['wind_direction'] ?? true)
+          lastUpdated: (_sensorEnabled['wind_speed'] ?? false) ||
+                  (_sensorEnabled['wind_direction'] ?? false)
               ? reading.recordedAt
               : null,
         ),
@@ -272,22 +260,22 @@ class MockStationDataSource implements StationDataSource {
       stationName: stationName,
       recordedAt: now,
       receivedAt: now,
-      ws: (_sensorEnabled['wind_speed'] ?? true) ? ws : null,
-      wdDeg: (_sensorEnabled['wind_direction'] ?? true)
+      ws: (_sensorEnabled['wind_speed'] ?? false) ? ws : null,
+      wdDeg: (_sensorEnabled['wind_direction'] ?? false)
           ? directionIndex * 22.5
           : null,
-      wdDir: (_sensorEnabled['wind_direction'] ?? true)
+      wdDir: (_sensorEnabled['wind_direction'] ?? false)
           ? directions[directionIndex]
           : null,
-      moist: (_sensorEnabled['soil'] ?? true) ? moist : null,
-      temp: (_sensorEnabled['soil'] ?? true) ? temp : null,
-      ec: (_sensorEnabled['soil'] ?? true) ? ec : null,
-      n: (_sensorEnabled['soil'] ?? true) ? 20.0 : null,
-      p: (_sensorEnabled['soil'] ?? true) ? 1.5 : null,
-      k: (_sensorEnabled['soil'] ?? true) ? 2.1 : null,
-      ph: (_sensorEnabled['soil'] ?? true) ? 0.53 : null,
-      rain: (_sensorEnabled['rain'] ?? true) ? rain : null,
-      solar: (_sensorEnabled['uv'] ?? true) ? uv : null,
+      moist: (_sensorEnabled['soil'] ?? false) ? moist : null,
+      temp: (_sensorEnabled['soil'] ?? false) ? temp : null,
+      ec: (_sensorEnabled['soil'] ?? false) ? ec : null,
+      n: (_sensorEnabled['soil'] ?? false) ? 20.0 : null,
+      p: (_sensorEnabled['soil'] ?? false) ? 1.5 : null,
+      k: (_sensorEnabled['soil'] ?? false) ? 2.1 : null,
+      ph: (_sensorEnabled['soil'] ?? false) ? 0.53 : null,
+      rain: (_sensorEnabled['rain'] ?? false) ? rain : null,
+      solar: (_sensorEnabled['uv'] ?? false) ? uv : null,
     );
   }
 
@@ -361,28 +349,26 @@ class MockStationDataSource implements StationDataSource {
       deviceId: deviceId,
       stationName: stationName,
       sensors: StationSensorSettings(
-        windSpeedEnabled: _sensorEnabled['wind_speed'] ?? true,
-        windDirectionEnabled: _sensorEnabled['wind_direction'] ?? true,
-        soilEnabled: _sensorEnabled['soil'] ?? true,
-        rainEnabled: _sensorEnabled['rain'] ?? true,
-        uvEnabled: _sensorEnabled['uv'] ?? true,
+        windSpeedEnabled: _sensorEnabled['wind_speed'] ?? false,
+        windDirectionEnabled: _sensorEnabled['wind_direction'] ?? false,
+        soilEnabled: _sensorEnabled['soil'] ?? false,
+        rainEnabled: _sensorEnabled['rain'] ?? false,
+        uvEnabled: _sensorEnabled['uv'] ?? false,
       ),
       polling: StationPollingSettings(
         pollIntervalSeconds: _pollIntervalSeconds,
         interReadDelayMs: _interReadDelayMs,
         sensorReadOrder: _sensorReadOrder,
-        schedule: StationScheduleSettings(
-          enabled: _scheduleEnabled,
-          mode: _scheduleMode,
-          intervalDays: _scheduleIntervalDays,
-          runTimes: _scheduleRunTimes,
-          anchorDate: _scheduleAnchorDate,
-          days: _scheduleDays,
-          startTime: _scheduleStartTime,
-          endTime: _scheduleEndTime,
-          timezone: _scheduleTimezone,
-          region: _scheduleRegion,
-        ),
+        sensorIntervals: <String, SensorIntervalSettings>{
+          for (final entry in _sensorIntervals.entries)
+            entry.key: SensorIntervalSettings(
+              enabled: entry.key == 'wind'
+                  ? ((_sensorEnabled['wind_speed'] ?? false) ||
+                      (_sensorEnabled['wind_direction'] ?? false))
+                  : (_sensorEnabled[entry.key] ?? false),
+              intervalSeconds: entry.value,
+            ),
+        },
       ),
       updatedAt: DateTime.now(),
     );
@@ -391,7 +377,14 @@ class MockStationDataSource implements StationDataSource {
   @override
   Future<StationSettings> patchSettings(StationSettingsPatch patch) async {
     if (patch.sensorEnabled != null) {
-      _sensorEnabled.addAll(patch.sensorEnabled!);
+      patch.sensorEnabled!.forEach((key, enabled) {
+        if (key == 'wind') {
+          _sensorEnabled['wind_speed'] = enabled;
+          _sensorEnabled['wind_direction'] = enabled;
+        } else {
+          _sensorEnabled[key] = enabled;
+        }
+      });
     }
     if (patch.pollIntervalSeconds != null) {
       final value = patch.pollIntervalSeconds!;
@@ -412,19 +405,10 @@ class MockStationDataSource implements StationDataSource {
     if (patch.sensorReadOrder != null && patch.sensorReadOrder!.isNotEmpty) {
       _sensorReadOrder = patch.sensorReadOrder!;
     }
-    final schedule = patch.schedule;
-    if (schedule != null) {
-      _scheduleEnabled = schedule.enabled ?? _scheduleEnabled;
-      _scheduleMode = schedule.mode ?? _scheduleMode;
-      _scheduleIntervalDays = schedule.intervalDays ?? _scheduleIntervalDays;
-      _scheduleRunTimes = schedule.runTimes ?? _scheduleRunTimes;
-      _scheduleAnchorDate = schedule.anchorDate ?? _scheduleAnchorDate;
-      _scheduleDays = schedule.days ?? _scheduleDays;
-      _scheduleStartTime = schedule.startTime ?? _scheduleStartTime;
-      _scheduleEndTime = schedule.endTime ?? _scheduleEndTime;
-      _scheduleTimezone = schedule.timezone ?? _scheduleTimezone;
-      _scheduleRegion = schedule.region ?? _scheduleRegion;
-    }
+    patch.sensorIntervals?.forEach((key, value) {
+      final normalized = key == 'solar' ? 'uv' : key;
+      _sensorIntervals[normalized] = value < 1 ? 1 : value;
+    });
     return fetchSettings();
   }
 

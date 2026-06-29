@@ -214,11 +214,15 @@ class SupabaseStationDataSource implements StationDataSource {
     }
 
     final rows = await _sendList(
-      'PATCH',
-      _restUri('station_settings', <String, String>{
-        'station_id': 'eq.${station.id}',
+      'POST',
+      _restUri('station_settings', const <String, String>{
+        'on_conflict': 'station_id',
       }),
-      payload,
+      <String, dynamic>{
+        'station_id': station.id,
+        ...payload,
+      },
+      prefer: 'resolution=merge-duplicates,return=representation',
     );
 
     if (rows.isEmpty) {
@@ -376,17 +380,19 @@ class SupabaseStationDataSource implements StationDataSource {
   Future<List<Map<String, dynamic>>> _sendList(
     String method,
     Uri uri,
-    Map<String, dynamic> payload,
-  ) async {
+    Map<String, dynamic> payload, {
+    String? prefer,
+  }) async {
+    final headers = _writeHeaders(prefer: prefer);
     final response = switch (method.toUpperCase()) {
       'PATCH' => await _httpClient.patch(
           uri,
-          headers: _writeHeaders(),
+          headers: headers,
           body: jsonEncode(payload),
         ),
       'POST' => await _httpClient.post(
           uri,
-          headers: _writeHeaders(),
+          headers: headers,
           body: jsonEncode(payload),
         ),
       _ => throw UnsupportedError('Unsupported method: $method'),
@@ -428,20 +434,12 @@ class SupabaseStationDataSource implements StationDataSource {
     };
   }
 
-  Map<String, String> _writeHeaders() {
+  Map<String, String> _writeHeaders({String? prefer}) {
     return <String, String>{
       ..._baseHeaders(),
       'Content-Type': 'application/json',
-      'Prefer': 'return=representation',
+      'Prefer': prefer ?? 'return=representation',
     };
-  }
-
-  static String _formatDate(DateTime value) {
-    final local = value.toLocal();
-    final year = local.year.toString().padLeft(4, '0');
-    final month = local.month.toString().padLeft(2, '0');
-    final day = local.day.toString().padLeft(2, '0');
-    return '$year-$month-$day';
   }
 
   SensorReading _readingFromRow(Map<String, dynamic> row) {
@@ -488,36 +486,26 @@ class SupabaseStationDataSource implements StationDataSource {
       deviceId: station.deviceId,
       stationName: station.name,
       sensors: StationSensorSettings(
-        windSpeedEnabled: row['wind_speed_enabled'] != false,
-        windDirectionEnabled: row['wind_direction_enabled'] != false,
-        soilEnabled: row['soil_enabled'] != false,
-        rainEnabled: row['rain_enabled'] != false,
-        uvEnabled: row['uv_enabled'] != false,
+        windSpeedEnabled: row['wind_speed_enabled'] == true,
+        windDirectionEnabled: row['wind_direction_enabled'] == true,
+        soilEnabled: row['soil_enabled'] == true,
+        rainEnabled: row['rain_enabled'] == true,
+        uvEnabled: row['uv_enabled'] == true,
       ),
       polling: StationPollingSettings(
         pollIntervalSeconds:
             (row['poll_interval_seconds'] as num?)?.toInt() ?? 5,
         interReadDelayMs: (row['inter_read_delay_ms'] as num?)?.toInt() ?? 250,
         sensorReadOrder: _readOrderFromValue(row['sensor_read_order']),
-        schedule: StationScheduleSettings(
-          enabled: row['schedule_enabled'] == true,
-          mode: row['schedule_mode'] as String? ?? 'window',
-          intervalDays: (row['schedule_interval_days'] as num?)?.toInt() ?? 1,
-          runTimes: _csv(row['schedule_run_times']),
-          anchorDate: _parseDateTime(row['schedule_anchor_date']),
-          days: _csv(row['schedule_days'], fallback: const <String>[
-            'mon',
-            'tue',
-            'wed',
-            'thu',
-            'fri',
-            'sat',
-            'sun',
-          ]),
-          startTime: row['schedule_start_time'] as String? ?? '00:00',
-          endTime: row['schedule_end_time'] as String? ?? '23:59',
-          timezone: row['schedule_timezone'] as String? ?? 'Asia/Karachi',
-          region: row['schedule_region'] as String? ?? 'Pakistan',
+        sensorIntervals: _sensorIntervalsFromScheduleJson(
+          row['sensor_read_schedule_json'],
+          enabled: <String, bool>{
+            'wind': row['wind_speed_enabled'] == true ||
+                row['wind_direction_enabled'] == true,
+            'soil': row['soil_enabled'] == true,
+            'rain': row['rain_enabled'] == true,
+            'uv': row['uv_enabled'] == true,
+          },
         ),
       ),
       updatedAt: _parseDateTime(row['updated_at']),
@@ -529,11 +517,11 @@ class SupabaseStationDataSource implements StationDataSource {
       deviceId: station.deviceId,
       stationName: station.name,
       sensors: const StationSensorSettings(
-        windSpeedEnabled: true,
-        windDirectionEnabled: true,
-        soilEnabled: true,
-        rainEnabled: true,
-        uvEnabled: true,
+        windSpeedEnabled: false,
+        windDirectionEnabled: false,
+        soilEnabled: false,
+        rainEnabled: false,
+        uvEnabled: false,
       ),
       polling: const StationPollingSettings(
         pollIntervalSeconds: 5,
@@ -545,18 +533,24 @@ class SupabaseStationDataSource implements StationDataSource {
           'soil',
           'rain',
         ],
-        schedule: StationScheduleSettings(
-          enabled: false,
-          mode: 'window',
-          intervalDays: 1,
-          runTimes: <String>[],
-          anchorDate: null,
-          days: <String>['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
-          startTime: '00:00',
-          endTime: '23:59',
-          timezone: 'Asia/Karachi',
-          region: 'Pakistan',
-        ),
+        sensorIntervals: <String, SensorIntervalSettings>{
+          'wind': SensorIntervalSettings(
+            enabled: false,
+            intervalSeconds: kDefaultSensorIntervalSeconds,
+          ),
+          'soil': SensorIntervalSettings(
+            enabled: false,
+            intervalSeconds: kDefaultSensorIntervalSeconds,
+          ),
+          'rain': SensorIntervalSettings(
+            enabled: false,
+            intervalSeconds: kDefaultSensorIntervalSeconds,
+          ),
+          'uv': SensorIntervalSettings(
+            enabled: false,
+            intervalSeconds: kDefaultSensorIntervalSeconds,
+          ),
+        },
       ),
       updatedAt: null,
     );
@@ -567,6 +561,10 @@ class SupabaseStationDataSource implements StationDataSource {
 
     patch.sensorEnabled?.forEach((key, enabled) {
       switch (_normalizeSensorKey(key)) {
+        case 'wind':
+          payload['wind_speed_enabled'] = enabled;
+          payload['wind_direction_enabled'] = enabled;
+          break;
         case 'wind_speed':
           payload['wind_speed_enabled'] = enabled;
           break;
@@ -593,47 +591,111 @@ class SupabaseStationDataSource implements StationDataSource {
     }
     if (patch.sensorReadOrder != null && patch.sensorReadOrder!.isNotEmpty) {
       payload['sensor_read_order'] =
-          patch.sensorReadOrder!.map(_normalizeSensorKey).join(',');
+          _normalizeReadOrder(patch.sensorReadOrder!).join(',');
     }
-
-    final schedule = patch.schedule;
-    if (schedule != null) {
-      if (schedule.enabled != null) {
-        payload['schedule_enabled'] = schedule.enabled;
-      }
-      if (schedule.mode != null) {
-        payload['schedule_mode'] = schedule.mode;
-      }
-      if (schedule.intervalDays != null) {
-        payload['schedule_interval_days'] = schedule.intervalDays;
-      }
-      if (schedule.runTimes != null) {
-        payload['schedule_run_times'] = schedule.runTimes!.join(',');
-      }
-      if (schedule.anchorDate != null) {
-        payload['schedule_anchor_date'] = _formatDate(schedule.anchorDate!);
-      }
-      if (schedule.days != null) {
-        payload['schedule_days'] = schedule.days!.join(',');
-      }
-      if (schedule.startTime != null) {
-        payload['schedule_start_time'] = schedule.startTime;
-      }
-      if (schedule.endTime != null) {
-        payload['schedule_end_time'] = schedule.endTime;
-      }
-      if (schedule.timezone != null) {
-        payload['schedule_timezone'] = schedule.timezone;
-      }
-      if (schedule.region != null) {
-        payload['schedule_region'] = schedule.region;
-      }
+    if (patch.sensorIntervals != null && patch.sensorIntervals!.isNotEmpty) {
+      payload['sensor_read_schedule_json'] =
+          _sensorIntervalsToScheduleJson(patch.sensorIntervals!);
     }
 
     if (payload.isNotEmpty) {
       payload['updated_at'] = DateTime.now().toUtc().toIso8601String();
     }
     return payload;
+  }
+
+  Map<String, SensorIntervalSettings> _sensorIntervalsFromScheduleJson(
+    dynamic raw, {
+    Map<String, bool> enabled = const <String, bool>{},
+  }) {
+    final intervals = <String, SensorIntervalSettings>{
+      'wind': SensorIntervalSettings(
+        enabled: enabled['wind'] ?? false,
+        intervalSeconds: kDefaultSensorIntervalSeconds,
+      ),
+      'soil': SensorIntervalSettings(
+        enabled: enabled['soil'] ?? false,
+        intervalSeconds: kDefaultSensorIntervalSeconds,
+      ),
+      'rain': SensorIntervalSettings(
+        enabled: enabled['rain'] ?? false,
+        intervalSeconds: kDefaultSensorIntervalSeconds,
+      ),
+      'uv': SensorIntervalSettings(
+        enabled: enabled['uv'] ?? false,
+        intervalSeconds: kDefaultSensorIntervalSeconds,
+      ),
+    };
+    dynamic decoded = raw;
+    if (raw is String && raw.trim().isNotEmpty) {
+      try {
+        decoded = jsonDecode(raw);
+      } catch (_) {
+        decoded = null;
+      }
+    }
+    if (decoded is! Map) {
+      return intervals;
+    }
+    decoded.forEach((rawKey, rawValue) {
+      if (rawValue is! Map) return;
+      final key = _normalizeIntervalKey(rawKey.toString());
+      if (!intervals.containsKey(key)) return;
+      final intervalSeconds = _intervalSecondsFromScheduleItem(rawValue);
+      intervals[key] = SensorIntervalSettings(
+        enabled: enabled[key] ?? false,
+        intervalSeconds: intervalSeconds ?? kDefaultSensorIntervalSeconds,
+      );
+    });
+    return intervals;
+  }
+
+  String _sensorIntervalsToScheduleJson(Map<String, int> sensorIntervals) {
+    final plan = <String, dynamic>{};
+    sensorIntervals.forEach((rawKey, intervalSeconds) {
+      final key = _normalizeIntervalKey(rawKey);
+      final readsPerDay = _readsPerDayFromIntervalSeconds(intervalSeconds);
+      final item = <String, dynamic>{
+        'mode': 'reads_per_day',
+        'reads_per_day': readsPerDay,
+      };
+      if (key == 'wind') {
+        plan['wind_speed'] = item;
+        plan['wind_direction'] = Map<String, dynamic>.from(item);
+      } else {
+        plan[key] = item;
+      }
+    });
+    return jsonEncode(plan);
+  }
+
+  String _normalizeIntervalKey(String value) {
+    final key = value.trim().toLowerCase();
+    if (key == 'wind' ||
+        key == 'wind_sensor' ||
+        key == 'wind_speed' ||
+        key == 'wind_direction') {
+      return 'wind';
+    }
+    return key == 'solar' ? 'uv' : key;
+  }
+
+  int _readsPerDayFromIntervalSeconds(int intervalSeconds) {
+    final safeInterval = intervalSeconds < 1 ? 1 : intervalSeconds;
+    final reads = (86400 / safeInterval).round();
+    return reads < 1 ? 1 : reads;
+  }
+
+  int? _intervalSecondsFromScheduleItem(Map<dynamic, dynamic> item) {
+    final rawInterval = item['interval_seconds'];
+    if (rawInterval is num && rawInterval > 0) {
+      return rawInterval.toInt();
+    }
+    final rawReads = item['reads_per_day'];
+    if (rawReads is num && rawReads > 0) {
+      return (86400 / rawReads).round();
+    }
+    return null;
   }
 
   IrrigationProfile _profileFromRow(
@@ -879,12 +941,12 @@ class SupabaseStationDataSource implements StationDataSource {
     final sensors = settings?.sensors;
     return <String, SensorHealth>{
       'wind': health(
-        (sensors?.windSpeedEnabled ?? true) ||
-            (sensors?.windDirectionEnabled ?? true),
+        (sensors?.windSpeedEnabled ?? false) ||
+            (sensors?.windDirectionEnabled ?? false),
       ),
-      'soil': health(sensors?.soilEnabled ?? true),
-      'rain': health(sensors?.rainEnabled ?? true),
-      'uv': health(sensors?.uvEnabled ?? true),
+      'soil': health(sensors?.soilEnabled ?? false),
+      'rain': health(sensors?.rainEnabled ?? false),
+      'uv': health(sensors?.uvEnabled ?? false),
     };
   }
 
@@ -963,10 +1025,7 @@ class SupabaseStationDataSource implements StationDataSource {
   }
 
   List<String> _readOrderFromValue(dynamic value) {
-    final order = _csv(value)
-        .map(_normalizeSensorKey)
-        .where((item) => item.isNotEmpty)
-        .toList();
+    final order = _normalizeReadOrder(_csv(value));
     if (order.isEmpty) {
       return const <String>[
         'uv',
@@ -976,6 +1035,28 @@ class SupabaseStationDataSource implements StationDataSource {
         'rain',
       ];
     }
+    return order;
+  }
+
+  List<String> _normalizeReadOrder(Iterable<String> values) {
+    final order = <String>[];
+
+    void add(String key) {
+      if (key.isNotEmpty && !order.contains(key)) {
+        order.add(key);
+      }
+    }
+
+    for (final value in values) {
+      final key = _normalizeSensorKey(value);
+      if (key == 'wind') {
+        add('wind_speed');
+        add('wind_direction');
+      } else {
+        add(key);
+      }
+    }
+
     return order;
   }
 
@@ -993,6 +1074,9 @@ class SupabaseStationDataSource implements StationDataSource {
 
   String _normalizeSensorKey(String value) {
     final key = value.trim().toLowerCase();
+    if (key == 'wind' || key == 'wind_sensor') {
+      return 'wind';
+    }
     return key == 'solar' ? 'uv' : key;
   }
 

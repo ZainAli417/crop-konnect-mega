@@ -46,8 +46,7 @@ class StationDashboardController extends ChangeNotifier {
   CropTimeline? activeTimeline;
   String selectedCropId = 'wheat';
   // Default to a mid-season sowing so the timeline reads as live on first open.
-  DateTime sowingDate =
-      DateTime.now().subtract(const Duration(days: 75));
+  DateTime sowingDate = DateTime.now().subtract(const Duration(days: 75));
 
   /// Whole days since sowing (never negative).
   int get daysAfterSowing {
@@ -314,7 +313,8 @@ class StationDashboardController extends ChangeNotifier {
 
       // Resolve the selected timeline and auto-compute the current stage from
       // the sowing date — there is no manual stage picking anymore.
-      final timeline = _timelineRepository.resolve(cropTimelines, selectedCropId);
+      final timeline =
+          _timelineRepository.resolve(cropTimelines, selectedCropId);
       activeTimeline = timeline;
       selectedCropId = timeline.id;
       final das = daysAfterSowing;
@@ -335,7 +335,8 @@ class StationDashboardController extends ChangeNotifier {
       }
 
       // Crop-level agronomy from the knowledge base; stage targets from timeline.
-      final crop = _dssCropRepository.resolveCrop(dssCropProfiles, timeline.kbName);
+      final crop =
+          _dssCropRepository.resolveCrop(dssCropProfiles, timeline.kbName);
       final stage = _stageFromTimeline(tStage);
       activeDssCrop = crop;
       activeDssStage = stage;
@@ -470,9 +471,15 @@ class StationDashboardController extends ChangeNotifier {
   }
 
   Future<void> setSensorEnabled(String sensorKey, bool enabled) async {
+    final sensors = sensorKey == 'wind'
+        ? <String, bool>{
+            'wind_speed': enabled,
+            'wind_direction': enabled,
+          }
+        : <String, bool>{sensorKey: enabled};
     await patchSettings(
       StationSettingsPatch(
-        sensorEnabled: <String, bool>{sensorKey: enabled},
+        sensorEnabled: sensors,
       ),
     );
   }
@@ -505,9 +512,21 @@ class StationDashboardController extends ChangeNotifier {
     );
   }
 
-  Future<void> updateSchedule(StationScheduleSettingsPatch schedule) async {
+  Future<void> updateSensorInterval(
+      String sensorKey, int intervalSeconds) async {
+    final current = <String, int>{
+      for (final entry in kDefaultSensorIntervals.entries)
+        entry.key: entry.value,
+    };
+    final settings = stationSettings;
+    if (settings != null) {
+      settings.polling.sensorIntervals.forEach((key, value) {
+        current[key] = value.intervalSeconds;
+      });
+    }
+    current[sensorKey == 'solar' ? 'uv' : sensorKey] = intervalSeconds;
     await patchSettings(
-      StationSettingsPatch(schedule: schedule),
+      StationSettingsPatch(sensorIntervals: current),
     );
   }
 
