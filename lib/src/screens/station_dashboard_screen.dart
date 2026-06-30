@@ -1,11 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../config/app_config.dart';
 import '../services/station_data_source_factory.dart';
-import '../services/station_live_stream.dart';
 import '../viewmodels/station_dashboard_controller.dart';
 import 'dashboard_tab.dart';
 import 'dss_center_tab.dart';
@@ -20,18 +18,18 @@ class _C {
   static const forest500 = Color(0xFF16A34A);
 
   // Semantic Mappings
-  static const cyan    = forest500; // Primary active/brand color
+  static const cyan = forest500; // Primary active/brand color
   static const emerald = forest500;
-  static const amber   = Color(0xFFF59E0B);
+  static const amber = Color(0xFFF59E0B);
 
   // Neutrals — warm stone (mapped to Inks)
-  static const stone950  = Color(0xFF0C0A09);
-  static const stone900  = Color(0xFF1C1917);
-  static const stone700  = Color(0xFF44403C);
-  static const stone500  = Color(0xFF78716C);
-  static const stone400  = Color(0xFFA8A29E);
-  static const stone200  = Color(0xFFF1F5F9);
-  static const stone100  = Color(0xFFF8FAFC);
+  static const stone950 = Color(0xFF0C0A09);
+  static const stone900 = Color(0xFF1C1917);
+  static const stone700 = Color(0xFF44403C);
+  static const stone500 = Color(0xFF78716C);
+  static const stone400 = Color(0xFFA8A29E);
+  static const stone200 = Color(0xFFF1F5F9);
+  static const stone100 = Color(0xFFF8FAFC);
 
   static const ink0 = stone950;
   static const ink1 = stone900;
@@ -40,11 +38,11 @@ class _C {
   static const ink4 = stone400;
 
   // Surface
-  static const canvas   = Color(0xFFFFFFFF);
+  static const canvas = Color(0xFFFFFFFF);
   static const surface0 = Color(0xFFFFFFFF);
   static const surface1 = stone100;
   static const surface2 = stone200;
-  static const border   = stone200;
+  static const border = stone200;
 }
 
 class _Txt {
@@ -86,7 +84,6 @@ class _Txt {
         color: color,
         height: height ?? 1.5,
       );
-
 }
 
 // ─── Nav Items ────────────────────────────────────────────────────────────────
@@ -101,9 +98,9 @@ class _NavItem {
   });
   final IconData icon;
   final IconData activeIcon;
-  final String   label;
-  final String   short; // compact label for the floating bottom bar
-  final String?  badge;
+  final String label;
+  final String short; // compact label for the floating bottom bar
+  final String? badge;
 }
 
 const _navItems = <_NavItem>[
@@ -152,8 +149,8 @@ class StationDashboardScreen extends StatefulWidget {
 
   static const String routeName = '/dashboard';
 
-  final String        baseUrl;
-  final ThemeMode     themeMode;
+  final String baseUrl;
+  final ThemeMode themeMode;
   final VoidCallback? onToggleTheme;
 
   @override
@@ -163,20 +160,18 @@ class StationDashboardScreen extends StatefulWidget {
 class _StationDashboardScreenState extends State<StationDashboardScreen>
     with TickerProviderStateMixin {
   late StationDashboardController _controller;
-  late AppDataMode                _mode;
   int _currentIndex = 0;
   StationDashboardController? _tabsController;
   List<Widget>? _cachedTabs;
 
   // Entry animation
   late AnimationController _entryCtrl;
-  late Animation<double>   _entryAnim;
+  late Animation<double> _entryAnim;
 
   @override
   void initState() {
     super.initState();
-    _mode       = AppConfig.defaultDataMode;
-    _controller = _buildController(_mode)..start();
+    _controller = _buildController()..start();
 
     _entryCtrl = AnimationController(
       duration: const Duration(milliseconds: 700),
@@ -209,35 +204,15 @@ class _StationDashboardScreenState extends State<StationDashboardScreen>
     super.dispose();
   }
 
-  StationDashboardController _buildController(AppDataMode mode) {
+  StationDashboardController _buildController() {
     return StationDashboardController(
       client: StationDataSourceFactory.create(
-        mode:        mode,
-        baseUrl:     widget.baseUrl,
-        deviceId:    AppConfig.deviceId,
+        mode: AppDataMode.supabase,
+        baseUrl: widget.baseUrl,
+        deviceId: AppConfig.deviceId,
         stationName: AppConfig.stationName,
       ),
-      liveStream: mode == AppDataMode.live && AppConfig.enableLiveWebsocket
-          ? StationLiveStream(
-        baseUrl:  widget.baseUrl,
-        deviceId: AppConfig.deviceId,
-      )
-          : null,
     );
-  }
-
-  Future<void> _switchMode(AppDataMode mode) async {
-    if (mode == _mode) return;
-    final next = _buildController(mode);
-    final prev = _controller;
-    setState(() {
-      _mode       = mode;
-      _controller = next;
-      _tabsController = null;
-      _cachedTabs = null;
-    });
-    prev.dispose();
-    await next.start();
   }
 
   void _onNavTap(int index) {
@@ -252,8 +227,6 @@ class _StationDashboardScreenState extends State<StationDashboardScreen>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _QuickSettingsSheet(
-        mode:           _mode,
-        onModeChanged:  _switchMode,
         onGoToSettings: () {
           Navigator.pop(context);
           setState(() => _currentIndex = 4);
@@ -269,16 +242,14 @@ class _StationDashboardScreenState extends State<StationDashboardScreen>
     }
     final tabs = <Widget>[
       DashboardTab(
-        controller:    _controller,
+        controller: _controller,
         onSettingsTap: _showQuickSettings,
       ),
       DssCenterTab(controller: _controller),
       TrendsTab(controller: _controller),
       HealthTab(controller: _controller),
       SettingsTab(
-        controller:    _controller,
-        mode:          _mode,
-        onModeChanged: _switchMode,
+        controller: _controller,
       ),
     ];
     _tabsController = _controller;
@@ -301,60 +272,61 @@ class _StationDashboardScreenState extends State<StationDashboardScreen>
               child: _controller.isLoading && reading == null
                   ? const _SplashLoader()
                   : LayoutBuilder(
-                builder: (context, constraints) {
-                  final w    = constraints.maxWidth;
-                  final tabs = _buildTabs();
+                      builder: (context, constraints) {
+                        final w = constraints.maxWidth;
+                        final tabs = _buildTabs();
 
-                  // ── Desktop ≥ 1100 ─────────────────────────────
-                  if (w >= 1100) {
-                    return Row(children: [
-                      _SideDrawer(
-                        currentIndex: _currentIndex,
-                        onTap:        _onNavTap,
-                        stationName:  reading?.stationName ?? 'ESS Station',
-                        isLive:       _mode == AppDataMode.live,
-                      ),
-                      Expanded(
-                        child: _TabSwitcher(
-                          index:    _currentIndex,
-                          children: tabs,
-                        ),
-                      ),
-                    ]);
-                  }
+                        // ── Desktop ≥ 1100 ─────────────────────────────
+                        if (w >= 1100) {
+                          return Row(children: [
+                            _SideDrawer(
+                              currentIndex: _currentIndex,
+                              onTap: _onNavTap,
+                              stationName:
+                                  reading?.stationName ?? 'ESS Station',
+                              isLive: false,
+                            ),
+                            Expanded(
+                              child: _TabSwitcher(
+                                index: _currentIndex,
+                                children: tabs,
+                              ),
+                            ),
+                          ]);
+                        }
 
-                  // ── Tablet 600–1099 ────────────────────────────
-                  if (w >= 600) {
-                    return Row(children: [
-                      _CompactRail(
-                        currentIndex: _currentIndex,
-                        onTap:        _onNavTap,
-                        stationName:  reading?.stationName ?? 'Station',
-                      ),
-                      Expanded(
-                        child: _TabSwitcher(
-                          index:    _currentIndex,
-                          children: tabs,
-                        ),
-                      ),
-                    ]);
-                  }
+                        // ── Tablet 600–1099 ────────────────────────────
+                        if (w >= 600) {
+                          return Row(children: [
+                            _CompactRail(
+                              currentIndex: _currentIndex,
+                              onTap: _onNavTap,
+                              stationName: reading?.stationName ?? 'Station',
+                            ),
+                            Expanded(
+                              child: _TabSwitcher(
+                                index: _currentIndex,
+                                children: tabs,
+                              ),
+                            ),
+                          ]);
+                        }
 
-                  // ── Mobile < 600 ───────────────────────────────
-                  return Column(children: [
-                    Expanded(
-                      child: _TabSwitcher(
-                        index:    _currentIndex,
-                        children: tabs,
-                      ),
+                        // ── Mobile < 600 ───────────────────────────────
+                        return Column(children: [
+                          Expanded(
+                            child: _TabSwitcher(
+                              index: _currentIndex,
+                              children: tabs,
+                            ),
+                          ),
+                          _BottomNav(
+                            currentIndex: _currentIndex,
+                            onTap: _onNavTap,
+                          ),
+                        ]);
+                      },
                     ),
-                    _BottomNav(
-                      currentIndex: _currentIndex,
-                      onTap:        _onNavTap,
-                    ),
-                  ]);
-                },
-              ),
             ),
           ),
         );
@@ -368,7 +340,7 @@ class _StationDashboardScreenState extends State<StationDashboardScreen>
 
 class _TabSwitcher extends StatelessWidget {
   const _TabSwitcher({required this.index, required this.children});
-  final int          index;
+  final int index;
   final List<Widget> children;
 
   @override
@@ -395,7 +367,7 @@ class _SplashLoader extends StatefulWidget {
 class _SplashLoaderState extends State<_SplashLoader>
     with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
-  late final Animation<double>   _pulse;
+  late final Animation<double> _pulse;
 
   @override
   void initState() {
@@ -425,7 +397,8 @@ class _SplashLoaderState extends State<_SplashLoader>
             AnimatedBuilder(
               animation: _pulse,
               builder: (_, __) => Container(
-                width: 80, height: 80,
+                width: 80,
+                height: 80,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
@@ -435,13 +408,15 @@ class _SplashLoaderState extends State<_SplashLoader>
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                      color: _C.cyan.withValues(alpha: 0.28 + _pulse.value * 0.18),
+                      color:
+                          _C.cyan.withValues(alpha: 0.28 + _pulse.value * 0.18),
                       blurRadius: 36,
                       offset: const Offset(0, 12),
                     ),
                   ],
                 ),
-                child: const Icon(Icons.sensors_rounded, color: Colors.white, size: 36),
+                child: const Icon(Icons.sensors_rounded,
+                    color: Colors.white, size: 36),
               ),
             ),
 
@@ -484,7 +459,7 @@ class _LiveDot extends StatefulWidget {
 class _LiveDotState extends State<_LiveDot>
     with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
-  late final Animation<double>   _ring;
+  late final Animation<double> _ring;
 
   @override
   void initState() {
@@ -497,13 +472,17 @@ class _LiveDotState extends State<_LiveDot>
   }
 
   @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final color = widget.isLive ? _C.emerald : _C.ink3;
     return SizedBox(
-      width: 16, height: 16,
+      width: 16,
+      height: 16,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -511,7 +490,7 @@ class _LiveDotState extends State<_LiveDot>
             AnimatedBuilder(
               animation: _ring,
               builder: (_, __) => Container(
-                width:  6 + (_ring.value * 10),
+                width: 6 + (_ring.value * 10),
                 height: 6 + (_ring.value * 10),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
@@ -520,10 +499,16 @@ class _LiveDotState extends State<_LiveDot>
               ),
             ),
           Container(
-            width: 7, height: 7,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: color,
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color,
               boxShadow: widget.isLive
-                  ? [BoxShadow(color: color.withValues(alpha: 0.6), blurRadius: 6)]
+                  ? [
+                      BoxShadow(
+                          color: color.withValues(alpha: 0.6), blurRadius: 6)
+                    ]
                   : null,
             ),
           ),
@@ -539,7 +524,7 @@ class _LiveDotState extends State<_LiveDot>
 // and icons that pop & lift on selection.
 class _BottomNav extends StatelessWidget {
   const _BottomNav({required this.currentIndex, required this.onTap});
-  final int               currentIndex;
+  final int currentIndex;
   final ValueChanged<int> onTap;
 
   @override
@@ -590,8 +575,8 @@ class _BottomNavItem extends StatelessWidget {
     required this.selected,
     required this.onTap,
   });
-  final _NavItem  item;
-  final bool      selected;
+  final _NavItem item;
+  final bool selected;
   final VoidCallback onTap;
 
   @override
@@ -640,7 +625,8 @@ class _BottomNavItem extends StatelessWidget {
                     top: -5,
                     right: -7,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 1),
                       decoration: BoxDecoration(
                         color: selected ? Colors.white : _C.amber,
                         borderRadius: BorderRadius.circular(6),
@@ -691,9 +677,9 @@ class _CompactRail extends StatelessWidget {
     required this.onTap,
     required this.stationName,
   });
-  final int               currentIndex;
+  final int currentIndex;
   final ValueChanged<int> onTap;
-  final String            stationName;
+  final String stationName;
 
   @override
   Widget build(BuildContext context) {
@@ -709,7 +695,8 @@ class _CompactRail extends StatelessWidget {
 
           // Logo mark
           Container(
-            width: 44, height: 44,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
@@ -725,7 +712,8 @@ class _CompactRail extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Icon(Icons.sensors_rounded, color: Colors.white, size: 22),
+            child: const Icon(Icons.sensors_rounded,
+                color: Colors.white, size: 22),
           ),
 
           const SizedBox(height: 28),
@@ -734,11 +722,11 @@ class _CompactRail extends StatelessWidget {
             child: Column(
               children: List.generate(_navItems.length, (i) {
                 final item = _navItems[i];
-                final sel  = i == currentIndex;
+                final sel = i == currentIndex;
                 return _RailItem(
-                  item:     item,
+                  item: item,
                   selected: sel,
-                  onTap:    () => onTap(i),
+                  onTap: () => onTap(i),
                 );
               }),
             ),
@@ -749,13 +737,15 @@ class _CompactRail extends StatelessWidget {
             child: Tooltip(
               message: stationName,
               child: Container(
-                width: 40, height: 40,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: _C.surface2,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: _C.border),
                 ),
-                child: const Icon(Icons.account_circle_outlined, color: _C.ink2, size: 20),
+                child: const Icon(Icons.account_circle_outlined,
+                    color: _C.ink2, size: 20),
               ),
             ),
           ),
@@ -766,9 +756,10 @@ class _CompactRail extends StatelessWidget {
 }
 
 class _RailItem extends StatefulWidget {
-  const _RailItem({required this.item, required this.selected, required this.onTap});
-  final _NavItem     item;
-  final bool         selected;
+  const _RailItem(
+      {required this.item, required this.selected, required this.onTap});
+  final _NavItem item;
+  final bool selected;
   final VoidCallback onTap;
 
   @override
@@ -780,33 +771,33 @@ class _RailItemState extends State<_RailItem> {
 
   @override
   Widget build(BuildContext context) {
-    final sel   = widget.selected;
+    final sel = widget.selected;
     final color = sel ? _C.cyan : (_hovered ? _C.ink1 : _C.ink3);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
       child: Tooltip(
-        message:     widget.item.label,
+        message: widget.item.label,
         preferBelow: false,
         child: MouseRegion(
           // ── FIX: instant onEnter/Exit but AnimatedContainer handles color ──
           onEnter: (_) => setState(() => _hovered = true),
-          onExit:  (_) => setState(() => _hovered = false),
+          onExit: (_) => setState(() => _hovered = false),
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTap: widget.onTap,
             child: AnimatedContainer(
               // ── All color changes ease over 220 ms — no grey snap ─────────
               duration: const Duration(milliseconds: 220),
-              curve:    Curves.easeOutCubic,
-              width:    double.infinity,
-              padding:  const EdgeInsets.symmetric(vertical: 10),
+              curve: Curves.easeOutCubic,
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 10),
               decoration: BoxDecoration(
                 color: sel
                     ? _C.cyan.withValues(alpha: 0.11)
                     : _hovered
-                    ? _C.cyan.withValues(alpha: 0.05)    // ← teal, not grey
-                    : Colors.transparent,
+                        ? _C.cyan.withValues(alpha: 0.05) // ← teal, not grey
+                        : Colors.transparent,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: sel
@@ -824,15 +815,18 @@ class _RailItemState extends State<_RailItem> {
                       Icon(
                         sel ? widget.item.activeIcon : widget.item.icon,
                         color: color,
-                        size:  21,
+                        size: 21,
                       ),
                       if (widget.item.badge != null)
                         Positioned(
-                          top: -3, right: -5,
+                          top: -3,
+                          right: -5,
                           child: Container(
-                            width: 12, height: 12,
+                            width: 12,
+                            height: 12,
                             decoration: const BoxDecoration(
-                              color: _C.amber, shape: BoxShape.circle,
+                              color: _C.amber,
+                              shape: BoxShape.circle,
                             ),
                           ),
                         ),
@@ -842,8 +836,8 @@ class _RailItemState extends State<_RailItem> {
                   AnimatedDefaultTextStyle(
                     duration: const Duration(milliseconds: 200),
                     style: _Txt.label(
-                      size:   9.5,
-                      color:  color,
+                      size: 9.5,
+                      color: color,
                       weight: FontWeight.w700,
                     ),
                     child: Text(
@@ -872,10 +866,10 @@ class _SideDrawer extends StatelessWidget {
     required this.stationName,
     required this.isLive,
   });
-  final int               currentIndex;
+  final int currentIndex;
   final ValueChanged<int> onTap;
-  final String            stationName;
-  final bool              isLive;
+  final String stationName;
+  final bool isLive;
 
   @override
   Widget build(BuildContext context) {
@@ -895,7 +889,8 @@ class _SideDrawer extends StatelessWidget {
               children: [
                 // Logo tile
                 Container(
-                  width: 46, height: 46,
+                  width: 46,
+                  height: 46,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       begin: Alignment.topLeft,
@@ -911,7 +906,8 @@ class _SideDrawer extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.sensors_rounded, color: Colors.white, size: 22),
+                  child: const Icon(Icons.sensors_rounded,
+                      color: Colors.white, size: 22),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -930,7 +926,10 @@ class _SideDrawer extends StatelessWidget {
                               stationName,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: _Txt.body(size: 11.5, color: _C.ink2, weight: FontWeight.w700),
+                              style: _Txt.body(
+                                  size: 11.5,
+                                  color: _C.ink2,
+                                  weight: FontWeight.w700),
                             ),
                           ),
                         ],
@@ -948,15 +947,18 @@ class _SideDrawer extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
             child: Text('NAVIGATION',
-                style: _Txt.label(size: 9.5, color: _C.ink4, letterSpacing: 1.8)),
+                style:
+                    _Txt.label(size: 9.5, color: _C.ink4, letterSpacing: 1.8)),
           ),
 
           // ── Nav items ──────────────────────────────────────────────────
-          ...List.generate(_navItems.length, (i) => _DrawerNavItem(
-            item:     _navItems[i],
-            selected: i == currentIndex,
-            onTap:    () => onTap(i),
-          )),
+          ...List.generate(
+              _navItems.length,
+              (i) => _DrawerNavItem(
+                    item: _navItems[i],
+                    selected: i == currentIndex,
+                    onTap: () => onTap(i),
+                  )),
 
           const Spacer(),
 
@@ -979,12 +981,14 @@ class _SideDrawer extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 34, height: 34,
+                    width: 34,
+                    height: 34,
                     decoration: BoxDecoration(
                       color: _C.cyan.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.eco_rounded, color: _C.cyan, size: 18),
+                    child:
+                        const Icon(Icons.eco_rounded, color: _C.cyan, size: 18),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -992,7 +996,10 @@ class _SideDrawer extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Crop Konnect v1.0',
-                            style: _Txt.body(size: 12, weight: FontWeight.w700, color: _C.ink1)),
+                            style: _Txt.body(
+                                size: 12,
+                                weight: FontWeight.w700,
+                                color: _C.ink1)),
                       ],
                     ),
                   ),
@@ -1014,8 +1021,8 @@ class _DrawerNavItem extends StatefulWidget {
     required this.selected,
     required this.onTap,
   });
-  final _NavItem     item;
-  final bool         selected;
+  final _NavItem item;
+  final bool selected;
   final VoidCallback onTap;
 
   @override
@@ -1027,37 +1034,37 @@ class _DrawerNavItemState extends State<_DrawerNavItem> {
 
   @override
   Widget build(BuildContext context) {
-    final sel   = widget.selected;
+    final sel = widget.selected;
     final fgCol = sel
         ? _C.cyan
         : _hovered
-        ? _C.ink1
-        : _C.ink2;
+            ? _C.ink1
+            : _C.ink2;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
       child: MouseRegion(
         onEnter: (_) => setState(() => _hovered = true),
-        onExit:  (_) => setState(() => _hovered = false),
+        onExit: (_) => setState(() => _hovered = false),
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
           onTap: widget.onTap,
           child: AnimatedContainer(
             // ── Smooth 220 ms ease — eliminates grey snap ─────────────────
             duration: const Duration(milliseconds: 220),
-            curve:    Curves.easeOutCubic,
-            padding:  const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+            curve: Curves.easeOutCubic,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
             decoration: BoxDecoration(
               color: sel
-                  ? _C.cyan.withValues(alpha: 0.10)   // active teal wash
+                  ? _C.cyan.withValues(alpha: 0.10) // active teal wash
                   : _hovered
-                  ? _C.cyan.withValues(alpha: 0.05) // hover teal tint — NOT grey
-                  : Colors.transparent,
+                      ? _C.cyan
+                          .withValues(alpha: 0.05) // hover teal tint — NOT grey
+                      : Colors.transparent,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: sel
-                    ? _C.cyan.withValues(alpha: 0.28)
-                    : Colors.transparent,
+                color:
+                    sel ? _C.cyan.withValues(alpha: 0.28) : Colors.transparent,
                 width: 1,
               ),
             ),
@@ -1066,13 +1073,18 @@ class _DrawerNavItemState extends State<_DrawerNavItem> {
                 // Left accent pill
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 220),
-                  width: 3, height: 18,
+                  width: 3,
+                  height: 18,
                   margin: const EdgeInsets.only(right: 12),
                   decoration: BoxDecoration(
                     color: sel ? _C.cyan : Colors.transparent,
                     borderRadius: BorderRadius.circular(4),
                     boxShadow: sel
-                        ? [BoxShadow(color: _C.cyan.withValues(alpha: 0.5), blurRadius: 6)]
+                        ? [
+                            BoxShadow(
+                                color: _C.cyan.withValues(alpha: 0.5),
+                                blurRadius: 6)
+                          ]
                         : null,
                   ),
                 ),
@@ -1085,16 +1097,18 @@ class _DrawerNavItemState extends State<_DrawerNavItem> {
                       duration: const Duration(milliseconds: 180),
                       child: Icon(
                         sel ? widget.item.activeIcon : widget.item.icon,
-                        key:   ValueKey(sel),
+                        key: ValueKey(sel),
                         color: fgCol,
-                        size:  20,
+                        size: 20,
                       ),
                     ),
                     if (widget.item.badge != null)
                       Positioned(
-                        top: -4, right: -6,
+                        top: -4,
+                        right: -6,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 1),
                           decoration: BoxDecoration(
                             color: _C.amber,
                             borderRadius: BorderRadius.circular(6),
@@ -1117,8 +1131,8 @@ class _DrawerNavItemState extends State<_DrawerNavItem> {
                   child: AnimatedDefaultTextStyle(
                     duration: const Duration(milliseconds: 200),
                     style: _Txt.body(
-                      size:   13.5,
-                      color:  fgCol,
+                      size: 13.5,
+                      color: fgCol,
                       weight: FontWeight.w700,
                     ),
                     child: Text(widget.item.label),
@@ -1128,12 +1142,15 @@ class _DrawerNavItemState extends State<_DrawerNavItem> {
                 // Active dot chip
                 if (sel)
                   Container(
-                    width: 6, height: 6,
+                    width: 6,
+                    height: 6,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _C.cyan,
                       boxShadow: [
-                        BoxShadow(color: _C.cyan.withValues(alpha: 0.6), blurRadius: 8),
+                        BoxShadow(
+                            color: _C.cyan.withValues(alpha: 0.6),
+                            blurRadius: 8),
                       ],
                     ),
                   ),
@@ -1150,13 +1167,9 @@ class _DrawerNavItemState extends State<_DrawerNavItem> {
 
 class _QuickSettingsSheet extends StatelessWidget {
   const _QuickSettingsSheet({
-    required this.mode,
-    required this.onModeChanged,
     required this.onGoToSettings,
   });
-  final AppDataMode                mode;
-  final ValueChanged<AppDataMode>  onModeChanged;
-  final VoidCallback               onGoToSettings;
+  final VoidCallback onGoToSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -1176,7 +1189,8 @@ class _QuickSettingsSheet extends StatelessWidget {
             // Drag handle
             Center(
               child: Container(
-                width: 36, height: 4,
+                width: 36,
+                height: 4,
                 decoration: BoxDecoration(
                   color: _C.ink4,
                   borderRadius: BorderRadius.circular(4),
@@ -1193,13 +1207,15 @@ class _QuickSettingsSheet extends StatelessWidget {
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
-                    width: 32, height: 32,
+                    width: 32,
+                    height: 32,
                     decoration: BoxDecoration(
                       color: _C.surface2,
                       shape: BoxShape.circle,
                       border: Border.all(color: _C.border),
                     ),
-                    child: const Icon(Icons.close_rounded, color: _C.ink2, size: 16),
+                    child: const Icon(Icons.close_rounded,
+                        color: _C.ink2, size: 16),
                   ),
                 ),
               ],
@@ -1208,45 +1224,29 @@ class _QuickSettingsSheet extends StatelessWidget {
             const SizedBox(height: 24),
 
             Text('DATA ENVIRONMENT',
-                style: _Txt.label(size: 9.5, color: _C.ink3, letterSpacing: 1.8)),
+                style:
+                    _Txt.label(size: 9.5, color: _C.ink3, letterSpacing: 1.8)),
             const SizedBox(height: 14),
-
-            // Mode switcher
             Container(
-              padding: const EdgeInsets.all(5),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
                 color: _C.surface1,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(color: _C.border, width: 1),
               ),
               child: Row(
-                children: [
-                  _ModeChip(
-                    label: 'Cloud',
-                    icon:  Icons.cloud_outlined,
-                    selected: mode == AppDataMode.supabase,
-                    onTap: () {
-                      onModeChanged(AppDataMode.supabase);
-                      Navigator.pop(context);
-                    },
-                  ),
-                  _ModeChip(
-                    label: 'Live',
-                    icon:  Icons.sensors,
-                    selected: mode == AppDataMode.live,
-                    onTap: () {
-                      onModeChanged(AppDataMode.live);
-                      Navigator.pop(context);
-                    },
-                  ),
-                  _ModeChip(
-                    label: 'Mock',
-                    icon:  Icons.science_outlined,
-                    selected: mode == AppDataMode.mock,
-                    onTap: () {
-                      onModeChanged(AppDataMode.mock);
-                      Navigator.pop(context);
-                    },
+                children: const [
+                  Icon(Icons.cloud_done_rounded, color: _C.cyan, size: 20),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Cloud Active',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: _C.ink0,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -1277,7 +1277,8 @@ class _QuickSettingsSheet extends StatelessWidget {
                   child: Center(
                     child: Text(
                       'FULL SYSTEM SETTINGS',
-                      style: _Txt.label(size: 11, color: Colors.white, letterSpacing: 1.4),
+                      style: _Txt.label(
+                          size: 11, color: Colors.white, letterSpacing: 1.4),
                     ),
                   ),
                 ),
@@ -1290,69 +1291,20 @@ class _QuickSettingsSheet extends StatelessWidget {
   }
 }
 
-class _ModeChip extends StatelessWidget {
-  const _ModeChip({
-    required this.label,
-    required this.icon,
-    required this.selected,
-    required this.onTap,
-  });
-  final String     label;
-  final IconData   icon;
-  final bool       selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve:    Curves.easeOutCubic,
-          padding:  const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: selected ? _C.surface2 : Colors.transparent,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: selected ? _C.cyan.withValues(alpha: 0.30) : Colors.transparent,
-              width: 1,
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: selected ? _C.cyan : _C.ink3, size: 20),
-              const SizedBox(height: 5),
-              Text(label,
-                  style: _Txt.label(
-                    size:          10.5,
-                    color:         selected ? _C.ink0 : _C.ink3,
-                    weight:        FontWeight.w700,
-                    letterSpacing: 0.4,
-                  )),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 // ─── Context Extensions ───────────────────────────────────────────────────────
 
 extension DashboardColors on BuildContext {
-  Color get ccSurface      => _C.surface0;
-  Color get ccCanvas       => _C.canvas;
-  Color get ccPrimary      => _C.cyan;
+  Color get ccSurface => _C.surface0;
+  Color get ccCanvas => _C.canvas;
+  Color get ccPrimary => _C.cyan;
   Color get ccPrimaryLight => _C.cyan.withValues(alpha: 0.12);
-  Color get ccBorder       => _C.border;
-  Color get ccTextPrimary  => _C.ink0;
-  Color get ccTextSecondary=> _C.ink2;
-  Color get ccTextMuted    => _C.ink3;
-  Color get forest50       => _C.surface1;
-  Color get forest100      => _C.surface2;
-  Color get forest200      => _C.border;
-  Color get forest500      => _C.cyan;
-  Color get forest800      => _C.surface0;
+  Color get ccBorder => _C.border;
+  Color get ccTextPrimary => _C.ink0;
+  Color get ccTextSecondary => _C.ink2;
+  Color get ccTextMuted => _C.ink3;
+  Color get forest50 => _C.surface1;
+  Color get forest100 => _C.surface2;
+  Color get forest200 => _C.border;
+  Color get forest500 => _C.cyan;
+  Color get forest800 => _C.surface0;
 }

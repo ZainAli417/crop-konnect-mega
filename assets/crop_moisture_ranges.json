@@ -64,7 +64,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Grain Set",
@@ -79,7 +79,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Grain Filling",
@@ -94,7 +94,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -109,7 +109,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -178,7 +178,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 34,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Maturity & Harvest",
@@ -193,7 +193,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 34,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -403,7 +403,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 35,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Grain Set",
@@ -418,7 +418,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 35,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Grain Filling",
@@ -433,7 +433,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 35,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -448,7 +448,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 35,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -595,7 +595,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Pod Set",
@@ -610,7 +610,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Pod Filling",
@@ -625,7 +625,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -640,7 +640,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -954,7 +954,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Pod Set",
@@ -969,7 +969,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Pod Filling",
@@ -984,7 +984,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -999,7 +999,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -1146,7 +1146,7 @@
         "temp_opt_min": 24,
         "temp_opt_max": 36,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Boll Formation",
@@ -1161,7 +1161,7 @@
         "temp_opt_min": 24,
         "temp_opt_max": 36,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Maturity & Harvest",
@@ -1176,7 +1176,7 @@
         "temp_opt_min": 24,
         "temp_opt_max": 36,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -1386,7 +1386,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Capsule Set",
@@ -1401,7 +1401,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Seed Filling",
@@ -1416,7 +1416,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -1431,7 +1431,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -1526,7 +1526,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Tuber Filling",
@@ -1541,7 +1541,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -1556,7 +1556,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -1922,7 +1922,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 34,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Fruit Set",
@@ -1937,7 +1937,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 34,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Maturity & Harvest",
@@ -1952,7 +1952,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 34,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -2110,7 +2110,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 34,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Fruit Set",
@@ -2125,7 +2125,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 34,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Fruit Development",
@@ -2140,7 +2140,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 34,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -2155,7 +2155,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 34,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -2339,7 +2339,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Fruit Set",
@@ -2354,7 +2354,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Maturity & Harvest",
@@ -2369,7 +2369,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -2516,7 +2516,7 @@
         "temp_opt_min": 12,
         "temp_opt_max": 28,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Bulb Filling",
@@ -2531,7 +2531,7 @@
         "temp_opt_min": 12,
         "temp_opt_max": 28,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -2546,7 +2546,7 @@
         "temp_opt_min": 12,
         "temp_opt_max": 28,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -2860,7 +2860,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 34,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -2875,7 +2875,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 34,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -4775,7 +4775,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -4896,7 +4896,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 35,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -5511,7 +5511,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Seed Set (Pods)",
@@ -5526,7 +5526,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Seed Filling",
@@ -5541,7 +5541,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -5556,7 +5556,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -5610,7 +5610,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Pod Set",
@@ -5625,7 +5625,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Pod Filling",
@@ -5640,7 +5640,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -5655,7 +5655,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -5724,7 +5724,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Root Bulking",
@@ -5739,7 +5739,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -5754,7 +5754,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -5808,7 +5808,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Grain Set",
@@ -5823,7 +5823,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Grain Filling",
@@ -5838,7 +5838,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -5853,7 +5853,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -5922,7 +5922,7 @@
         "temp_opt_min": 24,
         "temp_opt_max": 36,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Boll Formation",
@@ -5937,7 +5937,7 @@
         "temp_opt_min": 24,
         "temp_opt_max": 36,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Boll Development",
@@ -5952,7 +5952,7 @@
         "temp_opt_min": 24,
         "temp_opt_max": 36,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -5967,7 +5967,7 @@
         "temp_opt_min": 24,
         "temp_opt_max": 36,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -6036,7 +6036,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 35,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -6090,7 +6090,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 34,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Seed Setting",
@@ -6105,7 +6105,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 34,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Maturity & Harvest",
@@ -6120,7 +6120,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 34,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -6189,7 +6189,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Seed Set",
@@ -6204,7 +6204,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Maturity & Harvest",
@@ -6219,7 +6219,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -6273,7 +6273,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Pod Set",
@@ -6288,7 +6288,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Maturity & Harvest",
@@ -6303,7 +6303,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -6357,7 +6357,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Fruit Set",
@@ -6372,7 +6372,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Maturity & Harvest",
@@ -6387,7 +6387,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -6441,7 +6441,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Pod Set",
@@ -6456,7 +6456,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Pod Filling",
@@ -6471,7 +6471,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -6486,7 +6486,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -6540,7 +6540,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Maturity & Harvest",
@@ -6555,7 +6555,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -6609,7 +6609,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Pod Set",
@@ -6624,7 +6624,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Seed Filling",
@@ -6639,7 +6639,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -6654,7 +6654,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -6708,7 +6708,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Grain Set",
@@ -6723,7 +6723,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Grain Filling",
@@ -6738,7 +6738,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -6753,7 +6753,7 @@
         "temp_opt_min": 15,
         "temp_opt_max": 28,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -6807,7 +6807,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Pod Set",
@@ -6822,7 +6822,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Pod Filling",
@@ -6837,7 +6837,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -6852,7 +6852,7 @@
         "temp_opt_min": 18,
         "temp_opt_max": 32,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -6906,7 +6906,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Seed Set",
@@ -6921,7 +6921,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Seed Filling",
@@ -6936,7 +6936,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -6951,7 +6951,7 @@
         "temp_opt_min": 16,
         "temp_opt_max": 32,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   },
@@ -7005,7 +7005,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 35,
         "icon": "flower",
-        "focus": "The most yield-sensitive window. Hold moisture in band and avoid heat or water stress at all costs."
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
       },
       {
         "stage": "Grain Set",
@@ -7020,7 +7020,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 35,
         "icon": "pod",
-        "focus": "Yield organs are being set and sized. Steady water and potassium now decide how many you keep."
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
       },
       {
         "stage": "Grain Filling",
@@ -7035,7 +7035,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 35,
         "icon": "grain",
-        "focus": "The crop is packing weight into grain, pods, tubers or bolls. Keep water and K up; ease off nitrogen."
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
       },
       {
         "stage": "Maturity & Harvest",
@@ -7050,7 +7050,7 @@
         "temp_opt_min": 22,
         "temp_opt_max": 35,
         "icon": "harvest",
-        "focus": "Crop is ripening down. Pull back water to dry the field for a clean, timely harvest."
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
       }
     ]
   }

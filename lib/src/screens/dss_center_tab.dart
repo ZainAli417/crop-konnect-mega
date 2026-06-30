@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../config/dashboard_theme.dart';
 import '../models/crop_timeline.dart';
 import '../models/dss.dart';
+import '../models/sensor_reading.dart';
 import '../viewmodels/station_dashboard_controller.dart';
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -46,14 +47,18 @@ class DssCenterTab extends StatelessWidget {
                 else if (analysis == null)
                   const _LoadingDssCard()
                 else ...[
+                  _FarmerActionHero(
+                    analysis: analysis,
+                    reading: controller.latestReading,
+                  ),
+                  const SizedBox(height: 14),
+                  _DssLastReadingCard(reading: controller.latestReading),
+                  const SizedBox(height: 14),
                   _FieldScoreCard(analysis: analysis),
                   const SizedBox(height: 14),
                   _PriorityActions(analysis: analysis),
                   const SizedBox(height: 14),
-                  const _ScoreLegend(),
-                  const SizedBox(height: 14),
                   _ModuleGrid(analysis: analysis),
-                 
                 ],
               ],
             ),
@@ -98,7 +103,8 @@ class _Header extends StatelessWidget {
               ),
             ],
           ),
-          child: const Icon(Icons.psychology_rounded, color: Colors.white, size: 24),
+          child: const Icon(Icons.psychology_rounded,
+              color: Colors.white, size: 24),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -106,7 +112,7 @@ class _Header extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Decision Support System',
+                'Farm Advisory',
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 23,
                   fontWeight: FontWeight.w900,
@@ -264,13 +270,16 @@ class _StageTimelineCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.flag_rounded, color: AppTokens.primary, size: 18),
+                  const Icon(Icons.flag_rounded,
+                      color: AppTokens.primary, size: 18),
                   const SizedBox(width: 9),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('FOCUS NOW', style: _labelStyle(size: 9, color: AppTokens.primary)),
+                        Text('FOCUS NOW',
+                            style:
+                                _labelStyle(size: 9, color: AppTokens.primary)),
                         const SizedBox(height: 3),
                         Text(stage.focus, style: _bodyStyle(size: 12.5)),
                         if (nextStage != null && !past) ...[
@@ -394,12 +403,14 @@ class _StageBar extends StatelessWidget {
       left: left,
       top: 0,
       child: current
-          ? _PulseRing(size: pin, child: _pinBody(s, pin, bg, fg, color, current))
+          ? _PulseRing(
+              size: pin, child: _pinBody(s, pin, bg, fg, color, current))
           : _pinBody(s, pin, bg, fg, color, current),
     );
   }
 
-  Widget _pinBody(TimelineStage s, double pin, Color bg, Color fg, Color border, bool current) {
+  Widget _pinBody(TimelineStage s, double pin, Color bg, Color fg, Color border,
+      bool current) {
     return Container(
       width: pin,
       height: pin,
@@ -422,6 +433,300 @@ class _StageBar extends StatelessWidget {
   }
 }
 
+// ───────────────────────────────────────────────────────── Farmer action ──
+
+class _FarmerActionHero extends StatelessWidget {
+  const _FarmerActionHero({required this.analysis, required this.reading});
+
+  final DssAnalysis analysis;
+  final SensorReading? reading;
+
+  @override
+  Widget build(BuildContext context) {
+    final recommendation = analysis.priorityRecommendations.isNotEmpty
+        ? analysis.priorityRecommendations.first
+        : null;
+    final color = recommendation == null
+        ? AppTokens.primary
+        : _urgencyColor(recommendation.urgency);
+    final icon = recommendation == null
+        ? Icons.check_circle_rounded
+        : _urgencyIcon(recommendation.urgency);
+    final title = recommendation?.title ?? 'Field is on track';
+    final action = recommendation?.farmerAction ??
+        'Keep the station running and walk the field once today.';
+    final check = recommendation?.fieldCheck ??
+        'Check for dry patches, weak plants, standing water, or pest signs.';
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: color.withValues(alpha: 0.24)),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(icon, color: Colors.white, size: 29),
+              ),
+              const SizedBox(width: 13),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('TODAY ON FIELD',
+                        style: _labelStyle(size: 9.5, color: color)),
+                    const SizedBox(height: 5),
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        color: AppTokens.slate900,
+                        letterSpacing: -0.55,
+                        height: 1.12,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      '${analysis.crop.name} · ${analysis.stage.name}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: _bodyStyle(size: 12, color: AppTokens.slate500),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 15),
+          _DssActionLine(
+            icon: Icons.task_alt_rounded,
+            label: 'Do',
+            text: action,
+            color: color,
+          ),
+          const SizedBox(height: 9),
+          _DssActionLine(
+            icon: Icons.search_rounded,
+            label: 'Check',
+            text: check,
+            color: AppTokens.slate700,
+          ),
+          if (reading != null) ...[
+            const SizedBox(height: 12),
+            Text(
+              'Based on last reading: ${_dssReadingAge(reading!.recordedAt)}',
+              style: _bodyStyle(size: 11.5, color: AppTokens.slate500),
+            ),
+          ],
+          if (recommendation != null) ...[
+            const SizedBox(height: 13),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton.icon(
+                onPressed: () =>
+                    _showRecommendationSheet(context, recommendation),
+                icon: const Icon(Icons.visibility_rounded, size: 18),
+                label: const Text('See sensor proof'),
+                style: TextButton.styleFrom(
+                  foregroundColor: color,
+                  textStyle: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _DssActionLine extends StatelessWidget {
+  const _DssActionLine({
+    required this.icon,
+    required this.label,
+    required this.text,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: color, size: 19),
+        const SizedBox(width: 9),
+        SizedBox(
+          width: 48,
+          child: Text(label.toUpperCase(),
+              style: _labelStyle(size: 9.5, color: color)),
+        ),
+        Expanded(
+          child: Text(
+            text,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: _bodyStyle(size: 13.5, color: AppTokens.slate700),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DssLastReadingCard extends StatelessWidget {
+  const _DssLastReadingCard({required this.reading});
+
+  final SensorReading? reading;
+
+  @override
+  Widget build(BuildContext context) {
+    final r = reading;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: _cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.sensors_rounded,
+                  color: AppTokens.primary, size: 19),
+              const SizedBox(width: 8),
+              Text('Last Reading', style: _sectionTitleStyle(size: 16)),
+              const Spacer(),
+              Text(
+                r == null ? 'No data yet' : _dssShortDateTime(r.recordedAt),
+                style: _labelStyle(size: 9.5),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          LayoutBuilder(
+            builder: (context, c) {
+              final chips = <Widget>[
+                _DssReadingChip(
+                  icon: Icons.water_drop_rounded,
+                  label: 'Moisture',
+                  value: formatMetric(r?.moist, suffix: '%'),
+                  color: AppTokens.primary,
+                ),
+                _DssReadingChip(
+                  icon: Icons.thermostat_rounded,
+                  label: 'Temp',
+                  value: formatMetric(r?.temp, suffix: '°C'),
+                  color: AppTokens.caution,
+                ),
+                _DssReadingChip(
+                  icon: Icons.grain_rounded,
+                  label: 'Rain',
+                  value: formatMetric(r?.rain, suffix: 'mm'),
+                  color: AppTokens.info,
+                ),
+                _DssReadingChip(
+                  icon: Icons.air_rounded,
+                  label: 'Wind',
+                  value: formatMetric(r?.ws, suffix: 'm/s'),
+                  color: AppTokens.slate700,
+                ),
+              ];
+              if (c.maxWidth < 560) {
+                return Wrap(spacing: 8, runSpacing: 8, children: chips);
+              }
+              return Row(
+                children: [
+                  for (var i = 0; i < chips.length; i++) ...[
+                    Expanded(child: chips[i]),
+                    if (i < chips.length - 1) const SizedBox(width: 8),
+                  ],
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DssReadingChip extends StatelessWidget {
+  const _DssReadingChip({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 112),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE8EDF3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 17),
+          const SizedBox(width: 7),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: _labelStyle(size: 8.5)),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                  color: AppTokens.slate900,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ─────────────────────────────────────────────────────────── Field score ──
 
 class _FieldScoreCard extends StatelessWidget {
@@ -439,7 +744,8 @@ class _FieldScoreCard extends StatelessWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final compact = constraints.maxWidth < 560;
-            final scoreBlock = _ScoreDial(value: analysis.fieldScore.value, color: color);
+            final scoreBlock =
+                _ScoreDial(value: analysis.fieldScore.value, color: color);
             final textBlock = Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -461,7 +767,9 @@ class _FieldScoreCard extends StatelessWidget {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    _InfoChip(icon: Icons.grass_rounded, label: analysis.crop.group.replaceAll('_', ' ')),
+                    _InfoChip(
+                        icon: Icons.grass_rounded,
+                        label: analysis.crop.group.replaceAll('_', ' ')),
                     _InfoChip(
                       icon: Icons.calendar_month_rounded,
                       label: analysis.crop.seasons.isEmpty
@@ -485,7 +793,11 @@ class _FieldScoreCard extends StatelessWidget {
               );
             }
             return Row(
-              children: [scoreBlock, const SizedBox(width: 24), Expanded(child: textBlock)],
+              children: [
+                scoreBlock,
+                const SizedBox(width: 24),
+                Expanded(child: textBlock)
+              ],
             );
           },
         ),
@@ -501,7 +813,9 @@ class _PriorityActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = analysis.priorityRecommendations;
+    final items = analysis.priorityRecommendations.length <= 1
+        ? const <DssRecommendation>[]
+        : analysis.priorityRecommendations.skip(1).toList(growable: false);
     return RepaintBoundary(
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -511,16 +825,17 @@ class _PriorityActions extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.bolt_rounded, color: AppTokens.caution, size: 22),
+                const Icon(Icons.playlist_add_check_rounded,
+                    color: AppTokens.caution, size: 22),
                 const SizedBox(width: 8),
-                Text('Do these first', style: _sectionTitleStyle()),
+                Text('Next checks', style: _sectionTitleStyle()),
               ],
             ),
             const SizedBox(height: 4),
             Text(
               items.isEmpty
-                  ? 'Nothing urgent right now — the field is on track.'
-                  : 'Handle these before any routine work today.',
+                  ? 'No extra jobs. Keep walking the field and watching fresh readings.'
+                  : 'After the main job, check these before spending on routine work.',
               style: _bodyStyle(color: AppTokens.slate500),
             ),
             const SizedBox(height: 12),
@@ -529,7 +844,11 @@ class _PriorityActions extends StatelessWidget {
             else
               // On wide screens lay the priority actions out side by side.
               LayoutBuilder(builder: (context, c) {
-                final cols = c.maxWidth >= 900 ? 3 : c.maxWidth >= 600 ? 2 : 1;
+                final cols = c.maxWidth >= 900
+                    ? 3
+                    : c.maxWidth >= 600
+                        ? 2
+                        : 1;
                 if (cols == 1) {
                   return Column(
                     children: items
@@ -546,7 +865,9 @@ class _PriorityActions extends StatelessWidget {
                   spacing: gap,
                   runSpacing: gap,
                   children: items
-                      .map((e) => SizedBox(width: width, child: _RecommendationTile(recommendation: e)))
+                      .map((e) => SizedBox(
+                          width: width,
+                          child: _RecommendationTile(recommendation: e)))
                       .toList(),
                 );
               }),
@@ -584,17 +905,20 @@ class _ModuleGrid extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.dashboard_customize_rounded, color: AppTokens.slate700, size: 20),
+                const Icon(Icons.dashboard_customize_rounded,
+                    color: AppTokens.slate700, size: 20),
                 const SizedBox(width: 8),
-                Text('Decision cards', style: _sectionTitleStyle()),
+                Text('More field checks', style: _sectionTitleStyle()),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: AppTokens.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text('${analysis.modules.length}', style: _labelStyle(size: 11, color: AppTokens.primary)),
+                  child: Text('${analysis.modules.length}',
+                      style: _labelStyle(size: 11, color: AppTokens.primary)),
                 ),
               ],
             ),
@@ -701,11 +1025,16 @@ class _ModuleCard extends StatelessWidget {
               Row(
                 children: [
                   Icon(_urgencyIcon(module.recommendations.first.urgency),
-                      size: 13, color: _urgencyColor(module.recommendations.first.urgency)),
+                      size: 13,
+                      color:
+                          _urgencyColor(module.recommendations.first.urgency)),
                   const SizedBox(width: 5),
                   Text(
                     '${module.recommendations.length} action${module.recommendations.length == 1 ? '' : 's'} · tap',
-                    style: _labelStyle(size: 10, color: _urgencyColor(module.recommendations.first.urgency)),
+                    style: _labelStyle(
+                        size: 10,
+                        color: _urgencyColor(
+                            module.recommendations.first.urgency)),
                   ),
                 ],
               ),
@@ -741,7 +1070,8 @@ class _RecommendationTile extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(_urgencyIcon(recommendation.urgency), color: color, size: 20),
+                Icon(_urgencyIcon(recommendation.urgency),
+                    color: color, size: 20),
                 const SizedBox(width: 9),
                 Expanded(
                   child: Text(
@@ -772,61 +1102,6 @@ class _RecommendationTile extends StatelessWidget {
     );
   }
 }
-
-// Explains what the score number and the colours mean.
-class _ScoreLegend extends StatelessWidget {
-  const _ScoreLegend();
-
-  @override
-  Widget build(BuildContext context) {
-    Widget row(Color c, String range, String meaning) => Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Row(
-            children: [
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(color: c, borderRadius: BorderRadius.circular(4)),
-              ),
-              const SizedBox(width: 10),
-              Text(range,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w900,
-                    color: AppTokens.slate900,
-                  )),
-              const SizedBox(width: 8),
-              Expanded(child: Text(meaning, style: _bodyStyle(size: 12, color: AppTokens.slate500))),
-            ],
-          ),
-        );
-    return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: _cardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.help_outline_rounded, color: AppTokens.slate700, size: 18),
-              const SizedBox(width: 8),
-              Text('What the scores mean', style: _sectionTitleStyle(size: 16)),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Each card gives a score out of 100 by comparing your live sensors with what the crop needs at this stage. Higher is better.',
-            style: _bodyStyle(size: 12.5, color: AppTokens.slate500),
-          ),
-          row(AppTokens.primary, '70–100', 'Good — all set here'),
-          row(AppTokens.caution, '50–69', 'Keep an eye on it'),
-          row(AppTokens.alert, '0–49', 'Act now — this needs you'),
-        ],
-      ),
-    );
-  }
-}
-
 
 class _SelectorButton extends StatelessWidget {
   const _SelectorButton({
@@ -876,7 +1151,8 @@ class _SelectorButton extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.unfold_more_rounded, size: 18, color: AppTokens.slate400),
+            const Icon(Icons.unfold_more_rounded,
+                size: 18, color: AppTokens.slate400),
           ],
         ),
       ),
@@ -951,14 +1227,16 @@ class _PulseIcon extends StatefulWidget {
   State<_PulseIcon> createState() => _PulseIconState();
 }
 
-class _PulseIconState extends State<_PulseIcon> with SingleTickerProviderStateMixin {
+class _PulseIconState extends State<_PulseIcon>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
   late final Animation<double> _pulse;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(duration: const Duration(milliseconds: 1600), vsync: this)
+    _ctrl = AnimationController(
+        duration: const Duration(milliseconds: 1600), vsync: this)
       ..repeat(reverse: true);
     _pulse = CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut);
   }
@@ -1004,13 +1282,16 @@ class _PulseRing extends StatefulWidget {
   State<_PulseRing> createState() => _PulseRingState();
 }
 
-class _PulseRingState extends State<_PulseRing> with SingleTickerProviderStateMixin {
+class _PulseRingState extends State<_PulseRing>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(duration: const Duration(milliseconds: 1800), vsync: this)..repeat();
+    _ctrl = AnimationController(
+        duration: const Duration(milliseconds: 1800), vsync: this)
+      ..repeat();
   }
 
   @override
@@ -1147,7 +1428,8 @@ class _UrgencyPill extends StatelessWidget {
         color: color.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(_urgencyLabel(urgency), style: _labelStyle(size: 8, color: color)),
+      child: Text(_urgencyLabel(urgency),
+          style: _labelStyle(size: 8, color: color)),
     );
   }
 }
@@ -1169,7 +1451,8 @@ class _LoadingDssCard extends StatelessWidget {
           ),
           const SizedBox(width: 14),
           Expanded(
-            child: Text('Loading crop stages and building your advisory…', style: _bodyStyle()),
+            child: Text('Loading crop stages and building your advisory…',
+                style: _bodyStyle()),
           ),
         ],
       ),
@@ -1190,9 +1473,11 @@ class _ErrorCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.error_outline_rounded, color: AppTokens.alert, size: 22),
+          const Icon(Icons.error_outline_rounded,
+              color: AppTokens.alert, size: 22),
           const SizedBox(width: 12),
-          Expanded(child: Text(message, style: _bodyStyle(color: AppTokens.alert))),
+          Expanded(
+              child: Text(message, style: _bodyStyle(color: AppTokens.alert))),
         ],
       ),
     );
@@ -1228,7 +1513,8 @@ class _EmptyAction extends StatelessWidget {
 
 // ───────────────────────────────────────────────────────── Pickers / sheets ──
 
-void _openCropPicker(BuildContext context, StationDashboardController controller) {
+void _openCropPicker(
+    BuildContext context, StationDashboardController controller) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -1257,7 +1543,9 @@ class _CropPickerSheetState extends State<_CropPickerSheet> {
     final all = widget.controller.cropTimelines;
     final filtered = _query.isEmpty
         ? all
-        : all.where((t) => t.crop.toLowerCase().contains(_query.toLowerCase())).toList();
+        : all
+            .where((t) => t.crop.toLowerCase().contains(_query.toLowerCase()))
+            .toList();
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.7,
@@ -1319,10 +1607,14 @@ class _CropPickerSheetState extends State<_CropPickerSheet> {
                       child: Container(
                         padding: const EdgeInsets.all(13),
                         decoration: BoxDecoration(
-                          color: selected ? AppTokens.primary.withValues(alpha: 0.08) : const Color(0xFFF8FAFC),
+                          color: selected
+                              ? AppTokens.primary.withValues(alpha: 0.08)
+                              : const Color(0xFFF8FAFC),
                           borderRadius: BorderRadius.circular(13),
                           border: Border.all(
-                            color: selected ? AppTokens.primary.withValues(alpha: 0.4) : const Color(0xFFE2E8F0),
+                            color: selected
+                                ? AppTokens.primary.withValues(alpha: 0.4)
+                                : const Color(0xFFE2E8F0),
                           ),
                         ),
                         child: Row(
@@ -1331,10 +1623,12 @@ class _CropPickerSheetState extends State<_CropPickerSheet> {
                               width: 38,
                               height: 38,
                               decoration: BoxDecoration(
-                                color: AppTokens.primary.withValues(alpha: 0.12),
+                                color:
+                                    AppTokens.primary.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Icon(Icons.grass_rounded, color: AppTokens.primary, size: 20),
+                              child: const Icon(Icons.grass_rounded,
+                                  color: AppTokens.primary, size: 20),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -1351,13 +1645,15 @@ class _CropPickerSheetState extends State<_CropPickerSheet> {
                                   ),
                                   Text(
                                     '${t.stages.length} stages · ${t.totalDays} day cycle · sow ${t.sowWindow}',
-                                    style: _bodyStyle(size: 11.5, color: AppTokens.slate500),
+                                    style: _bodyStyle(
+                                        size: 11.5, color: AppTokens.slate500),
                                   ),
                                 ],
                               ),
                             ),
                             if (selected)
-                              const Icon(Icons.check_circle_rounded, color: AppTokens.primary, size: 22),
+                              const Icon(Icons.check_circle_rounded,
+                                  color: AppTokens.primary, size: 22),
                           ],
                         ),
                       ),
@@ -1373,7 +1669,8 @@ class _CropPickerSheetState extends State<_CropPickerSheet> {
   }
 }
 
-Future<void> _pickSowingDate(BuildContext context, StationDashboardController controller) async {
+Future<void> _pickSowingDate(
+    BuildContext context, StationDashboardController controller) async {
   final now = DateTime.now();
   final picked = await showDatePicker(
     context: context,
@@ -1400,7 +1697,8 @@ Future<void> _pickSowingDate(BuildContext context, StationDashboardController co
           headerBackgroundColor: AppTokens.primary,
           headerForegroundColor: Colors.white,
           elevation: 8,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           todayBorder: const BorderSide(color: AppTokens.primary, width: 1.4),
           dayShape: WidgetStateProperty.all(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -1409,7 +1707,8 @@ Future<void> _pickSowingDate(BuildContext context, StationDashboardController co
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: AppTokens.primary,
-            textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, letterSpacing: 0.5),
+            textStyle: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w800, letterSpacing: 0.5),
           ),
         ),
       ),
@@ -1453,7 +1752,8 @@ void _showModuleSheet(BuildContext context, DssModuleResult module) {
                     child: Icon(_moduleIcon(module.id), color: color, size: 21),
                   ),
                   const SizedBox(width: 11),
-                  Expanded(child: Text(module.title, style: _sectionTitleStyle())),
+                  Expanded(
+                      child: Text(module.title, style: _sectionTitleStyle())),
                   _ScoreChip(score: module.score, color: color),
                 ],
               ),
@@ -1477,7 +1777,8 @@ void _showModuleSheet(BuildContext context, DssModuleResult module) {
   );
 }
 
-void _showRecommendationSheet(BuildContext context, DssRecommendation recommendation) {
+void _showRecommendationSheet(
+    BuildContext context, DssRecommendation recommendation) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -1498,19 +1799,35 @@ void _showRecommendationSheet(BuildContext context, DssRecommendation recommenda
             children: [
               Row(
                 children: [
-                  Icon(_urgencyIcon(recommendation.urgency), color: _urgencyColor(recommendation.urgency)),
+                  Icon(_urgencyIcon(recommendation.urgency),
+                      color: _urgencyColor(recommendation.urgency)),
                   const SizedBox(width: 10),
-                  Expanded(child: Text(recommendation.title, style: _sectionTitleStyle())),
+                  Expanded(
+                      child: Text(recommendation.title,
+                          style: _sectionTitleStyle())),
                   _UrgencyPill(urgency: recommendation.urgency),
                 ],
               ),
               const SizedBox(height: 16),
-              _DetailBlock(title: 'The call', text: recommendation.decision, icon: Icons.assistant_direction_rounded),
-              _DetailBlock(title: 'Why it matters', text: recommendation.whyItMatters, icon: Icons.info_rounded),
-              _DetailBlock(title: 'Do this', text: recommendation.farmerAction, icon: Icons.task_alt_rounded),
-              _DetailBlock(title: 'Check in the field', text: recommendation.fieldCheck, icon: Icons.search_rounded),
+              _DetailBlock(
+                  title: 'The call',
+                  text: recommendation.decision,
+                  icon: Icons.assistant_direction_rounded),
+              _DetailBlock(
+                  title: 'Why it matters',
+                  text: recommendation.whyItMatters,
+                  icon: Icons.info_rounded),
+              _DetailBlock(
+                  title: 'Do this',
+                  text: recommendation.farmerAction,
+                  icon: Icons.task_alt_rounded),
+              _DetailBlock(
+                  title: 'Check in the field',
+                  text: recommendation.fieldCheck,
+                  icon: Icons.search_rounded),
               const SizedBox(height: 10),
-              Text('What your sensors show', style: _sectionTitleStyle(size: 17)),
+              Text('What your sensors show',
+                  style: _sectionTitleStyle(size: 17)),
               const SizedBox(height: 4),
               Text(
                 'Colour shows if a reading is good, worth watching, or needs action.',
@@ -1532,7 +1849,8 @@ void _showRecommendationSheet(BuildContext context, DssRecommendation recommenda
 }
 
 class _DetailBlock extends StatelessWidget {
-  const _DetailBlock({required this.title, required this.text, required this.icon});
+  const _DetailBlock(
+      {required this.title, required this.text, required this.icon});
 
   final String title;
   final String text;
@@ -1589,7 +1907,8 @@ class _EvidenceRow extends StatelessWidget {
         color: tinted ? color.withValues(alpha: 0.06) : const Color(0xFFF6F8FB),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: tinted ? color.withValues(alpha: 0.20) : const Color(0xFFE8EDF3),
+          color:
+              tinted ? color.withValues(alpha: 0.20) : const Color(0xFFE8EDF3),
         ),
       ),
       child: Row(
@@ -1651,8 +1970,18 @@ class _EvidenceRow extends StatelessWidget {
 
 String _formatDate(DateTime d) {
   const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
   ];
   return '${d.day} ${months[d.month - 1]} ${d.year}';
 }
@@ -1759,6 +2088,20 @@ String _urgencyLabel(DssUrgency urgency) {
     case DssUrgency.info:
       return 'NOTE';
   }
+}
+
+String _dssShortDateTime(DateTime value) {
+  final hour = value.hour.toString().padLeft(2, '0');
+  final minute = value.minute.toString().padLeft(2, '0');
+  return '${value.day}/${value.month} $hour:$minute';
+}
+
+String _dssReadingAge(DateTime value) {
+  final diff = DateTime.now().difference(value);
+  if (diff.inMinutes < 1) return 'just now';
+  if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
+  if (diff.inHours < 24) return '${diff.inHours} hr ago';
+  return '${diff.inDays} day${diff.inDays == 1 ? '' : 's'} ago';
 }
 
 IconData _urgencyIcon(DssUrgency urgency) {

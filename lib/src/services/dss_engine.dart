@@ -41,12 +41,11 @@ class DssEngine {
       crop: input.crop,
       stage: input.stage,
       fieldScore: fieldScore,
-      priorityRecommendations:
-          recommendations.take(3).toList(growable: false),
+      priorityRecommendations: recommendations.take(3).toList(growable: false),
       modules: modules,
       dataConfidence: dataConfidence,
       sourceSummary:
-          'Built from your live station readings, checked against what ${input.crop.name} needs during the ${input.stage.name} stage.',
+          'Your live field reading turned into simple jobs for ${input.crop.name} at ${input.stage.name}.',
     );
   }
 
@@ -72,12 +71,12 @@ class DssEngine {
         moduleId: 'live_data',
         moduleTitle: 'Live Data',
         title: 'Your station is not sending data',
-        decision: 'Get it back online before you act on anything here',
+        decision: 'Fix the station first',
         urgency: DssUrgency.high,
         why:
             'Every tip below comes from fresh field readings. Right now none are coming in.',
         action:
-            'Walk to the station and check the power, the network, and the soil sensor cable. Get one reading flowing.',
+            'Go to the station. Check power, network, and sensor wires. Get one fresh reading.',
         check: 'Look for a flat battery, a loose wire, or damage.',
         evidence: evidence,
       ));
@@ -92,7 +91,9 @@ class DssEngine {
         value: age <= 1 ? 'Just now' : '$age min ago',
         status: fresh ? 'fresh' : 'old',
         tone: fresh ? DssTone.good : DssTone.warn,
-        note: fresh ? 'Readings are current' : 'Older than your $staleMinutes-min limit',
+        note: fresh
+            ? 'Readings are current'
+            : 'Older than your $staleMinutes-min limit',
       ));
       if (!fresh) {
         penalty += 30;
@@ -101,12 +102,14 @@ class DssEngine {
           moduleId: 'live_data',
           moduleTitle: 'Live Data',
           title: 'Your readings are $age minutes old',
-          decision: 'Wake the station so today\'s advice uses today\'s field',
+          decision: 'Get a fresh reading before deciding',
           urgency: DssUrgency.moderate,
           why:
               'The newest reading is older than the $staleMinutes-minute limit you set.',
-          action: 'Wake the logger and make sure it is sending before you spend money or labour.',
-          check: 'Check the logger clock, the network signal, and that the probe is in the soil.',
+          action:
+              'Wake the logger and wait for one new reading before spending money or labour.',
+          check:
+              'Check the logger clock, the network signal, and that the probe is in the soil.',
           evidence: evidence,
         ));
       }
@@ -132,7 +135,9 @@ class DssEngine {
             : missing.length <= 2
                 ? DssTone.good
                 : DssTone.warn,
-        note: missing.isEmpty ? 'All sensors reporting' : 'Not reporting: ${missing.join(', ')}',
+        note: missing.isEmpty
+            ? 'All sensors reporting'
+            : 'Not reporting: ${missing.join(', ')}',
       ));
       if (missing.length >= 4) {
         recs.add(_rec(
@@ -140,11 +145,12 @@ class DssEngine {
           moduleId: 'live_data',
           moduleTitle: 'Live Data',
           title: '${missing.length} sensors are quiet',
-          decision: 'Bring them back so the advice can see your whole field',
+          decision: 'Turn them back on for a clearer field picture',
           urgency: DssUrgency.moderate,
           why:
               'These are not reporting: ${missing.join(', ')}. That leaves blind spots in the advice.',
-          action: 'Turn these sensors back on, or service them, in the station settings.',
+          action:
+              'Turn these sensors on in settings. If still quiet, check wiring at the station.',
           check: 'Check for switched-off sensors or a recent settings change.',
           evidence: evidence,
         ));
@@ -156,7 +162,11 @@ class DssEngine {
       id: 'live_data',
       title: 'Live Data',
       score: score,
-      status: penalty <= 15 ? 'Live' : penalty <= 45 ? 'Patchy' : 'Offline',
+      status: penalty <= 15
+          ? 'Live'
+          : penalty <= 45
+              ? 'Patchy'
+              : 'Offline',
       summary: penalty <= 15
           ? 'Your station is sending fresh readings. Everything below is up to date.'
           : penalty <= 45
@@ -186,12 +196,17 @@ class DssEngine {
     if (hot && lowMoisture) penalty += 12;
     if (highMoisture || rainDetected) penalty += 8;
 
-    final band = '${_fixed(stage.moistureLower)}–${_fixed(stage.moistureUpper)}%';
+    final band =
+        '${_fixed(stage.moistureLower)}–${_fixed(stage.moistureUpper)}%';
     final evidence = <DssEvidence>[
       DssEvidence(
         label: 'Soil moisture',
         value: _metric(moisture, '%'),
-        status: lowMoisture ? 'dry' : highMoisture ? 'wet' : 'just right',
+        status: lowMoisture
+            ? 'dry'
+            : highMoisture
+                ? 'wet'
+                : 'just right',
         tone: moisture == null
             ? DssTone.info
             : lowMoisture
@@ -212,7 +227,8 @@ class DssEngine {
         value: _metric(rain, 'mm'),
         status: rainDetected ? 'raining' : 'dry',
         tone: rainDetected ? DssTone.info : DssTone.info,
-        note: rainDetected ? 'Rain is falling on the field' : 'No rain right now',
+        note:
+            rainDetected ? 'Rain is falling on the field' : 'No rain right now',
       ),
     ];
 
@@ -227,8 +243,10 @@ class DssEngine {
         why: hot
             ? 'The soil is below the $band it should sit at, and the heat is drying it out even faster.'
             : 'The soil is below the $band ${input.crop.name} should sit at during ${stage.name}.',
-        action: 'Water the field until the soil is back in the $band range. Stop there — do not flood it.',
-        check: 'Dig down to the roots and feel the soil. Check the pump or pipe is watering evenly.',
+        action:
+            'Run irrigation until root-zone moisture returns to $band. Stop before water stands on top.',
+        check:
+            'Dig near the roots and feel the soil. Check that every line or pipe is watering evenly.',
         evidence: evidence,
       ));
     } else if (rainDetected || highMoisture) {
@@ -242,7 +260,8 @@ class DssEngine {
             : 'The soil already has plenty of water',
         urgency: DssUrgency.low,
         why: 'Too much water wastes fuel and can rot roots or bring disease.',
-        action: 'Leave the pump off and let the soil dry back toward the right range.',
+        action:
+            'Keep the pump off. Let the field dry back toward the right range.',
         check: 'Look for pooling water, blocked drains, or soggy low spots.',
         evidence: evidence,
       ));
@@ -253,7 +272,11 @@ class DssEngine {
       id: 'irrigation',
       title: 'Irrigation',
       score: score,
-      status: lowMoisture ? 'Water now' : rainDetected || highMoisture ? 'No need' : 'Just right',
+      status: lowMoisture
+          ? 'Water now'
+          : rainDetected || highMoisture
+              ? 'No need'
+              : 'Just right',
       summary: lowMoisture
           ? 'The soil is too dry for ${input.crop.name}. Watering is the top job.'
           : rainDetected || highMoisture
@@ -298,21 +321,34 @@ class DssEngine {
         label: 'Soil moisture',
         value: _metric(moisture, '%'),
         status: lowMoisture ? 'dry' : 'fine',
-        tone: moisture == null ? DssTone.info : lowMoisture ? DssTone.bad : DssTone.good,
+        tone: moisture == null
+            ? DssTone.info
+            : lowMoisture
+                ? DssTone.bad
+                : DssTone.good,
         note: 'Dry soil stresses the crop',
       ),
       DssEvidence(
         label: 'Heat',
         value: _metric(temp, '°C'),
         status: hot ? 'hot' : 'fine',
-        tone: temp == null ? DssTone.info : hot ? DssTone.bad : DssTone.good,
-        note: 'Above ${_fixed(input.crop.tempHotC)}°C stresses ${input.crop.name}',
+        tone: temp == null
+            ? DssTone.info
+            : hot
+                ? DssTone.bad
+                : DssTone.good,
+        note:
+            'Above ${_fixed(input.crop.tempHotC)}°C stresses ${input.crop.name}',
       ),
       DssEvidence(
         label: 'Sun strength',
         value: _metric(solar, 'W/m²'),
         status: highSolar ? 'strong' : 'fine',
-        tone: solar == null ? DssTone.info : highSolar ? DssTone.warn : DssTone.good,
+        tone: solar == null
+            ? DssTone.info
+            : highSolar
+                ? DssTone.warn
+                : DssTone.good,
         note: 'Strong sun dries leaves faster',
       ),
       DssEvidence(
@@ -321,7 +357,11 @@ class DssEngine {
             ? '—'
             : '${moistureTrend >= 0 ? '+' : ''}${_fixed(moistureTrend)}%',
         status: moistureFalling ? 'falling' : 'steady',
-        tone: moistureTrend == null ? DssTone.info : moistureFalling ? DssTone.warn : DssTone.good,
+        tone: moistureTrend == null
+            ? DssTone.info
+            : moistureFalling
+                ? DssTone.warn
+                : DssTone.good,
         note: 'Is the soil drying out over the day',
       ),
     ];
@@ -332,12 +372,14 @@ class DssEngine {
         moduleId: 'crop_stress',
         moduleTitle: 'Crop Stress',
         title: 'Your crop is stressed — act today',
-        decision: 'It is hot and the soil is dry at the same time, and that cuts your harvest',
+        decision: 'Heat and dry soil together can cut yield',
         urgency: DssUrgency.high,
         why:
             '${input.crop.name} at ${stage.name} loses yield fast when the soil is dry and the day is hot together.',
-        action: 'Water the field to refill the roots and cool the crop. Skip ploughing or any extra strain today.',
-        check: 'Look for curled, dull, or drooping leaves at midday, and dry soil down at the roots.',
+        action:
+            'Water the field to refill the roots and cool the crop. Avoid ploughing or other hard work today.',
+        check:
+            'Look for curled, dull, or drooping leaves at midday, and dry soil down at the roots.',
         evidence: evidence,
       ));
     } else if (lowMoisture || hot || highSolar) {
@@ -346,11 +388,14 @@ class DssEngine {
         moduleId: 'crop_stress',
         moduleTitle: 'Crop Stress',
         title: 'Stress is starting to build',
-        decision: 'One thing (water, heat, or strong sun) is pushing your crop',
+        decision: 'Water, heat, or strong sun is starting to stress the crop',
         urgency: lowMoisture || hot ? DssUrgency.moderate : DssUrgency.low,
-        why: 'Caught early this is cheap to fix. Left alone it eats into your harvest.',
-        action: 'Walk the field before the midday heat and fix the one thing flagged below.',
-        check: 'Look for wilting, scorched leaves, weak flowers, or patches doing worse than the rest.',
+        why:
+            'Caught early this is cheap to fix. Left alone it eats into your harvest.',
+        action:
+            'Walk the field before midday heat. Fix the flagged issue first.',
+        check:
+            'Look for wilting, scorched leaves, weak flowers, or patches doing worse than the rest.',
         evidence: evidence,
       ));
     }
@@ -360,7 +405,11 @@ class DssEngine {
       id: 'crop_stress',
       title: 'Crop Stress',
       score: score,
-      status: penalty >= 45 ? 'Stressed' : penalty >= 20 ? 'Building' : 'Happy',
+      status: penalty >= 45
+          ? 'Stressed'
+          : penalty >= 20
+              ? 'Building'
+              : 'Happy',
       summary: penalty >= 45
           ? 'Your ${input.crop.name} is under real stress. Act today.'
           : penalty >= 20
@@ -402,7 +451,13 @@ class DssEngine {
       DssEvidence(
         label: 'Temperature now',
         value: _metric(t, '°C'),
-        status: hot ? 'too hot' : cold ? 'too cold' : inBand ? 'just right' : 'on the edge',
+        status: hot
+            ? 'too hot'
+            : cold
+                ? 'too cold'
+                : inBand
+                    ? 'just right'
+                    : 'on the edge',
         tone: t == null
             ? DssTone.info
             : hot || cold
@@ -430,8 +485,10 @@ class DssEngine {
         urgency: DssUrgency.high,
         why:
             'Above ${_fixed(input.crop.tempHotC)}°C, ${input.crop.name} stops growing and can drop flowers or grain at ${stage.name}.',
-        action: 'Water to cool the crop and keep the soil moist. Do hard work only in the cool morning or evening.',
-        check: 'Look for drooping at midday and burnt leaf edges on the sunny side.',
+        action:
+            'Water to cool the crop and keep the soil moist. Do heavy field work only morning or evening.',
+        check:
+            'Look for drooping at midday and burnt leaf edges on the sunny side.',
         evidence: evidence,
       ));
     } else if (cold) {
@@ -444,8 +501,10 @@ class DssEngine {
         urgency: DssUrgency.moderate,
         why:
             'Below ${_fixed(input.crop.tempColdC)}°C, ${input.crop.name} barely grows and tender plants can be hurt.',
-        action: 'Hold off on watering and feeding until it warms up. Cover young plants if you can.',
-        check: 'Look for frost marks, purple leaves, and growth that has stopped.',
+        action:
+            'Pause watering and feeding until it warms. Cover young plants if possible.',
+        check:
+            'Look for frost marks, purple leaves, and growth that has stopped.',
         evidence: evidence,
       ));
     } else if (aboveComfort || belowComfort) {
@@ -454,10 +513,13 @@ class DssEngine {
         moduleId: 'temperature',
         moduleTitle: 'Temperature',
         title: aboveComfort ? 'Running a bit warm' : 'Running a bit cool',
-        decision: aboveComfort ? 'Warmer than the best range for ${stage.name}' : 'Cooler than the best range for ${stage.name}',
+        decision: aboveComfort
+            ? 'Warmer than the best range for ${stage.name}'
+            : 'Cooler than the best range for ${stage.name}',
         urgency: DssUrgency.low,
-        why: '${input.crop.name} grows best between ${_fixed(optMin)} and ${_fixed(optMax)}°C at ${stage.name}.',
-        action: 'Keep the soil moisture steady to help the crop cope, and watch how it goes over the next days.',
+        why:
+            '${input.crop.name} grows best between ${_fixed(optMin)} and ${_fixed(optMax)}°C at ${stage.name}.',
+        action: 'Keep moisture steady and check again over the next few days.',
         check: 'Compare plants in the open with plants in the shade.',
         evidence: evidence,
       ));
@@ -468,7 +530,13 @@ class DssEngine {
       id: 'temperature',
       title: 'Temperature',
       score: score,
-      status: hot ? 'Too hot' : cold ? 'Too cold' : aboveComfort || belowComfort ? 'On edge' : 'Just right',
+      status: hot
+          ? 'Too hot'
+          : cold
+              ? 'Too cold'
+              : aboveComfort || belowComfort
+                  ? 'On edge'
+                  : 'Just right',
       summary: hot
           ? 'It is too hot for ${input.crop.name}. Cool the crop down.'
           : cold
@@ -509,21 +577,34 @@ class DssEngine {
         label: 'Soil pH',
         value: _metric(ph, ''),
         status: phOut ? 'off' : 'ok',
-        tone: ph == null ? DssTone.info : phOut ? DssTone.warn : DssTone.good,
-        note: 'Best ${_fixed(input.crop.phMin)}–${_fixed(input.crop.phMax)} for ${input.crop.name}',
+        tone: ph == null
+            ? DssTone.info
+            : phOut
+                ? DssTone.warn
+                : DssTone.good,
+        note:
+            'Best ${_fixed(input.crop.phMin)}–${_fixed(input.crop.phMax)} for ${input.crop.name}',
       ),
       DssEvidence(
         label: 'Salt (EC)',
         value: ec == null ? '—' : '${_fixed(ec)} dS/m',
         status: ecHigh ? 'high' : 'ok',
-        tone: ec == null ? DssTone.info : ecHigh ? DssTone.bad : DssTone.good,
+        tone: ec == null
+            ? DssTone.info
+            : ecHigh
+                ? DssTone.bad
+                : DssTone.good,
         note: 'Salt in the soil — high salt blocks water',
       ),
       DssEvidence(
         label: 'Soil moisture',
         value: _metric(moisture, '%'),
         status: tooDry ? 'dry' : 'ok',
-        tone: moisture == null ? DssTone.info : tooDry ? DssTone.warn : DssTone.good,
+        tone: moisture == null
+            ? DssTone.info
+            : tooDry
+                ? DssTone.warn
+                : DssTone.good,
         note: 'Roots need moisture to feed',
       ),
     ];
@@ -540,13 +621,15 @@ class DssEngine {
                 ? 'The soil is too sour or too chalky for the roots'
                 : 'The soil is too dry for the roots to work',
         urgency: ecHigh || phOut ? DssUrgency.moderate : DssUrgency.low,
-        why: 'The roots can only feed the crop when the soil is the right kind, not too salty, and moist enough.',
+        why:
+            'The roots can only feed the crop when the soil is the right kind, not too salty, and moist enough.',
         action: ecHigh
-            ? 'Water with clean (low-salt) water and improve drainage to wash the salt down past the roots.'
+            ? 'Flush with clean water and open drainage so salt moves below the roots.'
             : phOut
-                ? 'Plan the right fix for this field — lime if it is too sour, gypsum or sulphur if it is too chalky.'
-                : 'Water the field to bring the roots back to life before the crop suffers.',
-        check: 'Look for a white salty crust, hard crusty topsoil, poor roots, or dry patches.',
+                ? 'Plan the pH fix: lime for sour soil, gypsum or sulphur for chalky soil.'
+                : 'Water the field so roots can feed again.',
+        check:
+            'Look for a white salty crust, hard crusty topsoil, poor roots, or dry patches.',
         evidence: evidence,
       ));
     }
@@ -556,7 +639,11 @@ class DssEngine {
       id: 'soil_health',
       title: 'Soil Health',
       score: score,
-      status: penalty >= 45 ? 'Needs work' : penalty >= 20 ? 'Watch' : 'Healthy',
+      status: penalty >= 45
+          ? 'Needs work'
+          : penalty >= 20
+              ? 'Watch'
+              : 'Healthy',
       summary: penalty >= 45
           ? 'The soil is limiting your crop. Fix it before spending on seed or fertiliser.'
           : penalty >= 20
@@ -578,7 +665,8 @@ class DssEngine {
     final pLow = _nutrientLow(r?.p, 'p', stage.pDemand);
     final kLow = _nutrientLow(r?.k, 'k', stage.kDemand);
     final ph = r?.ph;
-    final phIssue = ph != null && (ph < input.crop.phMin || ph > input.crop.phMax);
+    final phIssue =
+        ph != null && (ph < input.crop.phMin || ph > input.crop.phMax);
 
     if (nLow) penalty += _byDemand(stage.nDemand, 18);
     if (pLow) penalty += _byDemand(stage.pDemand, 16);
@@ -596,21 +684,33 @@ class DssEngine {
         label: 'Nitrogen (leaf growth)',
         value: _metric(r?.n, ''),
         status: nLow ? 'low' : 'ok',
-        tone: r?.n == null ? DssTone.info : nLow ? DssTone.warn : DssTone.good,
+        tone: r?.n == null
+            ? DssTone.info
+            : nLow
+                ? DssTone.warn
+                : DssTone.good,
         note: 'Feeds green leafy growth',
       ),
       DssEvidence(
         label: 'Phosphorus (roots)',
         value: _metric(r?.p, ''),
         status: pLow ? 'low' : 'ok',
-        tone: r?.p == null ? DssTone.info : pLow ? DssTone.warn : DssTone.good,
+        tone: r?.p == null
+            ? DssTone.info
+            : pLow
+                ? DssTone.warn
+                : DssTone.good,
         note: 'Builds roots and early strength',
       ),
       DssEvidence(
         label: 'Potassium (filling)',
         value: _metric(r?.k, ''),
         status: kLow ? 'low' : 'ok',
-        tone: r?.k == null ? DssTone.info : kLow ? DssTone.warn : DssTone.good,
+        tone: r?.k == null
+            ? DssTone.info
+            : kLow
+                ? DssTone.warn
+                : DssTone.good,
         note: 'Fills grain/fruit and fights stress',
       ),
     ];
@@ -620,13 +720,17 @@ class DssEngine {
         id: 'nutrient_low',
         moduleId: 'nutrients',
         moduleTitle: 'Nutrition',
-        title: 'Feed your crop — ${short.join(' and ')} ${short.length == 1 ? 'is' : 'are'} low',
-        decision: '${input.crop.name} is hungry for ${short.join(' and ')} at this stage',
+        title:
+            'Feed your crop — ${short.join(' and ')} ${short.length == 1 ? 'is' : 'are'} low',
+        decision:
+            '${input.crop.name} is hungry for ${short.join(' and ')} at this stage',
         urgency: DssUrgency.moderate,
         why:
             'At ${stage.name}, ${input.crop.name} pulls hard on these. The reading shows ${short.join(' and ')} running short.',
-        action: 'Top-dress the low nutrient this week so the crop is not starved during ${stage.name}.',
-        check: 'Look for pale or yellow leaves, purple tints, thin stems, or slow patchy growth.',
+        action:
+            'Apply the low nutrient this week. Keep the dose matched to your local fertiliser plan.',
+        check:
+            'Look for pale or yellow leaves, purple tints, thin stems, or slow patchy growth.',
         evidence: evidence,
       ));
     } else if (phIssue) {
@@ -635,11 +739,15 @@ class DssEngine {
         moduleId: 'nutrients',
         moduleTitle: 'Nutrition',
         title: 'Food is there but the soil is locking it',
-        decision: 'Nutrients look fine, but the soil pH stops the roots taking them',
+        decision:
+            'Nutrients look fine, but the soil pH stops the roots taking them',
         urgency: DssUrgency.low,
-        why: 'When pH is off the ${_fixed(input.crop.phMin)}–${_fixed(input.crop.phMax)} range, roots cannot take up the food in the soil.',
-        action: 'Fix the soil pH first — the food already in the ground becomes usable again.',
-        check: 'Compare leaf colour where the crop looks healthy against the pale patches.',
+        why:
+            'When pH is off the ${_fixed(input.crop.phMin)}–${_fixed(input.crop.phMax)} range, roots cannot take up the food in the soil.',
+        action:
+            'Fix pH first. Then the food already in soil becomes easier for roots to use.',
+        check:
+            'Compare leaf colour where the crop looks healthy against the pale patches.',
         evidence: evidence,
       ));
     }
@@ -649,7 +757,11 @@ class DssEngine {
       id: 'nutrients',
       title: 'Nutrition',
       score: score,
-      status: penalty >= 40 ? 'Feed now' : penalty >= 18 ? 'Watch' : 'Well fed',
+      status: penalty >= 40
+          ? 'Feed now'
+          : penalty >= 18
+              ? 'Watch'
+              : 'Well fed',
       summary: penalty >= 40
           ? 'Your crop is short on food it needs at ${stage.name}. Feed it this week.'
           : penalty >= 18
@@ -671,8 +783,16 @@ class DssEngine {
       DssEvidence(
         label: 'Soil pH',
         value: _metric(ph, ''),
-        status: low ? 'sour' : high ? 'chalky' : 'ok',
-        tone: ph == null ? DssTone.info : (low || high) ? DssTone.warn : DssTone.good,
+        status: low
+            ? 'sour'
+            : high
+                ? 'chalky'
+                : 'ok',
+        tone: ph == null
+            ? DssTone.info
+            : (low || high)
+                ? DssTone.warn
+                : DssTone.good,
         note: 'Under 7 is sour, over 7 is chalky',
       ),
       DssEvidence(
@@ -691,15 +811,19 @@ class DssEngine {
         id: 'ph_outside_crop_range',
         moduleId: 'ph',
         moduleTitle: 'Soil pH',
-        title: low ? 'Soil is too sour for ${input.crop.name}' : 'Soil is too chalky for ${input.crop.name}',
-        decision: 'The pH is outside the ${_fixed(input.crop.phMin)}–${_fixed(input.crop.phMax)} range it likes',
+        title: low
+            ? 'Soil is too sour for ${input.crop.name}'
+            : 'Soil is too chalky for ${input.crop.name}',
+        decision:
+            'The pH is outside the ${_fixed(input.crop.phMin)}–${_fixed(input.crop.phMax)} range it likes',
         urgency: DssUrgency.moderate,
         why:
             '${input.crop.name} feeds best between pH ${_fixed(input.crop.phMin)} and ${_fixed(input.crop.phMax)}. Outside that, food in the soil gets locked away.',
         action: low
-            ? 'Add farm lime to bring the pH up into range before the next feed.'
-            : 'Add gypsum or sulphur to bring the pH down into range.',
-        check: 'Check if the weak growth is across the whole field or just in patches.',
+            ? 'Use farm lime to raise pH before the next feed.'
+            : 'Use gypsum or sulphur to lower pH toward the crop range.',
+        check:
+            'Check if the weak growth is across the whole field or just in patches.',
         evidence: evidence,
       ));
     }
@@ -709,7 +833,11 @@ class DssEngine {
       id: 'ph',
       title: 'Soil pH',
       score: score,
-      status: penalty >= 30 ? 'Off range' : penalty > 0 ? 'No reading' : 'On range',
+      status: penalty >= 30
+          ? 'Off range'
+          : penalty > 0
+              ? 'No reading'
+              : 'On range',
       summary: penalty >= 30
           ? 'The soil pH is off the range ${input.crop.name} likes and is locking up food.'
           : penalty > 0
@@ -735,8 +863,18 @@ class DssEngine {
       DssEvidence(
         label: 'Salt level (EC)',
         value: ec == null ? '—' : '${_fixed(ec)} dS/m',
-        status: high ? 'high' : caution ? 'climbing' : 'safe',
-        tone: ec == null ? DssTone.info : high ? DssTone.bad : caution ? DssTone.warn : DssTone.good,
+        status: high
+            ? 'high'
+            : caution
+                ? 'climbing'
+                : 'safe',
+        tone: ec == null
+            ? DssTone.info
+            : high
+                ? DssTone.bad
+                : caution
+                    ? DssTone.warn
+                    : DssTone.good,
         note: 'How salty the soil water is',
       ),
       DssEvidence(
@@ -747,9 +885,15 @@ class DssEngine {
       ),
       DssEvidence(
         label: 'Salt trend (24h)',
-        value: ecTrend == null ? '—' : '${ecTrend >= 0 ? '+' : ''}${_fixed(ecTrend)} dS/m',
+        value: ecTrend == null
+            ? '—'
+            : '${ecTrend >= 0 ? '+' : ''}${_fixed(ecTrend)} dS/m',
         status: rising ? 'rising' : 'steady',
-        tone: ecTrend == null ? DssTone.info : rising ? DssTone.warn : DssTone.good,
+        tone: ecTrend == null
+            ? DssTone.info
+            : rising
+                ? DssTone.warn
+                : DssTone.good,
         note: 'Is salt building up over the day',
       ),
     ];
@@ -766,15 +910,30 @@ class DssEngine {
 
     if (high || caution || rising) {
       recs.add(_rec(
-        id: high ? 'salinity_high' : caution ? 'salinity_caution' : 'salinity_rising',
+        id: high
+            ? 'salinity_high'
+            : caution
+                ? 'salinity_caution'
+                : 'salinity_rising',
         moduleId: 'salinity',
         moduleTitle: 'Salt / EC',
-        title: high ? 'Too much salt for ${input.crop.name}' : 'Salt is creeping up',
-        decision: high ? 'Wash the salt out of the root zone now' : 'Get ahead of the salt before it hurts the crop',
-        urgency: high ? DssUrgency.high : caution ? DssUrgency.moderate : DssUrgency.low,
-        why: 'When the soil is salty, roots struggle to pull in water — so the crop looks thirsty even on wet soil.',
-        action: 'Water with clean (low-salt) water to flush the salt down, and improve drainage. Stop salty fertilisers for now.',
-        check: 'Look for a white crust on the soil, burnt leaf edges, stunted patches, and poor sprouting.',
+        title: high
+            ? 'Too much salt for ${input.crop.name}'
+            : 'Salt is creeping up',
+        decision: high
+            ? 'Wash the salt out of the root zone now'
+            : 'Get ahead of the salt before it hurts the crop',
+        urgency: high
+            ? DssUrgency.high
+            : caution
+                ? DssUrgency.moderate
+                : DssUrgency.low,
+        why:
+            'When the soil is salty, roots struggle to pull in water — so the crop looks thirsty even on wet soil.',
+        action:
+            'Flush with clean water, improve drainage, and pause salty fertilisers for now.',
+        check:
+            'Look for a white crust on the soil, burnt leaf edges, stunted patches, and poor sprouting.',
         evidence: evidence,
       ));
     }
@@ -784,7 +943,11 @@ class DssEngine {
       id: 'salinity',
       title: 'Salt / EC',
       score: score,
-      status: high ? 'Too salty' : caution || rising ? 'Climbing' : 'Safe',
+      status: high
+          ? 'Too salty'
+          : caution || rising
+              ? 'Climbing'
+              : 'Safe',
       summary: high
           ? 'The soil is too salty for ${input.crop.name}. Flush it with clean water.'
           : caution
@@ -824,8 +987,16 @@ class DssEngine {
       DssEvidence(
         label: 'Wind',
         value: windMph == null ? '—' : '${_fixed(windMph)} mph',
-        status: tooWindy ? 'too strong' : tooCalm ? 'too still' : 'good',
-        tone: windMph == null ? DssTone.info : (tooWindy || tooCalm) ? DssTone.warn : DssTone.good,
+        status: tooWindy
+            ? 'too strong'
+            : tooCalm
+                ? 'too still'
+                : 'good',
+        tone: windMph == null
+            ? DssTone.info
+            : (tooWindy || tooCalm)
+                ? DssTone.warn
+                : DssTone.good,
         note: 'Best between a light 3 and 10 mph',
       ),
       DssEvidence(
@@ -839,7 +1010,11 @@ class DssEngine {
         label: 'Heat',
         value: _metric(temp, '°C'),
         status: heatCaution ? 'hot' : 'ok',
-        tone: temp == null ? DssTone.info : heatCaution ? DssTone.warn : DssTone.good,
+        tone: temp == null
+            ? DssTone.info
+            : heatCaution
+                ? DssTone.warn
+                : DssTone.good,
         note: 'Heat over 32°C dries spray too fast',
       ),
     ];
@@ -849,7 +1024,9 @@ class DssEngine {
         id: 'spray_window_bad',
         moduleId: 'spray',
         moduleTitle: 'Spray Window',
-        title: rainy || tooWindy ? 'Do not spray now' : 'Wait for a better moment to spray',
+        title: rainy || tooWindy
+            ? 'Do not spray now'
+            : 'Wait for a better moment to spray',
         decision: rainy
             ? 'Rain will wash the spray off and waste it'
             : tooWindy
@@ -858,9 +1035,12 @@ class DssEngine {
                     ? 'The air is too still — spray can hang and drift later'
                     : 'The heat will dry the spray before it works',
         urgency: rainy || tooWindy ? DssUrgency.high : DssUrgency.moderate,
-        why: 'The weather decides whether spray lands where you want it. Right now it will not. Always follow the product label too.',
-        action: 'Wait until there is a light steady breeze, the leaves are dry, and it has cooled down.',
-        check: 'Check the wind direction, nearby crops, your nozzles, and the label.',
+        why:
+            'The weather decides whether spray lands where you want it. Right now it will not. Always follow the product label too.',
+        action:
+            'Wait for dry leaves, cooler air, and a light steady breeze before spraying.',
+        check:
+            'Check the wind direction, nearby crops, your nozzles, and the label.',
         evidence: evidence,
       ));
     }
@@ -870,7 +1050,11 @@ class DssEngine {
       id: 'spray',
       title: 'Spray Window',
       score: score,
-      status: penalty >= 45 ? 'Do not spray' : penalty >= 18 ? 'Risky' : 'Good to spray',
+      status: penalty >= 45
+          ? 'Do not spray'
+          : penalty >= 18
+              ? 'Risky'
+              : 'Good to spray',
       summary: penalty >= 45
           ? 'The weather is wrong for spraying. Wait for a better window.'
           : penalty >= 18
@@ -929,9 +1113,12 @@ class DssEngine {
         title: 'Check your crop for disease today',
         decision: 'Warm, wet weather is just what disease needs to spread',
         urgency: DssUrgency.moderate,
-        why: 'The weather right now is the kind that lets disease start and spread in ${input.crop.name}.',
-        action: 'Walk the field and look closely at leaves, stems, and the lower plants before it spreads. Treat early if you find it.',
-        check: 'Look for spots, white mould, rot, and disease starting in the thick, damp parts of the field.',
+        why:
+            'The weather right now is the kind that lets disease start and spread in ${input.crop.name}.',
+        action:
+            'Walk the field today. Check leaves, stems, and lower plants. Treat early only if you find disease.',
+        check:
+            'Look for spots, white mould, rot, and disease starting in the thick, damp parts of the field.',
         evidence: evidence,
       ));
     } else if (hotDry && input.crop.pestRisk != 'low') {
@@ -942,9 +1129,12 @@ class DssEngine {
         title: 'Watch for pests on the dry, stressed crop',
         decision: 'Hot dry stress makes pest damage worse',
         urgency: DssUrgency.low,
-        why: 'A stressed ${input.crop.name} takes more pest damage. What you see in the field decides whether to treat, not the weather alone.',
-        action: 'Check the field edges and the weakest patches, and act on what you actually find.',
-        check: 'Look under leaves, on new growth, and along the borders for insects or fresh chew marks.',
+        why:
+            'A stressed ${input.crop.name} takes more pest damage. What you see in the field decides whether to treat, not the weather alone.',
+        action:
+            'Check field edges and weak patches. Treat only if you find active pests.',
+        check:
+            'Look under leaves, on new growth, and along the borders for insects or fresh chew marks.',
         evidence: evidence,
       ));
     }
@@ -954,7 +1144,11 @@ class DssEngine {
       id: 'pest_disease',
       title: 'Pests & Disease',
       score: score,
-      status: penalty >= 30 ? 'Check today' : penalty >= 15 ? 'Watch' : 'Low risk',
+      status: penalty >= 30
+          ? 'Check today'
+          : penalty >= 15
+              ? 'Watch'
+              : 'Low risk',
       summary: penalty >= 30
           ? 'The weather is right for disease. Check your ${input.crop.name} today.'
           : penalty >= 15
@@ -985,22 +1179,26 @@ class DssEngine {
 
     if (nearingHarvest && (rainy || wetSoil)) penalty += 18;
 
-    final daysLeftInStage =
-        (das != null && stage.endDay > 0) ? (stage.endDay - das).clamp(0, 100000) : null;
+    final daysLeftInStage = (das != null && stage.endDay > 0)
+        ? (stage.endDay - das).clamp(0, 100000)
+        : null;
     final daysToHarvest =
         (das != null && cycle != null) ? (cycle - das).clamp(0, 100000) : null;
 
     final evidence = <DssEvidence>[
       DssEvidence(
         label: 'Where you are',
-        value: das == null ? stage.name : 'Day $das${cycle != null ? ' of $cycle' : ''}',
+        value: das == null
+            ? stage.name
+            : 'Day $das${cycle != null ? ' of $cycle' : ''}',
         status: 'stage',
         note: 'Days since you sowed',
       ),
       if (daysLeftInStage != null)
         DssEvidence(
           label: 'Left in this stage',
-          value: daysLeftInStage == 0 ? 'Changing now' : '$daysLeftInStage days',
+          value:
+              daysLeftInStage == 0 ? 'Changing now' : '$daysLeftInStage days',
           status: 'stage',
           note: 'Then it moves to the next stage',
         ),
@@ -1022,9 +1220,11 @@ class DssEngine {
         title: 'Your ${input.crop.name} is ready to harvest',
         decision: 'The crop has reached the end of its growing time',
         urgency: DssUrgency.moderate,
-        why: 'You are past the usual ${cycle ?? 0}-day growing time for ${input.crop.name}.',
+        why:
+            'You are past the usual ${cycle ?? 0}-day growing time for ${input.crop.name}.',
         action: 'Check the crop in the field and harvest on the next dry day.',
-        check: 'Check the grain, pods, fruit, or roots to be sure they are ready.',
+        check:
+            'Check the grain, pods, fruit, or roots to be sure they are ready.',
         evidence: evidence,
       ));
     } else if (nearingHarvest) {
@@ -1039,7 +1239,8 @@ class DssEngine {
         urgency: rainy || wetSoil ? DssUrgency.moderate : DssUrgency.low,
         why:
             '${input.crop.name} is in ${stage.name}${daysToHarvest != null ? ', about $daysToHarvest days from harvest' : ''}. Timing now decides the quality.',
-        action: 'Use the focus note above as your checklist and confirm ripeness in the field.',
+        action:
+            'Use the focus note above as your checklist and confirm ripeness in the field.',
         check: 'Check the grain, fruit, bulb, or biomass for your crop.',
         evidence: evidence,
       ));
@@ -1050,7 +1251,11 @@ class DssEngine {
       id: 'stage',
       title: 'Stage & Harvest',
       score: score,
-      status: input.pastHarvest ? 'Harvest' : nearingHarvest ? 'Final stretch' : 'Growing',
+      status: input.pastHarvest
+          ? 'Harvest'
+          : nearingHarvest
+              ? 'Final stretch'
+              : 'Growing',
       summary: stage.actionNote,
       recommendations: recs,
     );

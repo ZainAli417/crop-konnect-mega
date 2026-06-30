@@ -192,23 +192,18 @@ class SupabaseStationDataSource implements StationDataSource {
   @override
   Future<StationSettings> fetchSettings() async {
     final station = await _fetchStation();
-    final rows = await _getList(
-      _restUri('station_settings', <String, String>{
-        'select': '*',
-        'station_id': 'eq.${station.id}',
-        'limit': '1',
-      }),
-    );
-    if (rows.isEmpty) {
+    final row = await _fetchSettingsRow(station);
+    if (row == null) {
       return _defaultSettings(station);
     }
-    return _settingsFromRow(rows.first, station);
+    return _settingsFromRow(row, station);
   }
 
   @override
   Future<StationSettings> patchSettings(StationSettingsPatch patch) async {
     final station = await _fetchStation();
-    final payload = _settingsPatchPayload(patch);
+    final existingRow = await _fetchSettingsRow(station);
+    final payload = _settingsPatchPayload(patch, existingRow: existingRow);
     if (payload.isEmpty) {
       return fetchSettings();
     }
@@ -229,6 +224,20 @@ class SupabaseStationDataSource implements StationDataSource {
       return fetchSettings();
     }
     return _settingsFromRow(rows.first, station);
+  }
+
+  Future<Map<String, dynamic>?> _fetchSettingsRow(_StationRef station) async {
+    final rows = await _getList(
+      _restUri('station_settings', <String, String>{
+        'select': '*',
+        'station_id': 'eq.${station.id}',
+        'limit': '1',
+      }),
+    );
+    if (rows.isEmpty) {
+      return null;
+    }
+    return rows.first;
   }
 
   @override
@@ -556,7 +565,10 @@ class SupabaseStationDataSource implements StationDataSource {
     );
   }
 
-  Map<String, dynamic> _settingsPatchPayload(StationSettingsPatch patch) {
+  Map<String, dynamic> _settingsPatchPayload(
+    StationSettingsPatch patch, {
+    Map<String, dynamic>? existingRow,
+  }) {
     final payload = <String, dynamic>{};
 
     patch.sensorEnabled?.forEach((key, enabled) {
@@ -594,14 +606,33 @@ class SupabaseStationDataSource implements StationDataSource {
           _normalizeReadOrder(patch.sensorReadOrder!).join(',');
     }
     if (patch.sensorIntervals != null && patch.sensorIntervals!.isNotEmpty) {
-      payload['sensor_read_schedule_json'] =
-          _sensorIntervalsToScheduleJson(patch.sensorIntervals!);
+      payload['sensor_read_schedule_json'] = _mergedSensorIntervalsJson(
+        existingRow?['sensor_read_schedule_json'],
+        patch.sensorIntervals!,
+      );
     }
 
     if (payload.isNotEmpty) {
       payload['updated_at'] = DateTime.now().toUtc().toIso8601String();
     }
     return payload;
+  }
+
+  Map<String, dynamic> _decodeSensorSchedule(dynamic raw) {
+    dynamic decoded = raw;
+    if (raw is String && raw.trim().isNotEmpty) {
+      try {
+        decoded = jsonDecode(raw);
+      } catch (_) {
+        decoded = null;
+      }
+    }
+    if (decoded is! Map) {
+      return <String, dynamic>{};
+    }
+    return decoded.map(
+      (key, value) => MapEntry(key.toString(), value),
+    );
   }
 
   Map<String, SensorIntervalSettings> _sensorIntervalsFromScheduleJson(
@@ -626,15 +657,8 @@ class SupabaseStationDataSource implements StationDataSource {
         intervalSeconds: kDefaultSensorIntervalSeconds,
       ),
     };
-    dynamic decoded = raw;
-    if (raw is String && raw.trim().isNotEmpty) {
-      try {
-        decoded = jsonDecode(raw);
-      } catch (_) {
-        decoded = null;
-      }
-    }
-    if (decoded is! Map) {
+    final decoded = _decodeSensorSchedule(raw);
+    if (decoded.isEmpty) {
       return intervals;
     }
     decoded.forEach((rawKey, rawValue) {
@@ -650,8 +674,11 @@ class SupabaseStationDataSource implements StationDataSource {
     return intervals;
   }
 
-  String _sensorIntervalsToScheduleJson(Map<String, int> sensorIntervals) {
-    final plan = <String, dynamic>{};
+  String _mergedSensorIntervalsJson(
+    dynamic existingSchedule,
+    Map<String, int> sensorIntervals,
+  ) {
+    final plan = _decodeSensorSchedule(existingSchedule);
     sensorIntervals.forEach((rawKey, intervalSeconds) {
       final key = _normalizeIntervalKey(rawKey);
       final readsPerDay = _readsPerDayFromIntervalSeconds(intervalSeconds);

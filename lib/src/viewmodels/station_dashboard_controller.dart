@@ -514,19 +514,11 @@ class StationDashboardController extends ChangeNotifier {
 
   Future<void> updateSensorInterval(
       String sensorKey, int intervalSeconds) async {
-    final current = <String, int>{
-      for (final entry in kDefaultSensorIntervals.entries)
-        entry.key: entry.value,
-    };
-    final settings = stationSettings;
-    if (settings != null) {
-      settings.polling.sensorIntervals.forEach((key, value) {
-        current[key] = value.intervalSeconds;
-      });
-    }
-    current[sensorKey == 'solar' ? 'uv' : sensorKey] = intervalSeconds;
+    final normalizedKey = sensorKey == 'solar' ? 'uv' : sensorKey;
     await patchSettings(
-      StationSettingsPatch(sensorIntervals: current),
+      StationSettingsPatch(
+        sensorIntervals: <String, int>{normalizedKey: intervalSeconds},
+      ),
     );
   }
 

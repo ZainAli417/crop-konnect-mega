@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../config/app_config.dart';
 import '../config/dashboard_theme.dart';
 import '../models/station_settings.dart';
 import '../viewmodels/station_dashboard_controller.dart';
@@ -24,7 +23,6 @@ class _T {
   static const Color kChipBg = Color(0xFFF3F6FA);
   static const Color kMuted = Color(0xFF8899AA);
   static const Color kText = Color(0xFF0D1821);
-  static const Color kSub = Color(0xFF5A6B7C);
 
   static BoxDecoration card() => BoxDecoration(
         color: kCard,
@@ -70,20 +68,15 @@ class SettingsTab extends StatefulWidget {
   const SettingsTab({
     super.key,
     required this.controller,
-    required this.mode,
-    required this.onModeChanged,
   });
 
   final StationDashboardController controller;
-  final AppDataMode mode;
-  final ValueChanged<AppDataMode> onModeChanged;
 
   @override
   State<SettingsTab> createState() => _SettingsTabState();
 }
 
 class _SettingsTabState extends State<SettingsTab> {
-  int? _pollIntervalSeconds;
   double? _interReadDelay;
 
   @override
@@ -95,7 +88,6 @@ class _SettingsTabState extends State<SettingsTab> {
 
   void _seedFromSettings(StationSettings? s) {
     if (s == null) return;
-    _pollIntervalSeconds ??= s.polling.pollIntervalSeconds;
     _interReadDelay ??= s.polling.interReadDelayMs.toDouble();
   }
 
@@ -126,8 +118,7 @@ class _SettingsTabState extends State<SettingsTab> {
               _SectionLabel(
                   title: 'Data Environment', sub: 'Active telemetry source'),
               const SizedBox(height: 8),
-              _ModeSwitcher(
-                  mode: widget.mode, onSelected: widget.onModeChanged),
+              const _CloudEnvironmentCard(),
               if (widget.controller.errorMessage != null) ...[
                 const SizedBox(height: 10),
                 _SettingsErrorStrip(message: widget.controller.errorMessage!),
@@ -149,13 +140,7 @@ class _SettingsTabState extends State<SettingsTab> {
                           settings: settings,
                           busy: busy,
                           controller: widget.controller,
-                          pollIntervalSeconds: _pollIntervalSeconds!,
                           interReadDelay: _interReadDelay!,
-                          onIntervalChanged: (v) {
-                            setState(() => _pollIntervalSeconds = v);
-                            widget.controller
-                                .updatePolling(pollIntervalSeconds: v);
-                          },
                           onDelayChanged: (v) =>
                               setState(() => _interReadDelay = v),
                           onDelayEnd: (v) => widget.controller
@@ -169,13 +154,7 @@ class _SettingsTabState extends State<SettingsTab> {
                           settings: settings,
                           busy: busy,
                           controller: widget.controller,
-                          pollIntervalSeconds: _pollIntervalSeconds!,
                           interReadDelay: _interReadDelay!,
-                          onIntervalChanged: (v) {
-                            setState(() => _pollIntervalSeconds = v);
-                            widget.controller
-                                .updatePolling(pollIntervalSeconds: v);
-                          },
                           onDelayChanged: (v) =>
                               setState(() => _interReadDelay = v),
                           onDelayEnd: (v) => widget.controller
@@ -238,9 +217,7 @@ class _WideLayout extends StatelessWidget {
     required this.settings,
     required this.busy,
     required this.controller,
-    required this.pollIntervalSeconds,
     required this.interReadDelay,
-    required this.onIntervalChanged,
     required this.onDelayChanged,
     required this.onDelayEnd,
     required this.onToggleSensor,
@@ -250,9 +227,7 @@ class _WideLayout extends StatelessWidget {
   final StationSettings settings;
   final bool busy;
   final StationDashboardController controller;
-  final int pollIntervalSeconds;
   final double interReadDelay;
-  final ValueChanged<int> onIntervalChanged;
   final ValueChanged<double> onDelayChanged;
   final ValueChanged<double> onDelayEnd;
   final void Function(String, bool) onToggleSensor;
@@ -291,14 +266,11 @@ class _WideLayout extends StatelessWidget {
           child: Column(
             children: [
               _SectionLabel(
-                  title: 'Backend Loop', sub: 'Fallback poll and read gap'),
+                  title: 'Read Gap', sub: 'Delay between sensor reads'),
               const SizedBox(height: 8),
               _PollingCard(
-                interval: pollIntervalSeconds,
                 delay: interReadDelay,
-                sensorReadOrder: settings.polling.sensorReadOrder,
                 busy: busy,
-                onIntervalChanged: onIntervalChanged,
                 onDelayChanged: onDelayChanged,
                 onDelayEnd: onDelayEnd,
               ),
@@ -326,9 +298,7 @@ class _NarrowLayout extends StatelessWidget {
     required this.settings,
     required this.busy,
     required this.controller,
-    required this.pollIntervalSeconds,
     required this.interReadDelay,
-    required this.onIntervalChanged,
     required this.onDelayChanged,
     required this.onDelayEnd,
     required this.onToggleSensor,
@@ -338,9 +308,7 @@ class _NarrowLayout extends StatelessWidget {
   final StationSettings settings;
   final bool busy;
   final StationDashboardController controller;
-  final int pollIntervalSeconds;
   final double interReadDelay;
-  final ValueChanged<int> onIntervalChanged;
   final ValueChanged<double> onDelayChanged;
   final ValueChanged<double> onDelayEnd;
   final void Function(String, bool) onToggleSensor;
@@ -362,14 +330,11 @@ class _NarrowLayout extends StatelessWidget {
         _SensorTogglesCard(
             sensors: settings.sensors, busy: busy, onToggle: onToggleSensor),
         const SizedBox(height: _T.kGap + 4),
-        _SectionLabel(title: 'Backend Loop', sub: 'Fallback poll and read gap'),
+        _SectionLabel(title: 'Read Gap', sub: 'Delay between sensor reads'),
         const SizedBox(height: 8),
         _PollingCard(
-          interval: pollIntervalSeconds,
           delay: interReadDelay,
-          sensorReadOrder: settings.polling.sensorReadOrder,
           busy: busy,
-          onIntervalChanged: onIntervalChanged,
           onDelayChanged: onDelayChanged,
           onDelayEnd: onDelayEnd,
         ),
@@ -445,91 +410,51 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
-// ─── Mode Switcher ────────────────────────────────────────────────────────────
+// ─── Cloud Environment ───────────────────────────────────────────────────────
 
-class _ModeSwitcher extends StatelessWidget {
-  const _ModeSwitcher({required this.mode, required this.onSelected});
-
-  final AppDataMode mode;
-  final ValueChanged<AppDataMode> onSelected;
+class _CloudEnvironmentCard extends StatelessWidget {
+  const _CloudEnvironmentCard();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: _T.kChipBg,
+        color: _T.kCard,
         borderRadius: BorderRadius.circular(_T.kCardRadius),
         border: Border.all(color: _T.kBorder, width: 1),
       ),
       child: Row(
         children: [
-          _ModeChip(
-            label: 'Cloud',
-            icon: Icons.cloud_outlined,
-            sel: mode == AppDataMode.supabase,
-            onTap: () => onSelected(AppDataMode.supabase),
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: AppTokens.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.cloud_done_rounded,
+              color: AppTokens.primary,
+              size: 19,
+            ),
           ),
-          _ModeChip(
-            label: 'Live',
-            icon: Icons.sensors_rounded,
-            sel: mode == AppDataMode.live,
-            onTap: () => onSelected(AppDataMode.live),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Cloud Active',
+                    style: _T.body(
+                        size: 13.5, weight: FontWeight.w800, color: _T.kText)),
+                const SizedBox(height: 2),
+                Text('Connected to Supabase telemetry',
+                    style: _T.micro(size: 10, spacing: 0)),
+              ],
+            ),
           ),
-          _ModeChip(
-            label: 'Mock',
-            icon: Icons.science_outlined,
-            sel: mode == AppDataMode.mock,
-            onTap: () => onSelected(AppDataMode.mock),
-          ),
+          const Icon(Icons.lock_rounded, color: _T.kMuted, size: 16),
         ],
-      ),
-    );
-  }
-}
-
-class _ModeChip extends StatelessWidget {
-  const _ModeChip(
-      {required this.label,
-      required this.icon,
-      required this.sel,
-      required this.onTap});
-
-  final String label;
-  final IconData icon;
-  final bool sel;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOut,
-          padding: const EdgeInsets.symmetric(vertical: 9),
-          decoration: BoxDecoration(
-            color: sel ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-            border: sel
-                ? Border.all(color: _T.kBorder, width: 1)
-                : Border.all(color: Colors.transparent, width: 1),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 18, color: sel ? AppTokens.primary : _T.kMuted),
-              const SizedBox(height: 3),
-              Text(label,
-                  style: _T.micro(
-                      size: 10,
-                      spacing: 0,
-                      color: sel ? _T.kText : _T.kMuted,
-                      weight: FontWeight.w800)),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -701,20 +626,14 @@ class _SensorTogglesCard extends StatelessWidget {
 
 class _PollingCard extends StatelessWidget {
   const _PollingCard({
-    required this.interval,
     required this.delay,
-    required this.sensorReadOrder,
     required this.busy,
-    required this.onIntervalChanged,
     required this.onDelayChanged,
     required this.onDelayEnd,
   });
 
-  final int interval;
   final double delay;
-  final List<String> sensorReadOrder;
   final bool busy;
-  final ValueChanged<int> onIntervalChanged;
   final ValueChanged<double> onDelayChanged;
   final ValueChanged<double> onDelayEnd;
 
@@ -726,36 +645,6 @@ class _PollingCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Interval ──
-          _RowLabel(
-            icon: Icons.timer_outlined,
-            title: 'Fallback Poll',
-            badge: _fmtInterval(interval),
-            badgeColor: AppTokens.primary,
-          ),
-          const SizedBox(height: 8),
-          _TintedDropdown<int>(
-            value: interval,
-            accentColor: AppTokens.primary,
-            icon: Icons.repeat_rounded,
-            items: ({5, 15, 30, 60, 300, 3600, interval}.toList()..sort())
-                .map((s) => DropdownMenuItem(
-                      value: s,
-                      child: Text(_fmtEveryInterval(s)),
-                    ))
-                .toList(),
-            onChanged: busy
-                ? null
-                : (v) {
-                    if (v != null) onIntervalChanged(v);
-                  },
-          ),
-
-          const SizedBox(height: _T.kPad),
-          const Divider(height: 1, color: _T.kDivider),
-          const SizedBox(height: _T.kPad),
-
-          // ── Delay slider ──
           _RowLabel(
             icon: Icons.speed_outlined,
             title: 'Sensor Read Gap',
@@ -780,47 +669,6 @@ class _PollingCard extends StatelessWidget {
               onChanged: busy ? null : onDelayChanged,
               onChangeEnd: busy ? null : onDelayEnd,
             ),
-          ),
-
-          const SizedBox(height: _T.kPad),
-          const Divider(height: 1, color: _T.kDivider),
-          const SizedBox(height: _T.kPad),
-
-          // ── Read order ──
-          _RowLabel(
-            icon: Icons.reorder_rounded,
-            title: 'Read Order',
-            badge: '${sensorReadOrder.length} sensors',
-            badgeColor: _T.kMuted,
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: List.generate(sensorReadOrder.length, (i) {
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                decoration: BoxDecoration(
-                  color: _T.kChipBg,
-                  borderRadius: BorderRadius.circular(7),
-                  border: Border.all(color: _T.kBorder),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('${i + 1}',
-                        style: _T.micro(
-                            size: 9,
-                            color: AppTokens.primary,
-                            spacing: 0,
-                            weight: FontWeight.w800)),
-                    const SizedBox(width: 5),
-                    Text(sensorReadOrder[i].toUpperCase(),
-                        style: _T.micro(size: 9, spacing: 0.7, color: _T.kSub)),
-                  ],
-                ),
-              );
-            }),
           ),
         ],
       ),
