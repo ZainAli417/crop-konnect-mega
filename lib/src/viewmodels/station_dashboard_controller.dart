@@ -11,9 +11,11 @@ import '../models/station_summary.dart';
 import '../models/station_trends.dart';
 import '../models/dss.dart';
 import '../models/crop_timeline.dart';
+import '../models/soil_weather_advisory.dart';
 import '../services/dss_crop_repository.dart';
 import '../services/crop_timeline_repository.dart';
 import '../services/dss_engine.dart';
+import '../services/soil_weather_advisory_service.dart';
 import '../services/station_data_source.dart';
 import '../services/station_live_stream.dart';
 import '../models/gps_reading.dart';
@@ -40,6 +42,47 @@ class StationDashboardController extends ChangeNotifier {
   DssCropProfile? activeDssCrop;
   DssCropStage? activeDssStage;
   DssAnalysis? dssAnalysis;
+
+
+  // ── Remote soil-weather advisory (DSS tab) ────────────────────────────────
+  // The advisory tab has its own selection (independent of the local DSS that
+  // still feeds the dashboard). Nothing is chosen by default — the user picks a
+  // crop, a sowing date and a language, then taps "Get Decision".
+  SoilWeatherAdvisory? soilWeatherAdvisory;
+  String? soilWeatherError;
+  bool isLoadingAdvisory = false;
+  String? advisoryCropId; // null = not chosen
+  DateTime? advisorySowingDate; // null = not chosen
+  // Advisory language: 'en' | 'ur'.
+  String advisoryLanguage = 'en';
+
+  /// True once a crop and a sowing date are both selected.
+  bool get canRequestAdvisory =>
+      advisoryCropId != null && advisorySowingDate != null;
+
+  /// Resolved timeline for the advisory-tab crop (null until a crop is chosen).
+  CropTimeline? get advisoryTimeline {
+    final id = advisoryCropId;
+    if (id == null || cropTimelines.isEmpty) return null;
+    return _timelineRepository.resolve(cropTimelines, id);
+  }
+
+  /// Whole days since the advisory-tab sowing date (0 if none / negative).
+  int get advisoryDaysAfterSowing {
+    final sown = advisorySowingDate;
+    if (sown == null) return 0;
+    final diff = DateTime.now().difference(sown).inHours / 24.0;
+    return diff < 0 ? 0 : diff.floor();
+  }
+
+  int get advisoryStageIndex {
+    final t = advisoryTimeline;
+    if (t == null || t.stages.isEmpty) return 0;
+    return t.stageIndexForDay(advisoryDaysAfterSowing);
+  }
+
+  bool get advisoryIsPastHarvest =>
+      advisoryTimeline?.isPastHarvest(advisoryDaysAfterSowing) ?? false;
 
   // ── Crop stage timeline (sowing-date driven) ──────────────────────────────
   List<CropTimeline> cropTimelines = const <CropTimeline>[];
@@ -89,6 +132,9 @@ class StationDashboardController extends ChangeNotifier {
       DssCropKnowledgeRepository();
   final CropTimelineRepository _timelineRepository = CropTimelineRepository();
   final DssEngine _dssEngine = const DssEngine();
+  final SoilWeatherAdvisoryService _advisoryService =
+      SoilWeatherAdvisoryService();
+  Future<void>? _advisoryRefreshInFlight;
 
   AppDataMode get mode => _client.mode;
 
@@ -280,6 +326,7 @@ class StationDashboardController extends ChangeNotifier {
     }
   }
 
+
   Future<void> refreshDss({bool notify = true}) async {
     final inFlight = _dssRefreshInFlight;
     if (inFlight != null) {
@@ -361,6 +408,89 @@ class StationDashboardController extends ChangeNotifier {
     }
   }
 
+  /// Fetch the advisory for the chosen crop, sowing date, language and latest
+  /// field reading. Called when the user taps "Get Decision" (and on pull-to-
+  /// refresh). No-op until a crop and sowing date are selected. De-duplicates
+  /// concurrent calls.
+  Future<void> refreshSoilWeatherAdvisory({bool notify = true}) async {
+    if (!canRequestAdvisory) {
+      return;
+    }
+    final inFlight = _advisoryRefreshInFlight;
+    if (inFlight != null) {
+      await inFlight;
+      if (notify) {
+        notifyListeners();
+      }
+      return;
+    }
+
+    final refresh = _refreshAdvisoryInternal(notify: notify);
+    _advisoryRefreshInFlight = refresh;
+    await refresh;
+    if (identical(_advisoryRefreshInFlight, refresh)) {
+      _advisoryRefreshInFlight = null;
+    }
+  }
+
+  Future<void> _refreshAdvisoryInternal({required bool notify}) async {
+    final cropId = advisoryCropId;
+    final sown = advisorySowingDate;
+    if (cropId == null || sown == null) return;
+
+    isLoadingAdvisory = true;
+    if (notify) {
+      notifyListeners();
+    }
+    try {
+      if (cropTimelines.isEmpty) {
+        cropTimelines = await _timelineRepository.load();
+      }
+      final timeline = _timelineRepository.resolve(cropTimelines, cropId);
+
+      soilWeatherAdvisory = await _advisoryService.fetchAdvisory(
+        cropName: timeline.id,
+        sowingDate: sown,
+        observationDate: DateTime.now(),
+        language: advisoryLanguage,
+        reading: latestReading,
+      );
+      soilWeatherError = null;
+    } catch (error) {
+      soilWeatherError = error.toString();
+    } finally {
+      isLoadingAdvisory = false;
+      if (notify) {
+        notifyListeners();
+      }
+    }
+  }
+
+  /// Choose the advisory crop (by timeline id). Loads timelines if needed and
+  /// clears any stale advisory so the user re-runs the decision.
+  Future<void> setAdvisoryCrop(String cropId) async {
+    if (cropTimelines.isEmpty) {
+      try {
+        cropTimelines = await _timelineRepository.load();
+      } catch (_) {
+        // Keep the selection; the fetch will surface any load error.
+      }
+    }
+    advisoryCropId = cropId;
+    soilWeatherAdvisory = null;
+    soilWeatherError = null;
+    notifyListeners();
+  }
+
+  /// Choose the advisory sowing date. Clears any stale advisory.
+  void setAdvisorySowingDate(DateTime date) {
+    advisorySowingDate = DateTime(date.year, date.month, date.day);
+    soilWeatherAdvisory = null;
+    soilWeatherError = null;
+    notifyListeners();
+  }
+
+
   String _trendsSignature(StationTrends? value) {
     if (value == null) return '';
     final parts = <String>['${value.hours}'];
@@ -391,7 +521,7 @@ class StationDashboardController extends ChangeNotifier {
     );
   }
 
-  /// Change the selected crop (by timeline id) and rebuild the advisory.
+  /// Change the selected crop (by timeline id) and rebuild the local advisory.
   Future<void> setCrop(String cropId) async {
     if (cropId == selectedCropId) return;
     selectedCropId = cropId;
@@ -405,6 +535,16 @@ class StationDashboardController extends ChangeNotifier {
     if (normalized == sowingDate) return;
     sowingDate = normalized;
     await refreshDss(notify: false);
+    notifyListeners();
+  }
+
+  /// Switch the advisory language ('en' | 'ur'). Clears any stale advisory so
+  /// the user re-runs the decision in the new language.
+  void setAdvisoryLanguage(String language) {
+    if (language == advisoryLanguage) return;
+    advisoryLanguage = language;
+    soilWeatherAdvisory = null;
+    soilWeatherError = null;
     notifyListeners();
   }
 

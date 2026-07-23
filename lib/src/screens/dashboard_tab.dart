@@ -7,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
 import '../config/dashboard_theme.dart';
-import '../models/dss.dart';
 import '../models/monitoring_status.dart';
 import '../models/sensor_reading.dart';
 import '../models/gps_reading.dart';
@@ -242,7 +241,6 @@ class DashboardTab extends StatelessWidget {
       builder: (context, _) {
         final reading = controller.latestReading;
         final monitoring = controller.monitoringStatus;
-        final analysis = controller.dssAnalysis;
 
         return RefreshIndicator(
           onRefresh: controller.refreshAll,
@@ -266,15 +264,6 @@ class DashboardTab extends StatelessWidget {
                     hasConnection: controller.hasConnection,
                     onRefresh: controller.refreshAll,
                     onSettingsTap: onSettingsTap,
-                  ),
-                ),
-
-                // ── Farmer action summary ────────────────────────────
-                _SectionReveal(
-                  delay: const Duration(milliseconds: 70),
-                  child: _FarmerActionSummary(
-                    analysis: analysis,
-                    reading: reading,
                   ),
                 ),
 
@@ -549,157 +538,7 @@ class _TopActionState extends State<_TopAction> {
 //  Farmer Action Summary
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _FarmerActionSummary extends StatelessWidget {
-  const _FarmerActionSummary({required this.analysis, required this.reading});
 
-  final DssAnalysis? analysis;
-  final SensorReading? reading;
-
-  @override
-  Widget build(BuildContext context) {
-    final recommendation = analysis?.priorityRecommendations.isNotEmpty == true
-        ? analysis!.priorityRecommendations.first
-        : null;
-    final color = recommendation == null
-        ? _T.g600
-        : _dashboardUrgencyColor(recommendation.urgency);
-    final icon = recommendation == null
-        ? Icons.check_circle_rounded
-        : _dashboardUrgencyIcon(recommendation.urgency);
-    final title = recommendation?.title ?? 'No urgent job right now';
-    final action = recommendation?.farmerAction ??
-        'Keep sensors running and walk the field once today.';
-    final check = recommendation?.fieldCheck ??
-        'Look for dry patches, wilting leaves, standing water, or damaged plants.';
-    final current = analysis;
-    final stage = current == null
-        ? 'Waiting for crop advisory'
-        : '${current.crop.name} · ${current.stage.name}';
-
-    return Container(
-      color: _T.white,
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.24)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(13),
-                  ),
-                  child: Icon(icon, color: Colors.white, size: 24),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('TODAY ON FIELD',
-                          style: _T.label(size: 9.5, color: color)),
-                      const SizedBox(height: 4),
-                      Text(
-                        title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: _T.display(
-                          size: 20,
-                          color: _T.ink900,
-                          letterSpacing: -0.4,
-                          height: 1.15,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(stage,
-                          style: _T.body(
-                              size: 12,
-                              color: _T.ink500,
-                              weight: FontWeight.w700)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            _ActionLine(
-              icon: Icons.task_alt_rounded,
-              label: 'Do',
-              text: action,
-              color: color,
-            ),
-            const SizedBox(height: 8),
-            _ActionLine(
-              icon: Icons.search_rounded,
-              label: 'Check',
-              text: check,
-              color: _T.ink700,
-            ),
-            if (reading != null) ...[
-              const SizedBox(height: 12),
-              Text(
-                'Based on last reading: ${_readingAge(reading!.recordedAt)}',
-                style: _T.body(
-                  size: 11.5,
-                  color: _T.ink500,
-                  weight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionLine extends StatelessWidget {
-  const _ActionLine({
-    required this.icon,
-    required this.label,
-    required this.text,
-    required this.color,
-  });
-
-  final IconData icon;
-  final String label;
-  final String text;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, color: color, size: 18),
-        const SizedBox(width: 9),
-        SizedBox(
-          width: 46,
-          child: Text(label.toUpperCase(),
-              style: _T.label(size: 9.5, color: color, letterSpacing: 0.6)),
-        ),
-        Expanded(
-          child: Text(
-            text,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: _T.body(size: 13, color: _T.ink700, weight: FontWeight.w800),
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 class _LatestReadingPanel extends StatelessWidget {
   const _LatestReadingPanel({required this.reading});
@@ -2023,35 +1862,6 @@ Color _condColor(String? condition) {
   }
 }
 
-Color _dashboardUrgencyColor(DssUrgency urgency) {
-  switch (urgency) {
-    case DssUrgency.critical:
-    case DssUrgency.high:
-      return _T.red;
-    case DssUrgency.moderate:
-      return _T.amber;
-    case DssUrgency.low:
-      return _T.sky;
-    case DssUrgency.info:
-      return _T.ink500;
-  }
-}
-
-IconData _dashboardUrgencyIcon(DssUrgency urgency) {
-  switch (urgency) {
-    case DssUrgency.critical:
-      return Icons.priority_high_rounded;
-    case DssUrgency.high:
-      return Icons.warning_amber_rounded;
-    case DssUrgency.moderate:
-      return Icons.error_outline_rounded;
-    case DssUrgency.low:
-      return Icons.info_outline_rounded;
-    case DssUrgency.info:
-      return Icons.tips_and_updates_outlined;
-  }
-}
-
 String _readingAge(DateTime value) {
   final diff = DateTime.now().difference(value);
   if (diff.inMinutes < 1) return 'just now';
@@ -2059,3 +1869,6 @@ String _readingAge(DateTime value) {
   if (diff.inHours < 24) return '${diff.inHours} hr ago';
   return '${diff.inDays} day${diff.inDays == 1 ? '' : 's'} ago';
 }
+
+
+

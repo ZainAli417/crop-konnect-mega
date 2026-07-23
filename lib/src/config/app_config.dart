@@ -17,6 +17,13 @@ class AppConfig {
     'CROPCONNECT_SENSOR_STATION_NAME',
     defaultValue: 'Field Station 1',
   );
+
+  /// Base URL of the soil-weather advisory service (the DSS backend).
+  /// Full endpoint: `$advisoryApiBaseUrl/advisory/api/advisory/soil-weather`.
+  static const String advisoryApiBaseUrl = String.fromEnvironment(
+    'CROPCONNECT_ADVISORY_API_BASE_URL',
+    defaultValue: 'https://demo.escan-systems.com',
+  );
   static const String supabaseUrl = String.fromEnvironment(
     'CROPCONNECT_SUPABASE_URL',
     defaultValue: 'https://oadsmdarmoxgauoqyhmd.supabase.co',

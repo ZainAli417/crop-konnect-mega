@@ -1,18 +1,19 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../config/dashboard_theme.dart';
-import '../models/crop_timeline.dart';
-import '../models/dss.dart';
-import '../models/sensor_reading.dart';
+import '../models/soil_weather_advisory.dart';
 import '../viewmodels/station_dashboard_controller.dart';
 
 // ════════════════════════════════════════════════════════════════════════════
-//  DSS Center
-//  Pick a crop + sowing date → the growth stage is computed automatically and
-//  drawn on an animated stage timeline. Every decision card compares live
-//  sensors against the crop's exact needs at that stage and states the call
-//  plainly, with a score.
+//  DSS Center — Soil & Weather Advisory (remote)
+//  Pick a crop + sowing date → the growth stage is drawn on an animated
+//  timeline, and the field's latest soil + weather readings are sent to the
+//  advisory backend. The returned advisory (summary, action points, focus
+//  items, narrative sections and per-parameter signal comparisons) is rendered
+//  below. A language toggle switches the advisory between English and Urdu.
 // ════════════════════════════════════════════════════════════════════════════
 
 class DssCenterTab extends StatelessWidget {
@@ -25,9 +26,10 @@ class DssCenterTab extends StatelessWidget {
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) {
-        final analysis = controller.dssAnalysis;
+        final advisory = controller.soilWeatherAdvisory;
+        final rtl = controller.advisoryLanguage == 'ur';
         return RefreshIndicator(
-          onRefresh: controller.refreshDss,
+          onRefresh: controller.refreshSoilWeatherAdvisory,
           color: AppTokens.primary,
           backgroundColor: Colors.white,
           child: Container(
@@ -38,27 +40,58 @@ class DssCenterTab extends StatelessWidget {
               ),
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 36),
               children: [
-                _Header(analysis: analysis),
+                _Header(advisory: advisory, controller: controller),
                 const SizedBox(height: 14),
-                _StageTimelineCard(controller: controller),
+                _SelectionCard(controller: controller),
                 const SizedBox(height: 14),
-                if (controller.dssErrorMessage != null)
-                  _ErrorCard(message: controller.dssErrorMessage!)
-                else if (analysis == null)
+
+                if (controller.isLoadingAdvisory && advisory == null)
                   const _LoadingDssCard()
+                else if (controller.soilWeatherError != null && advisory == null)
+                  _ErrorCard(message: controller.soilWeatherError!)
+                else if (advisory == null)
+                  const _EmptyPrompt()
                 else ...[
-                  _FarmerActionHero(
-                    analysis: analysis,
-                    reading: controller.latestReading,
-                  ),
+                  if (controller.isLoadingAdvisory)
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 12),
+                      child: LinearProgressIndicator(
+                        minHeight: 3,
+                        color: AppTokens.primary,
+                        backgroundColor: Color(0xFFE8EDF3),
+                      ),
+                    ),
+                  _SummaryHero(advisory: advisory, rtl: rtl),
                   const SizedBox(height: 14),
-                  _DssLastReadingCard(reading: controller.latestReading),
-                  const SizedBox(height: 14),
-                  _FieldScoreCard(analysis: analysis),
-                  const SizedBox(height: 14),
-                  _PriorityActions(analysis: analysis),
-                  const SizedBox(height: 14),
-                  _ModuleGrid(analysis: analysis),
+
+                  if (advisory.specialFocus.isNotEmpty) ...[
+                    _SpecialFocusCard(advisory: advisory, rtl: rtl),
+                    const SizedBox(height: 14),
+                  ],
+                  if (advisory.actionPoints.isNotEmpty) ...[
+                    _ActionPointsCard(advisory: advisory, rtl: rtl),
+                    const SizedBox(height: 14),
+                  ],
+                  if (advisory.sections.isNotEmpty) ...[
+                    _SectionsCard(advisory: advisory, rtl: rtl),
+                    const SizedBox(height: 14),
+                  ],
+                  if (advisory.soilSignals.isNotEmpty) ...[
+                    _SignalsCard(
+                      title: 'Soil readings',
+                      icon: Icons.terrain_rounded,
+                      signals: advisory.soilSignals,
+                      rtl: rtl,
+                    ),
+                    const SizedBox(height: 14),
+                  ],
+                  if (advisory.weatherSignals.isNotEmpty)
+                    _SignalsCard(
+                      title: 'Weather readings',
+                      icon: Icons.wb_cloudy_rounded,
+                      signals: advisory.weatherSignals,
+                      rtl: rtl,
+                    ),
                 ],
               ],
             ),
@@ -72,16 +105,22 @@ class DssCenterTab extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────── Header ──
 
 class _Header extends StatelessWidget {
-  const _Header({required this.analysis});
+  const _Header({required this.advisory, required this.controller});
 
-  final DssAnalysis? analysis;
+  final SoilWeatherAdvisory? advisory;
+  final StationDashboardController controller;
 
   @override
   Widget build(BuildContext context) {
-    final current = analysis;
-    final subtitle = current == null
+    final crop = advisory?.cropName.isNotEmpty == true
+        ? advisory!.cropName
+        : (controller.activeTimeline?.crop ?? controller.selectedCropId);
+    final stage = advisory?.stage ?? '';
+    final subtitle = advisory == null
         ? 'Building your field advisory'
-        : '${current.crop.name} · ${current.stage.name}';
+        : stage.isEmpty
+            ? _capitalize(crop)
+            : '${_capitalize(crop)} · $stage';
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -138,326 +177,226 @@ class _Header extends StatelessWidget {
   }
 }
 
-// ───────────────────────────────────────────────── Stage timeline (hero) ──
+// ───────────────────────────────────────────────────── Selection + action ──
 
-class _StageTimelineCard extends StatelessWidget {
-  const _StageTimelineCard({required this.controller});
+class _SelectionCard extends StatelessWidget {
+  const _SelectionCard({required this.controller});
 
   final StationDashboardController controller;
 
   @override
   Widget build(BuildContext context) {
-    final timeline = controller.activeTimeline;
-    if (timeline == null) {
-      return const _LoadingDssCard();
-    }
-    final das = controller.daysAfterSowing;
-    final stageIndex = controller.currentStageIndex;
-    final stage = timeline.stages[stageIndex];
-    final past = controller.isPastHarvest;
-    final daysLeft = (stage.endDay - das).clamp(0, 100000);
-    final nextStage = stageIndex + 1 < timeline.stages.length
-        ? timeline.stages[stageIndex + 1]
-        : null;
+    final timeline = controller.advisoryTimeline;
+    final sown = controller.advisorySowingDate;
+    final ready = controller.canRequestAdvisory;
+    final loading = controller.isLoadingAdvisory;
 
-    return RepaintBoundary(
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
-        decoration: _cardDecoration(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Selector row: crop + sowing date ──────────────────────────
-            LayoutBuilder(
-              builder: (context, c) {
-                final wide = c.maxWidth > 520;
-                final cropBtn = _SelectorButton(
-                  icon: Icons.grass_rounded,
-                  label: 'CROP',
-                  value: timeline.crop,
-                  onTap: () => _openCropPicker(context, controller),
-                );
-                final dateBtn = _SelectorButton(
-                  icon: Icons.event_rounded,
-                  label: 'SOWN ON',
-                  value: _formatDate(controller.sowingDate),
-                  onTap: () => _pickSowingDate(context, controller),
-                );
-                if (wide) {
-                  return Row(children: [
-                    Expanded(child: cropBtn),
-                    const SizedBox(width: 10),
-                    Expanded(child: dateBtn),
-                  ]);
-                }
-                return Column(children: [
-                  cropBtn,
-                  const SizedBox(height: 10),
-                  dateBtn,
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: _cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('BUILD YOUR ADVISORY', style: _labelStyle(size: 10)),
+          const SizedBox(height: 12),
+          LayoutBuilder(
+            builder: (context, c) {
+              final wide = c.maxWidth > 520;
+              final cropBtn = _SelectorButton(
+                icon: Icons.grass_rounded,
+                label: 'CROP',
+                value: timeline?.crop ?? 'Choose crop',
+                placeholder: timeline == null,
+                onTap: () => _openCropPicker(context, controller),
+              );
+              final dateBtn = _SelectorButton(
+                icon: Icons.event_rounded,
+                label: 'SOWN ON',
+                value: sown == null ? 'Choose date' : _formatDate(sown),
+                placeholder: sown == null,
+                onTap: () => _pickSowingDate(context, controller),
+              );
+              if (wide) {
+                return Row(children: [
+                  Expanded(child: cropBtn),
+                  const SizedBox(width: 10),
+                  Expanded(child: dateBtn),
                 ]);
-              },
-            ),
-            const SizedBox(height: 18),
-
-            // ── Current stage headline ────────────────────────────────────
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _PulseIcon(
-                  icon: stageIcon(stage.icon),
-                  color: AppTokens.primary,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              stage.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 19,
-                                fontWeight: FontWeight.w900,
-                                color: AppTokens.slate900,
-                                letterSpacing: -0.5,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          _SensitivityTag(sensitivity: stage.sensitivity),
-                        ],
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        past
-                            ? 'Day $das · cycle complete (${timeline.totalDays} days)'
-                            : 'Day $das of ${timeline.totalDays}'
-                                '${daysLeft > 0 ? '  ·  $daysLeft days left in stage' : '  ·  moving to next stage'}',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w700,
-                          color: AppTokens.slate500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            // ── The animated stage bar ────────────────────────────────────
-            _StageBar(
-              timeline: timeline,
-              das: das,
-              currentIndex: stageIndex,
-            ),
-
-            const SizedBox(height: 14),
-
-            // ── Focus line ────────────────────────────────────────────────
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppTokens.primary.withValues(alpha: 0.07),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.flag_rounded,
-                      color: AppTokens.primary, size: 18),
-                  const SizedBox(width: 9),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('FOCUS NOW',
-                            style:
-                                _labelStyle(size: 9, color: AppTokens.primary)),
-                        const SizedBox(height: 3),
-                        Text(stage.focus, style: _bodyStyle(size: 12.5)),
-                        if (nextStage != null && !past) ...[
-                          const SizedBox(height: 6),
-                          Text(
-                            'Next: ${nextStage.name} in $daysLeft days',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w800,
-                              color: AppTokens.slate700,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
+              }
+              return Column(children: [
+                cropBtn,
+                const SizedBox(height: 10),
+                dateBtn,
+              ]);
+            },
+          ),
+          const SizedBox(height: 12),
+          _LanguageToggleRow(controller: controller),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: (!ready || loading)
+                  ? null
+                  : () => controller.refreshSoilWeatherAdvisory(),
+              icon: loading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2.4, color: Colors.white),
+                    )
+                  : const Icon(Icons.psychology_rounded, size: 20),
+              label: Text(loading ? 'Getting decision…' : 'Get Decision'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTokens.primary,
+                disabledBackgroundColor: AppTokens.slate300,
+                foregroundColor: Colors.white,
+                disabledForegroundColor: Colors.white,
+                minimumSize: const Size(0, 52),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
+                textStyle: GoogleFonts.plusJakartaSans(
+                    fontSize: 15, fontWeight: FontWeight.w900),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// The proportional, animated stage bar with per-stage icon pins.
-class _StageBar extends StatelessWidget {
-  const _StageBar({
-    required this.timeline,
-    required this.das,
-    required this.currentIndex,
-  });
-
-  final CropTimeline timeline;
-  final int das;
-  final int currentIndex;
-
-  @override
-  Widget build(BuildContext context) {
-    final stages = timeline.stages;
-    final total = timeline.totalDays.toDouble().clamp(1, 100000).toDouble();
-    final progress = (das / total).clamp(0.0, 1.0);
-
-    return LayoutBuilder(
-      builder: (context, c) {
-        final w = c.maxWidth;
-        const trackH = 12.0;
-        const pin = 30.0;
-        // Draw non-current pins first, then the current pin on top so it is
-        // never hidden by a neighbouring short stage.
-        final pins = <Widget>[];
-        for (var i = 0; i < stages.length; i++) {
-          if (i != currentIndex) pins.add(_stagePin(i, stages[i], w, pin));
-        }
-        if (currentIndex < stages.length) {
-          pins.add(_stagePin(currentIndex, stages[currentIndex], w, pin));
-        }
-        return SizedBox(
-          height: pin + 16,
-          child: Stack(
-            clipBehavior: Clip.none,
+          ),
+          const SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // base track
-              Positioned(
-                left: 0,
-                right: 0,
-                top: pin / 2 - trackH / 2,
-                child: Container(
-                  height: trackH,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE8EDF3),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+              const Icon(Icons.info_outline_rounded,
+                  size: 14, color: AppTokens.slate500),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Latest reading is taken from the selected crop for accurate results.',
+                  style: _bodyStyle(size: 11.5, color: AppTokens.slate500),
                 ),
               ),
-              // progress fill
-              Positioned(
-                left: 0,
-                top: pin / 2 - trackH / 2,
-                child: Container(
-                  height: trackH,
-                  width: w * progress,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF16A34A), Color(0xFF34D399)],
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              // stage pins (icons) sit on top of the loader fill
-              ...pins,
             ],
           ),
-        );
-      },
-    );
-  }
-
-  Widget _stagePin(int i, TimelineStage s, double w, double pin) {
-    final total = timeline.totalDays <= 0 ? 1 : timeline.totalDays;
-    final mid = ((s.startDay + s.endDay) / 2) / total;
-    final maxLeft = w > pin ? w - pin : 0.0;
-    final left = ((w * mid.clamp(0.0, 1.0)) - pin / 2).clamp(0.0, maxLeft);
-    final passed = i < currentIndex;
-    final current = i == currentIndex;
-    final color = current
-        ? AppTokens.primary
-        : passed
-            ? const Color(0xFF34D399)
-            : AppTokens.slate400;
-    final bg = current
-        ? AppTokens.primary
-        : passed
-            ? Colors.white
-            : const Color(0xFFEDF1F6);
-    final fg = current ? Colors.white : color;
-
-    return Positioned(
-      left: left,
-      top: 0,
-      child: current
-          ? _PulseRing(
-              size: pin, child: _pinBody(s, pin, bg, fg, color, current))
-          : _pinBody(s, pin, bg, fg, color, current),
-    );
-  }
-
-  Widget _pinBody(TimelineStage s, double pin, Color bg, Color fg, Color border,
-      bool current) {
-    return Container(
-      width: pin,
-      height: pin,
-      decoration: BoxDecoration(
-        color: bg,
-        shape: BoxShape.circle,
-        border: Border.all(color: border, width: current ? 0 : 2),
-        boxShadow: current
-            ? [
-                BoxShadow(
-                  color: AppTokens.primary.withValues(alpha: 0.45),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-              ]
-            : null,
+          if (!ready) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Choose a crop and sowing date to continue.',
+              style: _bodyStyle(size: 12, color: AppTokens.slate500),
+            ),
+          ],
+        ],
       ),
-      child: Icon(stageIcon(s.icon), size: 17, color: fg),
     );
   }
 }
 
-// ───────────────────────────────────────────────────────── Farmer action ──
+class _LanguageToggleRow extends StatelessWidget {
+  const _LanguageToggleRow({required this.controller});
 
-class _FarmerActionHero extends StatelessWidget {
-  const _FarmerActionHero({required this.analysis, required this.reading});
-
-  final DssAnalysis analysis;
-  final SensorReading? reading;
+  final StationDashboardController controller;
 
   @override
   Widget build(BuildContext context) {
-    final recommendation = analysis.priorityRecommendations.isNotEmpty
-        ? analysis.priorityRecommendations.first
-        : null;
-    final color = recommendation == null
-        ? AppTokens.primary
-        : _urgencyColor(recommendation.urgency);
-    final icon = recommendation == null
-        ? Icons.check_circle_rounded
-        : _urgencyIcon(recommendation.urgency);
-    final title = recommendation?.title ?? 'Field is on track';
-    final action = recommendation?.farmerAction ??
-        'Keep the station running and walk the field once today.';
-    final check = recommendation?.fieldCheck ??
-        'Check for dry patches, weak plants, standing water, or pest signs.';
+    final lang = controller.advisoryLanguage;
+    Widget option(String code, String label) {
+      final selected = lang == code;
+      return Expanded(
+        child: GestureDetector(
+          onTap: controller.isLoadingAdvisory
+              ? null
+              : () => controller.setAdvisoryLanguage(code),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(vertical: 9),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: selected ? AppTokens.primary : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w900,
+                color: selected ? Colors.white : AppTokens.slate500,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
+    return Row(
+      children: [
+        const Icon(Icons.translate_rounded, size: 18, color: AppTokens.primary),
+        const SizedBox(width: 10),
+        Text('Language', style: _labelStyle(size: 11)),
+        const Spacer(),
+        Container(
+          width: 168,
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              option('en', 'English'),
+              option('ur', 'اردو'),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _EmptyPrompt extends StatelessWidget {
+  const _EmptyPrompt();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: _cardDecoration(),
+      child: Column(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: AppTokens.primary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.spa_rounded,
+                color: AppTokens.primary, size: 28),
+          ),
+          const SizedBox(height: 12),
+          Text('No advisory yet', style: _sectionTitleStyle(size: 17)),
+          const SizedBox(height: 6),
+          Text(
+            'Choose your crop, enter the sowing date, pick a language, then tap '
+            '“Get Decision” to build the soil & weather advisory for this field.',
+            textAlign: TextAlign.center,
+            style: _bodyStyle(size: 13, color: AppTokens.slate500),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────── Summary (hero) ──
+
+class _SummaryHero extends StatelessWidget {
+  const _SummaryHero({required this.advisory, required this.rtl});
+
+  final SoilWeatherAdvisory advisory;
+  final bool rtl;
+
+  @override
+  Widget build(BuildContext context) {
+    // The most severe section drives the hero tint.
+    final color = _worstSeverityColor(advisory);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -473,10 +412,12 @@ class _FarmerActionHero extends StatelessWidget {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            rtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
+            textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
             children: [
               Container(
                 width: 52,
@@ -485,455 +426,488 @@ class _FarmerActionHero extends StatelessWidget {
                   color: color,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Icon(icon, color: Colors.white, size: 29),
+                child: const Icon(Icons.tips_and_updates_rounded,
+                    color: Colors.white, size: 28),
               ),
               const SizedBox(width: 13),
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      rtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                   children: [
-                    Text('TODAY ON FIELD',
+                    Text("TODAY'S ADVISORY",
                         style: _labelStyle(size: 9.5, color: color)),
                     const SizedBox(height: 5),
                     Text(
-                      title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                      advisory.stage.isEmpty
+                          ? _capitalize(advisory.cropName)
+                          : '${_capitalize(advisory.cropName)} · ${advisory.stage} · Day ${advisory.das}',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 22,
+                        fontSize: 15,
                         fontWeight: FontWeight.w900,
                         color: AppTokens.slate900,
-                        letterSpacing: -0.55,
-                        height: 1.12,
+                        letterSpacing: -0.4,
                       ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      '${analysis.crop.name} · ${analysis.stage.name}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: _bodyStyle(size: 12, color: AppTokens.slate500),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 15),
-          _DssActionLine(
-            icon: Icons.task_alt_rounded,
-            label: 'Do',
-            text: action,
-            color: color,
-          ),
-          const SizedBox(height: 9),
-          _DssActionLine(
-            icon: Icons.search_rounded,
-            label: 'Check',
-            text: check,
-            color: AppTokens.slate700,
-          ),
-          if (reading != null) ...[
-            const SizedBox(height: 12),
-            Text(
-              'Based on last reading: ${_dssReadingAge(reading!.recordedAt)}',
-              style: _bodyStyle(size: 11.5, color: AppTokens.slate500),
-            ),
-          ],
-          if (recommendation != null) ...[
-            const SizedBox(height: 13),
-            SizedBox(
-              width: double.infinity,
-              child: TextButton.icon(
-                onPressed: () =>
-                    _showRecommendationSheet(context, recommendation),
-                icon: const Icon(Icons.visibility_rounded, size: 18),
-                label: const Text('See sensor proof'),
-                style: TextButton.styleFrom(
-                  foregroundColor: color,
-                  textStyle: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ),
-          ],
+          const SizedBox(height: 13),
+          _paragraph(advisory.summary, rtl, size: 14),
         ],
       ),
     );
   }
 }
 
-class _DssActionLine extends StatelessWidget {
-  const _DssActionLine({
-    required this.icon,
-    required this.label,
-    required this.text,
-    required this.color,
-  });
+// ─────────────────────────────────────────────────────────── Special focus ──
 
-  final IconData icon;
-  final String label;
-  final String text;
-  final Color color;
+class _SpecialFocusCard extends StatelessWidget {
+  const _SpecialFocusCard({required this.advisory, required this.rtl});
+
+  final SoilWeatherAdvisory advisory;
+  final bool rtl;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, color: color, size: 19),
-        const SizedBox(width: 9),
-        SizedBox(
-          width: 48,
-          child: Text(label.toUpperCase(),
-              style: _labelStyle(size: 9.5, color: color)),
-        ),
-        Expanded(
-          child: Text(
-            text,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: _bodyStyle(size: 13.5, color: AppTokens.slate700),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: _cardDecoration(),
+      child: Column(
+        crossAxisAlignment:
+            rtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Row(
+            textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+            children: [
+              const Icon(Icons.priority_high_rounded,
+                  color: AppTokens.alert, size: 20),
+              const SizedBox(width: 8),
+              Text('Focus on these', style: _sectionTitleStyle()),
+            ],
           ),
-        ),
-      ],
+          const SizedBox(height: 12),
+          for (final item in advisory.specialFocus)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppTokens.alert.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppTokens.alert.withValues(alpha: 0.18)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+                  children: [
+                    const Icon(Icons.flag_rounded,
+                        color: AppTokens.alert, size: 16),
+                    const SizedBox(width: 9),
+                    Expanded(child: _paragraph(item, rtl, size: 12.5)),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
 
-class _DssLastReadingCard extends StatelessWidget {
-  const _DssLastReadingCard({required this.reading});
+// ──────────────────────────────────────────────────────────── Action points ──
 
-  final SensorReading? reading;
+class _ActionPointsCard extends StatelessWidget {
+  const _ActionPointsCard({required this.advisory, required this.rtl});
+
+  final SoilWeatherAdvisory advisory;
+  final bool rtl;
 
   @override
   Widget build(BuildContext context) {
-    final r = reading;
+    final items = advisory.actionPoints;
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
+      decoration: _cardDecoration(),
+      child: Column(
+        crossAxisAlignment:
+            rtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Row(
+            textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+            children: [
+              const Icon(Icons.checklist_rounded,
+                  color: AppTokens.primary, size: 21),
+              const SizedBox(width: 8),
+              Text('What to do', style: _sectionTitleStyle()),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppTokens.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text('${items.length}',
+                    style: _labelStyle(size: 11, color: AppTokens.primary)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          for (var i = 0; i < items.length; i++)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+                children: [
+                  Container(
+                    width: 22,
+                    height: 22,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: AppTokens.primary.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text('${i + 1}',
+                        style: _labelStyle(size: 10, color: AppTokens.primary)),
+                  ),
+                  const SizedBox(width: 11),
+                  Expanded(child: _paragraph(items[i], rtl, size: 13)),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────── Narrative sections ──
+
+class _SectionsCard extends StatelessWidget {
+  const _SectionsCard({required this.advisory, required this.rtl});
+
+  final SoilWeatherAdvisory advisory;
+  final bool rtl;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
       decoration: _cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.sensors_rounded,
-                  color: AppTokens.primary, size: 19),
+              const Icon(Icons.description_rounded,
+                  color: AppTokens.slate700, size: 20),
               const SizedBox(width: 8),
-              Text('Last Reading', style: _sectionTitleStyle(size: 16)),
-              const Spacer(),
-              Text(
-                r == null ? 'No data yet' : _dssShortDateTime(r.recordedAt),
-                style: _labelStyle(size: 9.5),
-              ),
+              Text('Field notes', style: _sectionTitleStyle()),
             ],
           ),
-          const SizedBox(height: 12),
-          LayoutBuilder(
-            builder: (context, c) {
-              final chips = <Widget>[
-                _DssReadingChip(
-                  icon: Icons.water_drop_rounded,
-                  label: 'Moisture',
-                  value: formatMetric(r?.moist, suffix: '%'),
-                  color: AppTokens.primary,
-                ),
-                _DssReadingChip(
-                  icon: Icons.thermostat_rounded,
-                  label: 'Temp',
-                  value: formatMetric(r?.temp, suffix: '°C'),
-                  color: AppTokens.caution,
-                ),
-                _DssReadingChip(
-                  icon: Icons.grain_rounded,
-                  label: 'Rain',
-                  value: formatMetric(r?.rain, suffix: 'mm'),
-                  color: AppTokens.info,
-                ),
-                _DssReadingChip(
-                  icon: Icons.air_rounded,
-                  label: 'Wind',
-                  value: formatMetric(r?.ws, suffix: 'm/s'),
-                  color: AppTokens.slate700,
-                ),
-              ];
-              if (c.maxWidth < 560) {
-                return Wrap(spacing: 8, runSpacing: 8, children: chips);
-              }
-              return Row(
-                children: [
-                  for (var i = 0; i < chips.length; i++) ...[
-                    Expanded(child: chips[i]),
-                    if (i < chips.length - 1) const SizedBox(width: 8),
-                  ],
-                ],
-              );
-            },
-          ),
+          const SizedBox(height: 6),
+          for (final section in advisory.sections)
+            _SectionRow(section: section, rtl: rtl),
         ],
       ),
     );
   }
 }
 
-class _DssReadingChip extends StatelessWidget {
-  const _DssReadingChip({
+class _SectionRow extends StatelessWidget {
+  const _SectionRow({required this.section, required this.rtl});
+
+  final AdvisorySection section;
+  final bool rtl;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _severityColor(section.severity);
+    return Container(
+      margin: const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.all(13),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment:
+            rtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Row(
+            textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+            children: [
+              Container(
+                width: 9,
+                height: 9,
+                decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+              ),
+              const SizedBox(width: 9),
+              Expanded(
+                child: Text(
+                  section.title,
+                  textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+                  textAlign: rtl ? TextAlign.right : TextAlign.left,
+                  style: rtl
+                      ? _urduTextStyle(
+                          size: 13.5,
+                          color: AppTokens.slate900,
+                          weight: FontWeight.w900,
+                          height: 1.6,
+                        )
+                      : GoogleFonts.plusJakartaSans(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w900,
+                          color: AppTokens.slate900,
+                        ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              _SeverityPill(severity: section.severity),
+            ],
+          ),
+          const SizedBox(height: 7),
+          _paragraph(section.description, rtl, size: 12.5),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────── Signals ──
+
+class _SignalsCard extends StatelessWidget {
+  const _SignalsCard({
+    required this.title,
     required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
+    required this.signals,
+    required this.rtl,
   });
 
+  final String title;
   final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
+  final List<SignalReading> signals;
+  final bool rtl;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(minWidth: 112),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE8EDF3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      padding: const EdgeInsets.all(16),
+      decoration: _cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 17),
-          const SizedBox(width: 7),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
-              Text(label, style: _labelStyle(size: 8.5)),
-              const SizedBox(height: 2),
-              Text(
-                value,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
-                  color: AppTokens.slate900,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
+              Icon(icon, color: AppTokens.slate700, size: 20),
+              const SizedBox(width: 8),
+              Text(title, style: _sectionTitleStyle()),
             ],
           ),
+
+          const SizedBox(height: 10),
+          for (final signal in signals)
+            _SignalTile(signal: signal, rtl: rtl),
         ],
       ),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────── Field score ──
+class _SignalTile extends StatelessWidget {
+  const _SignalTile({required this.signal, required this.rtl});
 
-class _FieldScoreCard extends StatelessWidget {
-  const _FieldScoreCard({required this.analysis});
-
-  final DssAnalysis analysis;
+  final SignalReading signal;
+  final bool rtl;
 
   @override
   Widget build(BuildContext context) {
-    final color = _scoreColor(analysis.fieldScore.value);
-    return RepaintBoundary(
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: _cardDecoration(),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final compact = constraints.maxWidth < 560;
-            final scoreBlock =
-                _ScoreDial(value: analysis.fieldScore.value, color: color);
-            final textBlock = Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('FIELD STATUS', style: _labelStyle()),
-                const SizedBox(height: 8),
-                Text(
-                  analysis.fieldScore.label,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: compact ? 24 : 30,
-                    fontWeight: FontWeight.w900,
-                    color: AppTokens.slate900,
-                    letterSpacing: -0.8,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(analysis.fieldScore.summary, style: _bodyStyle()),
-                const SizedBox(height: 14),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _InfoChip(
-                        icon: Icons.grass_rounded,
-                        label: analysis.crop.group.replaceAll('_', ' ')),
-                    _InfoChip(
-                      icon: Icons.calendar_month_rounded,
-                      label: analysis.crop.seasons.isEmpty
-                          ? 'season guide'
-                          : analysis.crop.seasons.join(', '),
-                    ),
-                    _InfoChip(
-                      icon: Icons.place_rounded,
-                      label: analysis.crop.pakistanRegions.isEmpty
-                          ? 'Pakistan baseline'
-                          : analysis.crop.pakistanRegions.take(2).join(', '),
-                    ),
-                  ],
-                ),
-              ],
-            );
-            if (compact) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [scoreBlock, const SizedBox(height: 16), textBlock],
-              );
-            }
-            return Row(
-              children: [
-                scoreBlock,
-                const SizedBox(width: 24),
-                Expanded(child: textBlock)
-              ],
-            );
-          },
-        ),
+    final color = _statusColor(signal.status);
+    final valueText = signal.value == null
+        ? '—'
+        : '${_trimNum(signal.value!)}${signal.unit.isEmpty ? '' : ' ${signal.unit}'}';
+    return Container(
+      margin: const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.all(13),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
-    );
-  }
-}
-
-class _PriorityActions extends StatelessWidget {
-  const _PriorityActions({required this.analysis});
-
-  final DssAnalysis analysis;
-
-  @override
-  Widget build(BuildContext context) {
-    final items = analysis.priorityRecommendations.length <= 1
-        ? const <DssRecommendation>[]
-        : analysis.priorityRecommendations.skip(1).toList(growable: false);
-    return RepaintBoundary(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: _cardDecoration(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.playlist_add_check_rounded,
-                    color: AppTokens.caution, size: 22),
-                const SizedBox(width: 8),
-                Text('Next checks', style: _sectionTitleStyle()),
-              ],
+      child: Column(
+        crossAxisAlignment:
+            rtl ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Row(
+            textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+            children: [
+              Expanded(
+                child: Text(
+                  signal.label,
+                  textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+                  textAlign: rtl ? TextAlign.right : TextAlign.left,
+                  style: rtl
+                      ? _urduTextStyle(
+                          size: 13.5,
+                          color: AppTokens.slate900,
+                          weight: FontWeight.w900,
+                          height: 1.6,
+                        )
+                      : GoogleFonts.plusJakartaSans(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w900,
+                          color: AppTokens.slate900,
+                        ),
+                ),
+              ),
+              Text(
+                valueText,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                  color: color,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+              const SizedBox(width: 8),
+              _StatusPill(status: signal.status),
+            ],
+          ),
+          if (signal.expected != null && signal.value != null) ...[
+            const SizedBox(height: 10),
+            _RangeBar(
+              value: signal.value!,
+              band: signal.expected!,
+              color: color,
             ),
-            const SizedBox(height: 4),
-            Text(
-              items.isEmpty
-                  ? 'No extra jobs. Keep walking the field and watching fresh readings.'
-                  : 'After the main job, check these before spending on routine work.',
-              style: _bodyStyle(color: AppTokens.slate500),
-            ),
-            const SizedBox(height: 12),
-            if (items.isEmpty)
-              const _EmptyAction()
-            else
-              // On wide screens lay the priority actions out side by side.
-              LayoutBuilder(builder: (context, c) {
-                final cols = c.maxWidth >= 900
-                    ? 3
-                    : c.maxWidth >= 600
-                        ? 2
-                        : 1;
-                if (cols == 1) {
-                  return Column(
-                    children: items
-                        .map((e) => Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: _RecommendationTile(recommendation: e),
-                            ))
-                        .toList(),
-                  );
-                }
-                final gap = 10.0;
-                final width = (c.maxWidth - gap * (cols - 1)) / cols;
-                return Wrap(
-                  spacing: gap,
-                  runSpacing: gap,
-                  children: items
-                      .map((e) => SizedBox(
-                          width: width,
-                          child: _RecommendationTile(recommendation: e)))
-                      .toList(),
-                );
-              }),
           ],
-        ),
+          if (signal.message.isNotEmpty) ...[
+            const SizedBox(height: 9),
+            _paragraph(signal.message, rtl, size: 12, color: AppTokens.slate500),
+          ],
+
+        ],
       ),
     );
   }
 }
 
-class _ModuleGrid extends StatelessWidget {
-  const _ModuleGrid({required this.analysis});
+/// A horizontal band showing the optimal range (green) inside the wider
+/// warning/critical span, with a marker at the current value.
+class _RangeBar extends StatelessWidget {
+  const _RangeBar({
+    required this.value,
+    required this.band,
+    required this.color,
+  });
 
-  final DssAnalysis analysis;
+  final double value;
+  final ExpectedBand band;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
+    final lows = <double>[
+      if (band.criticalLow != null) band.criticalLow!,
+      if (band.warningLow != null) band.warningLow!,
+      if (band.optimalLow != null) band.optimalLow!,
+      value,
+    ];
+    final highs = <double>[
+      if (band.criticalHigh != null) band.criticalHigh!,
+      if (band.warningHigh != null) band.warningHigh!,
+      if (band.optimalHigh != null) band.optimalHigh!,
+      value,
+    ];
+    if (lows.isEmpty || highs.isEmpty) return const SizedBox.shrink();
+    var minV = lows.reduce(math.min);
+    var maxV = highs.reduce(math.max);
+    final span = (maxV - minV).abs();
+    final pad = span == 0 ? 1.0 : span * 0.08;
+    minV -= pad;
+    maxV += pad;
+    final range = (maxV - minV) == 0 ? 1.0 : (maxV - minV);
+
+    double frac(double v) => ((v - minV) / range).clamp(0.0, 1.0);
+
+    final optLo = band.optimalLow;
+    final optHi = band.optimalHigh;
+
     return LayoutBuilder(
-      builder: (context, constraints) {
-        // Wide, short cards: fill big screens with more columns, never tall.
-        final w = constraints.maxWidth;
-        final columns = w >= 1500
-            ? 5
-            : w >= 1150
-                ? 4
-                : w >= 820
-                    ? 3
-                    : w >= 540
-                        ? 2
-                        : 1;
-        const gap = 12.0;
-        final width = (constraints.maxWidth - (gap * (columns - 1))) / columns;
+      builder: (context, c) {
+        final w = c.maxWidth;
+        final optLeft = optLo == null ? 0.0 : frac(optLo) * w;
+        final optWidth =
+            (optLo == null || optHi == null) ? 0.0 : (frac(optHi) - frac(optLo)) * w;
+        final markerLeft = (frac(value) * w).clamp(0.0, w - 2);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                const Icon(Icons.dashboard_customize_rounded,
-                    color: AppTokens.slate700, size: 20),
-                const SizedBox(width: 8),
-                Text('More field checks', style: _sectionTitleStyle()),
-                const SizedBox(width: 8),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: AppTokens.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+            SizedBox(
+              height: 16,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  // base track (warning/critical span)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    top: 5,
+                    child: Container(
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8EDF3),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
                   ),
-                  child: Text('${analysis.modules.length}',
-                      style: _labelStyle(size: 11, color: AppTokens.primary)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: gap,
-              runSpacing: gap,
-              children: [
-                for (final module in analysis.modules)
-                  SizedBox(
-                    width: width,
-                    child: RepaintBoundary(child: _ModuleCard(module: module)),
+                  // optimal band
+                  if (optWidth > 0)
+                    Positioned(
+                      left: optLeft,
+                      top: 5,
+                      child: Container(
+                        height: 6,
+                        width: optWidth,
+                        decoration: BoxDecoration(
+                          color: AppTokens.primary.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                    ),
+                  // value marker
+                  Positioned(
+                    left: markerLeft,
+                    top: 0,
+                    child: Container(
+                      width: 4,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: color.withValues(alpha: 0.4),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-              ],
+                ],
+              ),
             ),
+            if (optLo != null && optHi != null) ...[
+              const SizedBox(height: 5),
+              Text(
+                'Good band: ${_trimNum(optLo)}–${_trimNum(optHi)}',
+                style: _labelStyle(size: 9, color: AppTokens.slate500),
+              ),
+            ],
           ],
         );
       },
@@ -941,167 +915,9 @@ class _ModuleGrid extends StatelessWidget {
   }
 }
 
-// A wide, short decision card carrying a score.
-class _ModuleCard extends StatelessWidget {
-  const _ModuleCard({required this.module});
 
-  final DssModuleResult module;
 
-  @override
-  Widget build(BuildContext context) {
-    final color = _scoreColor(module.score);
-    final hasActions = module.recommendations.isNotEmpty;
-    return InkWell(
-      borderRadius: BorderRadius.circular(14),
-      onTap: hasActions ? () => _showModuleSheet(context, module) : null,
-      child: Container(
-        padding: const EdgeInsets.all(13),
-        decoration: _cardDecoration(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(_moduleIcon(module.id), color: color, size: 19),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        module.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w900,
-                          color: AppTokens.slate900,
-                        ),
-                      ),
-                      Text(
-                        module.status,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: color,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                _ScoreChip(score: module.score, color: color),
-              ],
-            ),
-            const SizedBox(height: 10),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: LinearProgressIndicator(
-                value: module.score / 100,
-                minHeight: 6,
-                color: color,
-                backgroundColor: color.withValues(alpha: 0.12),
-              ),
-            ),
-            const SizedBox(height: 9),
-            Text(
-              module.summary,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: _bodyStyle(size: 12, color: AppTokens.slate500),
-            ),
-            if (hasActions) ...[
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(_urgencyIcon(module.recommendations.first.urgency),
-                      size: 13,
-                      color:
-                          _urgencyColor(module.recommendations.first.urgency)),
-                  const SizedBox(width: 5),
-                  Text(
-                    '${module.recommendations.length} action${module.recommendations.length == 1 ? '' : 's'} · tap',
-                    style: _labelStyle(
-                        size: 10,
-                        color: _urgencyColor(
-                            module.recommendations.first.urgency)),
-                  ),
-                ],
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _RecommendationTile extends StatelessWidget {
-  const _RecommendationTile({required this.recommendation});
-
-  final DssRecommendation recommendation;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = _urgencyColor(recommendation.urgency);
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () => _showRecommendationSheet(context, recommendation),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.20)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(_urgencyIcon(recommendation.urgency),
-                    color: color, size: 20),
-                const SizedBox(width: 9),
-                Expanded(
-                  child: Text(
-                    recommendation.title,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w900,
-                      color: AppTokens.slate900,
-                      height: 1.25,
-                    ),
-                  ),
-                ),
-                _UrgencyPill(urgency: recommendation.urgency),
-              ],
-            ),
-            const SizedBox(height: 7),
-            Text(recommendation.decision, style: _bodyStyle(size: 12.5)),
-            const SizedBox(height: 6),
-            Text(
-              recommendation.farmerAction,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: _bodyStyle(size: 12, color: AppTokens.slate500),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// ──────────────────────────────────────────────────────────── Small pieces ──
 
 class _SelectorButton extends StatelessWidget {
   const _SelectorButton({
@@ -1109,12 +925,16 @@ class _SelectorButton extends StatelessWidget {
     required this.label,
     required this.value,
     required this.onTap,
+    this.placeholder = false,
   });
 
   final IconData icon;
   final String label;
   final String value;
   final VoidCallback onTap;
+
+  /// When true the value is styled as an unfilled placeholder hint.
+  final bool placeholder;
 
   @override
   Widget build(BuildContext context) {
@@ -1126,7 +946,11 @@ class _SelectorButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFFF6F8FB),
           borderRadius: BorderRadius.circular(13),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(
+            color: placeholder
+                ? AppTokens.primary.withValues(alpha: 0.35)
+                : const Color(0xFFE2E8F0),
+          ),
         ),
         child: Row(
           children: [
@@ -1145,7 +969,9 @@ class _SelectorButton extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w900,
-                      color: AppTokens.slate900,
+                      color: placeholder
+                          ? AppTokens.slate400
+                          : AppTokens.slate900,
                     ),
                   ),
                 ],
@@ -1160,59 +986,45 @@ class _SelectorButton extends StatelessWidget {
   }
 }
 
-class _SensitivityTag extends StatelessWidget {
-  const _SensitivityTag({required this.sensitivity});
 
-  final String sensitivity;
+
+class _SeverityPill extends StatelessWidget {
+  const _SeverityPill({required this.severity});
+
+  final String severity;
 
   @override
   Widget build(BuildContext context) {
-    final color = sensitivity == 'high'
-        ? AppTokens.alert
-        : sensitivity == 'low'
-            ? AppTokens.primary
-            : AppTokens.caution;
-    final label = sensitivity == 'high'
-        ? 'KEY STAGE'
-        : sensitivity == 'low'
-            ? 'HARDY'
-            : 'STEADY';
+    final color = _severityColor(severity);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(7),
+        color: color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(label, style: _labelStyle(size: 8.5, color: color)),
+      child: Text(_severityWord(severity),
+          style: _labelStyle(size: 8, color: color)),
     );
   }
 }
 
-class _ScoreChip extends StatelessWidget {
-  const _ScoreChip({required this.score, required this.color});
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({required this.status});
 
-  final int score;
-  final Color color;
+  final String status;
 
   @override
   Widget build(BuildContext context) {
+    if (status.isEmpty) return const SizedBox.shrink();
+    final color = _statusColor(status);
     return Container(
-      width: 42,
-      height: 42,
-      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(12),
+        color: color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(
-        '$score',
-        style: GoogleFonts.plusJakartaSans(
-          fontSize: 17,
-          fontWeight: FontWeight.w900,
-          color: color,
-          fontFeatures: const [FontFeature.tabularFigures()],
-        ),
-      ),
+      child: Text(status.replaceAll('_', ' ').toUpperCase(),
+          style: _labelStyle(size: 8, color: color)),
     );
   }
 }
@@ -1270,8 +1082,6 @@ class _PulseIconState extends State<_PulseIcon>
   }
 }
 
-// Ripple drawn behind the current stage pin. The outer box stays exactly the
-// pin size so the pin never shifts off the line — only the ripple scales out.
 class _PulseRing extends StatefulWidget {
   const _PulseRing({required this.child, required this.size});
 
@@ -1309,7 +1119,6 @@ class _PulseRingState extends State<_PulseRing>
         alignment: Alignment.center,
         clipBehavior: Clip.none,
         children: [
-          // ripple — scaled (no layout impact), so the pin stays anchored
           AnimatedBuilder(
             animation: _ctrl,
             builder: (_, __) {
@@ -1334,106 +1143,6 @@ class _PulseRingState extends State<_PulseRing>
   }
 }
 
-class _ScoreDial extends StatelessWidget {
-  const _ScoreDial({required this.value, required this.color});
-
-  final int value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 128,
-      height: 128,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          SizedBox(
-            width: 128,
-            height: 128,
-            child: CircularProgressIndicator(
-              value: value / 100,
-              strokeWidth: 12,
-              color: color,
-              backgroundColor: color.withValues(alpha: 0.12),
-              strokeCap: StrokeCap.round,
-            ),
-          ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '$value',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 34,
-                  fontWeight: FontWeight.w900,
-                  color: color,
-                  letterSpacing: -1,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-              Text('/ 100', style: _labelStyle(size: 9, color: color)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  const _InfoChip({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: AppTokens.slate500),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              color: AppTokens.slate700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _UrgencyPill extends StatelessWidget {
-  const _UrgencyPill({required this.urgency});
-
-  final DssUrgency urgency;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = _urgencyColor(urgency);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(_urgencyLabel(urgency),
-          style: _labelStyle(size: 8, color: color)),
-    );
-  }
-}
-
 class _LoadingDssCard extends StatelessWidget {
   const _LoadingDssCard();
 
@@ -1451,7 +1160,7 @@ class _LoadingDssCard extends StatelessWidget {
           ),
           const SizedBox(width: 14),
           Expanded(
-            child: Text('Loading crop stages and building your advisory…',
+            child: Text('Building your soil & weather advisory…',
                 style: _bodyStyle()),
           ),
         ],
@@ -1477,32 +1186,17 @@ class _ErrorCard extends StatelessWidget {
               color: AppTokens.alert, size: 22),
           const SizedBox(width: 12),
           Expanded(
-              child: Text(message, style: _bodyStyle(color: AppTokens.alert))),
-        ],
-      ),
-    );
-  }
-}
-
-class _EmptyAction extends StatelessWidget {
-  const _EmptyAction();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTokens.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.check_circle_rounded, color: AppTokens.primary),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'Field is on track. Keep the station running and check back through the day.',
-              style: _bodyStyle(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Could not load the advisory',
+                    style: _sectionTitleStyle(size: 15)),
+                const SizedBox(height: 4),
+                Text(message, style: _bodyStyle(color: AppTokens.slate500)),
+                const SizedBox(height: 4),
+                Text('Pull down to try again.',
+                    style: _bodyStyle(size: 12, color: AppTokens.slate500)),
+              ],
             ),
           ),
         ],
@@ -1597,11 +1291,11 @@ class _CropPickerSheetState extends State<_CropPickerSheet> {
                   separatorBuilder: (_, __) => const SizedBox(height: 8),
                   itemBuilder: (context, i) {
                     final t = filtered[i];
-                    final selected = t.id == widget.controller.selectedCropId;
+                    final selected = t.id == widget.controller.advisoryCropId;
                     return InkWell(
                       borderRadius: BorderRadius.circular(13),
                       onTap: () {
-                        widget.controller.setCrop(t.id);
+                        widget.controller.setAdvisoryCrop(t.id);
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -1674,14 +1368,13 @@ Future<void> _pickSowingDate(
   final now = DateTime.now();
   final picked = await showDatePicker(
     context: context,
-    initialDate: controller.sowingDate,
+    initialDate: controller.advisorySowingDate ?? now,
     firstDate: now.subtract(const Duration(days: 400)),
     lastDate: now,
     helpText: 'When did you sow this crop?',
     confirmText: 'SET DATE',
     cancelText: 'CANCEL',
     fieldLabelText: 'Sowing date',
-    // Classic calendar grid only — no keyboard-entry toggle.
     initialEntryMode: DatePickerEntryMode.calendarOnly,
     builder: (context, child) => Theme(
       data: Theme.of(context).copyWith(
@@ -1716,272 +1409,90 @@ Future<void> _pickSowingDate(
     ),
   );
   if (picked != null) {
-    controller.setSowingDate(picked);
-  }
-}
-
-void _showModuleSheet(BuildContext context, DssModuleResult module) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.white,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-    ),
-    builder: (context) {
-      return DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.72,
-        minChildSize: 0.45,
-        maxChildSize: 0.92,
-        builder: (context, scrollController) {
-          final color = _scoreColor(module.score);
-          return ListView(
-            controller: scrollController,
-            padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(11),
-                    ),
-                    child: Icon(_moduleIcon(module.id), color: color, size: 21),
-                  ),
-                  const SizedBox(width: 11),
-                  Expanded(
-                      child: Text(module.title, style: _sectionTitleStyle())),
-                  _ScoreChip(score: module.score, color: color),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Text(module.summary, style: _bodyStyle()),
-              const SizedBox(height: 16),
-              if (module.recommendations.isEmpty)
-                const _EmptyAction()
-              else
-                ...module.recommendations.map(
-                  (rec) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: _RecommendationTile(recommendation: rec),
-                  ),
-                ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-
-void _showRecommendationSheet(
-    BuildContext context, DssRecommendation recommendation) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.white,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-    ),
-    builder: (context) {
-      return DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.78,
-        minChildSize: 0.45,
-        maxChildSize: 0.92,
-        builder: (context, scrollController) {
-          return ListView(
-            controller: scrollController,
-            padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
-            children: [
-              Row(
-                children: [
-                  Icon(_urgencyIcon(recommendation.urgency),
-                      color: _urgencyColor(recommendation.urgency)),
-                  const SizedBox(width: 10),
-                  Expanded(
-                      child: Text(recommendation.title,
-                          style: _sectionTitleStyle())),
-                  _UrgencyPill(urgency: recommendation.urgency),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _DetailBlock(
-                  title: 'The call',
-                  text: recommendation.decision,
-                  icon: Icons.assistant_direction_rounded),
-              _DetailBlock(
-                  title: 'Why it matters',
-                  text: recommendation.whyItMatters,
-                  icon: Icons.info_rounded),
-              _DetailBlock(
-                  title: 'Do this',
-                  text: recommendation.farmerAction,
-                  icon: Icons.task_alt_rounded),
-              _DetailBlock(
-                  title: 'Check in the field',
-                  text: recommendation.fieldCheck,
-                  icon: Icons.search_rounded),
-              const SizedBox(height: 10),
-              Text('What your sensors show',
-                  style: _sectionTitleStyle(size: 17)),
-              const SizedBox(height: 4),
-              Text(
-                'Colour shows if a reading is good, worth watching, or needs action.',
-                style: _bodyStyle(size: 12, color: AppTokens.slate500),
-              ),
-              const SizedBox(height: 10),
-              ...recommendation.evidence.map(
-                (e) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: _EvidenceRow(evidence: e),
-                ),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-
-class _DetailBlock extends StatelessWidget {
-  const _DetailBlock(
-      {required this.title, required this.text, required this.icon});
-
-  final String title;
-  final String text;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Container(
-        padding: const EdgeInsets.all(13),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(13),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, size: 18, color: AppTokens.primary),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: _labelStyle()),
-                  const SizedBox(height: 4),
-                  Text(text, style: _bodyStyle()),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// A full-width reading row: tone dot + label + plain hint + value + status word.
-class _EvidenceRow extends StatelessWidget {
-  const _EvidenceRow({required this.evidence});
-
-  final DssEvidence evidence;
-
-  @override
-  Widget build(BuildContext context) {
-    final tone = evidence.tone;
-    final color = _toneColor(tone);
-    final word = _toneWord(tone);
-    final tinted = tone != DssTone.info;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
-      decoration: BoxDecoration(
-        color: tinted ? color.withValues(alpha: 0.06) : const Color(0xFFF6F8FB),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color:
-              tinted ? color.withValues(alpha: 0.20) : const Color(0xFFE8EDF3),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-          ),
-          const SizedBox(width: 11),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  evidence.label,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: AppTokens.slate900,
-                  ),
-                ),
-                if (evidence.note.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    evidence.note,
-                    style: _bodyStyle(size: 11.5, color: AppTokens.slate500),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                evidence.value,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w900,
-                  color: tinted ? color : AppTokens.slate900,
-                ),
-              ),
-              if (word.isNotEmpty) ...[
-                const SizedBox(height: 2),
-                Text(word, style: _labelStyle(size: 8.5, color: color)),
-              ],
-            ],
-          ),
-        ],
-      ),
-    );
+    controller.setAdvisorySowingDate(picked);
   }
 }
 
 // ──────────────────────────────────────────────────────────────── Helpers ──
 
+TextStyle _urduTextStyle({
+  required double size,
+  required Color color,
+  FontWeight weight = FontWeight.w700,
+  double height = 1.8,
+}) {
+  return TextStyle(
+    fontFamily: 'Jameel Noori Nastaleeq',
+    fontFamilyFallback: [
+      'Jameel Noori',
+      'JameelNoori',
+      'Jameel Noori Nastaleeq Kasheeda',
+      GoogleFonts.notoNastaliqUrdu().fontFamily!,
+      GoogleFonts.notoSansArabic().fontFamily!,
+    ],
+    fontSize: size + 4.0,
+    fontWeight: weight == FontWeight.w900 ? FontWeight.w800 : weight,
+    color: color,
+    height: height,
+  );
+}
+
+TextStyle _sectionTitleStyle({double size = 19, bool rtl = false}) {
+  if (rtl) {
+    return _urduTextStyle(size: size, color: AppTokens.slate900, weight: FontWeight.w900, height: 1.6);
+  }
+  return GoogleFonts.plusJakartaSans(
+    fontSize: size,
+    fontWeight: FontWeight.w900,
+    color: AppTokens.slate900,
+    letterSpacing: -0.5,
+  );
+}
+
+TextStyle _bodyStyle({
+  double size = 13,
+  Color color = AppTokens.slate700,
+  bool rtl = false,
+  FontWeight weight = FontWeight.w700,
+}) {
+  if (rtl) {
+    return _urduTextStyle(size: size, color: color, weight: weight, height: 1.8);
+  }
+  return GoogleFonts.plusJakartaSans(
+    fontSize: size,
+    fontWeight: weight,
+    color: color,
+    height: 1.45,
+  );
+}
+
+/// A paragraph of advisory text, direction-aware so Urdu renders right-to-left.
+Widget _paragraph(String text, bool rtl,
+    {double size = 13, Color color = AppTokens.slate700}) {
+  return Text(
+    text,
+    textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+    textAlign: rtl ? TextAlign.right : TextAlign.left,
+    style: _bodyStyle(size: size, color: color, rtl: rtl),
+  );
+}
+
+String _capitalize(String value) {
+  if (value.isEmpty) return value;
+  return value[0].toUpperCase() + value.substring(1);
+}
+
+String _trimNum(double value) {
+  if (value == value.roundToDouble()) {
+    return value.toInt().toString();
+  }
+  return value.toStringAsFixed(1);
+}
+
 String _formatDate(DateTime d) {
   const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec'
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
   return '${d.day} ${months[d.month - 1]} ${d.year}';
 }
@@ -2010,141 +1521,93 @@ TextStyle _labelStyle({double size = 10, Color color = AppTokens.slate500}) {
   );
 }
 
-TextStyle _sectionTitleStyle({double size = 19}) {
-  return GoogleFonts.plusJakartaSans(
-    fontSize: size,
-    fontWeight: FontWeight.w900,
-    color: AppTokens.slate900,
-    letterSpacing: -0.5,
-  );
-}
 
-TextStyle _bodyStyle({double size = 13, Color color = AppTokens.slate700}) {
-  return GoogleFonts.plusJakartaSans(
-    fontSize: size,
-    fontWeight: FontWeight.w700,
-    color: color,
-    height: 1.45,
-  );
-}
-
-// Traffic-light scoring — green = good, amber = keep an eye, red = act now.
-Color _scoreColor(int score) {
-  if (score >= 70) return AppTokens.primary; // green
-  if (score >= 50) return AppTokens.caution; // amber
-  return AppTokens.alert; // red
-}
-
-Color _toneColor(DssTone tone) {
-  switch (tone) {
-    case DssTone.good:
+// Severity → traffic-light colour (advisory sections / findings).
+Color _severityColor(String severity) {
+  switch (severity.toLowerCase()) {
+    case 'critical':
+      return AppTokens.alert;
+    case 'warning':
+      return const Color(0xFFF97316); // orange
+    case 'watch':
+      return AppTokens.caution;
+    case 'info':
+    case 'ok':
+    case 'good':
       return AppTokens.primary;
-    case DssTone.warn:
-      return AppTokens.caution;
-    case DssTone.bad:
-      return AppTokens.alert;
-    case DssTone.info:
-      return AppTokens.slate500;
-  }
-}
-
-String _toneWord(DssTone tone) {
-  switch (tone) {
-    case DssTone.good:
-      return 'GOOD';
-    case DssTone.warn:
-      return 'WATCH';
-    case DssTone.bad:
-      return 'ACT';
-    case DssTone.info:
-      return '';
-  }
-}
-
-Color _urgencyColor(DssUrgency urgency) {
-  switch (urgency) {
-    case DssUrgency.critical:
-    case DssUrgency.high:
-      return AppTokens.alert;
-    case DssUrgency.moderate:
-      return AppTokens.caution;
-    case DssUrgency.low:
-      return AppTokens.info;
-    case DssUrgency.info:
-      return AppTokens.slate500;
-  }
-}
-
-String _urgencyLabel(DssUrgency urgency) {
-  switch (urgency) {
-    case DssUrgency.critical:
-      return 'NOW';
-    case DssUrgency.high:
-      return 'TODAY';
-    case DssUrgency.moderate:
-      return 'SOON';
-    case DssUrgency.low:
-      return 'PLAN';
-    case DssUrgency.info:
-      return 'NOTE';
-  }
-}
-
-String _dssShortDateTime(DateTime value) {
-  final hour = value.hour.toString().padLeft(2, '0');
-  final minute = value.minute.toString().padLeft(2, '0');
-  return '${value.day}/${value.month} $hour:$minute';
-}
-
-String _dssReadingAge(DateTime value) {
-  final diff = DateTime.now().difference(value);
-  if (diff.inMinutes < 1) return 'just now';
-  if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
-  if (diff.inHours < 24) return '${diff.inHours} hr ago';
-  return '${diff.inDays} day${diff.inDays == 1 ? '' : 's'} ago';
-}
-
-IconData _urgencyIcon(DssUrgency urgency) {
-  switch (urgency) {
-    case DssUrgency.critical:
-      return Icons.priority_high_rounded;
-    case DssUrgency.high:
-      return Icons.warning_amber_rounded;
-    case DssUrgency.moderate:
-      return Icons.error_outline_rounded;
-    case DssUrgency.low:
-      return Icons.info_outline_rounded;
-    case DssUrgency.info:
-      return Icons.tips_and_updates_outlined;
-  }
-}
-
-IconData _moduleIcon(String id) {
-  switch (id) {
-    case 'live_data':
-      return Icons.sensors_rounded;
-    case 'irrigation':
-      return Icons.water_drop_rounded;
-    case 'crop_stress':
-      return Icons.local_florist_rounded;
-    case 'temperature':
-      return Icons.thermostat_rounded;
-    case 'soil_health':
-      return Icons.terrain_rounded;
-    case 'nutrients':
-      return Icons.science_rounded;
-    case 'ph':
-      return Icons.opacity_rounded;
-    case 'salinity':
-      return Icons.grain_rounded;
-    case 'spray':
-      return Icons.air_rounded;
-    case 'pest_disease':
-      return Icons.pest_control_rounded;
-    case 'stage':
-      return Icons.timeline_rounded;
     default:
-      return Icons.eco_rounded;
+      return AppTokens.slate500;
+  }
+}
+
+String _severityWord(String severity) {
+  switch (severity.toLowerCase()) {
+    case 'critical':
+      return 'ACT NOW';
+    case 'warning':
+      return 'ACT';
+    case 'watch':
+      return 'WATCH';
+    case 'info':
+    case 'ok':
+    case 'good':
+      return 'OK';
+    default:
+      return severity.toUpperCase();
+  }
+}
+
+// Signal status → colour (optimal / high / low / very_high …).
+Color _statusColor(String status) {
+  switch (status.toLowerCase()) {
+    case 'optimal':
+    case 'ok':
+    case 'good':
+      return AppTokens.primary;
+    case 'very_high':
+    case 'very_low':
+      return AppTokens.alert;
+    case 'high':
+    case 'low':
+      return AppTokens.caution;
+    case 'none':
+      return AppTokens.slate400;
+    default:
+      return AppTokens.slate500;
+  }
+}
+
+// Pick the hero tint from the most severe section/finding.
+Color _worstSeverityColor(SoilWeatherAdvisory advisory) {
+  var rank = 0;
+  int rankOf(String s) {
+    switch (s.toLowerCase()) {
+      case 'critical':
+        return 3;
+      case 'warning':
+        return 2;
+      case 'watch':
+        return 1;
+      default:
+        return 0;
+    }
+  }
+
+  for (final s in advisory.sections) {
+    rank = math.max(rank, rankOf(s.severity));
+  }
+  for (final f in advisory.findings) {
+    rank = math.max(rank, rankOf(f.severity));
+  }
+  switch (rank) {
+    case 3:
+      return AppTokens.alert;
+    case 2:
+      return const Color(0xFFF97316);
+    case 1:
+      return AppTokens.caution;
+    default:
+      return AppTokens.primary;
   }
 }
 
@@ -2169,3 +1632,5 @@ IconData stageIcon(String key) {
       return Icons.energy_savings_leaf_rounded;
   }
 }
+
+
