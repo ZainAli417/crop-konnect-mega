@@ -7,3 +7,4 @@ myenv/
 __pycache__/
 *.pyc
 .env
+backend_crop_konnect/.env
