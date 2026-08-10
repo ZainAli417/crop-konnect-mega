@@ -30,7 +30,7 @@ class SolarRelayController:
         self.active_low = bool(settings.relay_active_low)
         self.settle_seconds = max(0.0, float(settings.relay_settle_seconds))
         self.stabilize_seconds = max(
-            MIN_RELAY_STABILIZE_SECONDS,
+            max(0.0, float(getattr(settings, "relay_min_stabilize_seconds", MIN_RELAY_STABILIZE_SECONDS))),
             self.settle_seconds,
         )
         self.pin = settings.relay_solar_pin

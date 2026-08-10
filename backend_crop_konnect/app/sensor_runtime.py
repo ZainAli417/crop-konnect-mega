@@ -1,8 +1,9 @@
 import asyncio
 import logging
 import threading
+import time
 from dataclasses import dataclass
-from datetime import datetime, time, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import minimalmodbus
@@ -55,7 +56,7 @@ class RelayController:
         self.active_low = bool(settings.relay_active_low)
         self.settle_seconds = max(0.0, float(settings.relay_settle_seconds))
         self.stabilize_seconds = max(
-            MIN_RELAY_STABILIZE_SECONDS,
+            max(0.0, float(getattr(settings, "relay_min_stabilize_seconds", MIN_RELAY_STABILIZE_SECONDS))),
             self.settle_seconds,
         )
         self.pins = {
@@ -360,23 +361,38 @@ def read_wind_speed(instrument: minimalmodbus.Instrument | None) -> float | None
     return safe_read_register(instrument, register_address=0, decimals=1, function_code=3, sensor_name="wind_speed")
 
 
-def read_wind_direction(instrument: minimalmodbus.Instrument | None) -> tuple[float | None, str | None]:
+def read_wind_direction(instrument: minimalmodbus.Instrument | None) -> tuple[float, str] | None:
+    """Wind direction, or None when the read failed.
+
+    Returning ``None`` -- not ``(None, None)`` -- is load bearing. The retry and
+    reconnect logic in :meth:`SerialSensorPoller._read_with_reconnect` detects a
+    failed read with ``value is None``, and a two-element tuple is never None.
+    While this returned ``(None, None)`` every failed direction read was scored
+    as a *success*: the port was never reopened, the failure counter never
+    moved, and the station published a null direction on every cycle after the
+    first one that happened to work.
+    """
     gear = safe_read_register(instrument, register_address=0, decimals=0, function_code=3, sensor_name="wind_dir")
     if gear is None:
-        return None, None
+        return None
 
     try:
         gear_index = max(0, min(15, int(gear)))
         return gear_index * 22.5, UNIVERSAL_DIRS[gear_index]
     except Exception as exc:
         logger.warning("wind_dir conversion failed: %s", exc)
-        return None, None
+        return None
 
 
-def read_soil(instrument: minimalmodbus.Instrument | None) -> dict[str, float | None]:
+def read_soil(instrument: minimalmodbus.Instrument | None) -> dict[str, float | None] | None:
+    """Soil block, or None when the read failed.
+
+    Same contract as :func:`read_wind_direction`: an all-null dict is not None,
+    so returning one hid every soil failure from the retry path.
+    """
     registers = safe_read_registers(instrument, register_address=0, count=7, function_code=3, sensor_name="soil")
     if not registers or len(registers) != 7:
-        return {"moist": None, "temp": None, "ec": None, "n": None, "p": None, "k": None, "ph": None}
+        return None
 
     try:
         return {
@@ -390,7 +406,7 @@ def read_soil(instrument: minimalmodbus.Instrument | None) -> dict[str, float | 
         }
     except Exception as exc:
         logger.warning("soil payload conversion failed: %s", exc)
-        return {"moist": None, "temp": None, "ec": None, "n": None, "p": None, "k": None, "ph": None}
+        return None
 
 
 def read_rain(instrument: minimalmodbus.Instrument | None) -> float | None:
@@ -430,6 +446,11 @@ class SerialSensorPoller:
         self._runtime_settings: StationRuntimeSettings | None = None
         self._runtime_log_signature: tuple[Any, ...] | None = None
         self._sensor_next_due_at: dict[str, datetime] = {}
+        self._sensor_last_read_at: dict[str, datetime] = {}
+        # Effective cadence each sensor was last scheduled against. A change here
+        # re-anchors the pending due time; see _reconcile_sensor_schedule.
+        self._sensor_interval_seen: dict[str, int] = {}
+        self._unreachable_cadence_logged: set[str] = set()
         self._sensor_unavailable_until: dict[str, datetime] = {}
         self._sensor_failures: dict[str, int] = {}
         self.relays = RelayController(self.settings)
@@ -587,6 +608,9 @@ class SerialSensorPoller:
         self._runtime_settings = runtime
         self.last_settings_at = datetime.now(timezone.utc)
         self._log_runtime_settings(runtime, source=source)
+        # Pending due times are recomputed here, not only at cycle start, so a
+        # cadence edit in the app lands on the very next cycle.
+        self._reconcile_sensor_schedule(runtime)
         self.relays.off_disabled(relay_groups_for_runtime(runtime))
         return runtime
 
@@ -637,6 +661,81 @@ class SerialSensorPoller:
             return None
         return max(1, round(86400 / reads_per_day))
 
+    def _effective_interval_seconds(self, runtime: StationRuntimeSettings, sensor_name: str) -> int:
+        """Cadence actually used for this sensor, plan first, poll interval second."""
+        interval_seconds = self._sensor_interval_seconds(runtime, sensor_name)
+        if interval_seconds is None:
+            interval_seconds = max(1, int(runtime.poll_interval_seconds))
+        return max(1, int(interval_seconds))
+
+    def _reconcile_sensor_schedule(self, runtime: StationRuntimeSettings) -> None:
+        """Re-anchor pending due times whenever a sensor's cadence changes.
+
+        This is the fix for "every relay follows the longest schedule". A due
+        time was written once, as ``read_time + interval_at_that_moment``, and
+        nothing ever revisited it. So after the station had run with a long
+        cadence -- the 24-reads-per-day default a fresh settings row starts
+        with, or a 2-hour setting the user tried earlier -- shortening a sensor
+        to 30 minutes or 5 seconds in the app changed nothing until the *old*
+        timer expired. Every relay kept ticking on the longest cadence that had
+        ever been configured, which is exactly what the station sounded like.
+
+        Re-anchoring against the last actual read means a shortened cadence
+        takes effect on the next cycle, and a lengthened one stops an already
+        overdue sensor from firing immediately.
+        """
+        now = datetime.now(timezone.utc)
+        for sensor_name in self.readers:
+            interval_seconds = self._effective_interval_seconds(runtime, sensor_name)
+            previous = self._sensor_interval_seen.get(sensor_name)
+            if previous == interval_seconds:
+                continue
+            self._sensor_interval_seen[sensor_name] = interval_seconds
+            self._warn_if_cadence_unreachable(sensor_name, interval_seconds)
+            if previous is None:
+                # First time this sensor is seen: leave scheduling to
+                # _sensor_is_due, which makes it due immediately.
+                continue
+
+            anchor = self._sensor_last_read_at.get(sensor_name, now)
+            rescheduled = max(now, anchor + timedelta(seconds=interval_seconds))
+            self._sensor_next_due_at[sensor_name] = rescheduled
+            logger.info(
+                "%s cadence changed %ss -> %ss; next read re-anchored to %s",
+                sensor_name,
+                previous,
+                interval_seconds,
+                rescheduled.isoformat(),
+            )
+
+    def _warn_if_cadence_unreachable(self, sensor_name: str, interval_seconds: int) -> None:
+        """Say so when a configured cadence is faster than the relay allows.
+
+        A relay group cannot cycle faster than its stabilize window, so a sensor
+        set to 5 seconds behind a 30 second stabilize is really read every ~30
+        seconds. Silently doing that looks like the schedule being ignored.
+        """
+        group = relay_group_for_sensor(sensor_name)
+        if group is None or not self.relays.enabled:
+            return
+        floor = self.relays.stabilize_seconds
+        if floor <= 0 or interval_seconds >= floor:
+            self._unreachable_cadence_logged.discard(sensor_name)
+            return
+        if sensor_name in self._unreachable_cadence_logged:
+            return
+        self._unreachable_cadence_logged.add(sensor_name)
+        logger.warning(
+            "%s is scheduled every %ss but relay group '%s' needs %.0fs to power the "
+            "sensor and let it settle, so it will be read about every %.0fs. Lower "
+            "RELAY_MIN_STABILIZE_SECONDS/RELAY_SETTLE_SECONDS to go faster.",
+            sensor_name,
+            interval_seconds,
+            group,
+            floor,
+            floor,
+        )
+
     def _sensor_is_due(self, runtime: StationRuntimeSettings, sensor_name: str, now: datetime) -> bool:
         item = self._sensor_plan_item(runtime, sensor_name)
         if item is None:
@@ -648,11 +747,35 @@ class SerialSensorPoller:
             return True
         return now >= next_due
 
-    def _record_sensor_due(self, runtime: StationRuntimeSettings, sensor_name: str, now: datetime) -> None:
-        interval_seconds = self._sensor_interval_seconds(runtime, sensor_name)
-        if interval_seconds is None:
-            interval_seconds = max(1, int(runtime.poll_interval_seconds))
-        self._sensor_next_due_at[sensor_name] = now + timedelta(seconds=interval_seconds)
+    def _record_sensor_due(
+        self,
+        runtime: StationRuntimeSettings,
+        sensor_name: str,
+        now: datetime,
+        *,
+        read_attempted: bool = True,
+    ) -> None:
+        """Book the next read for this sensor. Must run for every due sensor.
+
+        ``read_attempted=False`` is used for a sensor that was due but skipped
+        (currently: still in failure backoff). Rescheduling it anyway is what
+        stops it from staying permanently overdue -- an always-due sensor makes
+        _next_sensor_due_seconds return 0, so the poller never sleeps, powers
+        that relay group every cycle for nothing, and starves the sensors that
+        are actually on a schedule.
+        """
+        interval_seconds = self._effective_interval_seconds(runtime, sensor_name)
+        next_due = now + timedelta(seconds=interval_seconds)
+        if read_attempted:
+            self._sensor_last_read_at[sensor_name] = now
+        else:
+            # Don't push a fast sensor past the end of its backoff: retry as
+            # soon as the backoff clears if that comes first.
+            backoff_until = self._sensor_unavailable_until.get(sensor_name)
+            if backoff_until is not None and backoff_until < next_due:
+                next_due = backoff_until
+        self._sensor_next_due_at[sensor_name] = max(next_due, now + timedelta(seconds=1))
+        self._sensor_interval_seen[sensor_name] = interval_seconds
 
     def _legacy_selected_sensors(self, runtime: StationRuntimeSettings) -> list[str]:
         return [
@@ -830,50 +953,72 @@ class SerialSensorPoller:
 
         Guarded by a per-port lock so a read abandoned by the async timeout
         cannot be running concurrently with the next one on the same device.
+
+        Every attempt after the first reopens the port and waits
+        SENSOR_RETRY_DELAY_MS first. That retry budget is what lets the second
+        sensor on a shared relay succeed: wind speed and wind direction are
+        powered by the same pin, and the direction sensor is often still
+        settling when the speed read finishes.
         """
         lock = self._sensor_locks[sensor_name]
         if not lock.acquire(blocking=False):
             logger.warning("%s skipped: previous read still in flight", sensor_name)
             return None
 
-        try:
-            instrument = self._get_instrument(sensor_name)
-            if instrument is None:
-                return None
+        attempts = 1 + max(0, int(self.settings.sensor_read_retries))
+        retry_delay = max(0.0, float(self.settings.sensor_retry_delay_ms) / 1000.0)
+        # Leave headroom inside the caller's hard deadline so the last attempt
+        # reports a real failure instead of being killed mid-transaction.
+        deadline = time.monotonic() + max(1.0, float(self.settings.sensor_read_timeout_seconds)) * 0.8
+        last_reason = "read returned no data"
 
-            try:
-                value = reader(instrument)
+        try:
+            for attempt in range(1, attempts + 1):
+                if attempt == 1:
+                    instrument = self._get_instrument(sensor_name)
+                else:
+                    if time.monotonic() + retry_delay >= deadline:
+                        logger.info(
+                            "%s out of retry budget after attempt %s/%s", sensor_name, attempt - 1, attempts
+                        )
+                        break
+                    if retry_delay > 0:
+                        time.sleep(retry_delay)
+                    instrument = self._reset_instrument(sensor_name)
+                if instrument is None:
+                    # Identity unconfirmed or the port would not open;
+                    # _get_instrument/_reset_instrument already set the backoff.
+                    return None
+
+                try:
+                    value = reader(instrument)
+                except Exception as exc:
+                    last_reason = f"read raised {exc}"
+                    value = None
+                    logger.warning(
+                        "%s read attempt %s/%s failed: %s", sensor_name, attempt, attempts, exc
+                    )
+
                 if value is not None:
                     self._record_success(sensor_name)
+                    if attempt > 1:
+                        logger.info("%s recovered on attempt %s/%s", sensor_name, attempt, attempts)
+                        # Drop the handle so the next cycle reopens against the
+                        # freshly resolved device node.
+                        self._close_instrument(sensor_name)
                     return value
-                logger.warning("%s read returned no data; other sensors will continue", sensor_name)
-            except Exception as exc:
-                logger.warning("%s read failed before reconnect: %s", sensor_name, exc)
 
-            instrument = self._reset_instrument(sensor_name)
-            if instrument is None:
-                return None
+                if attempt < attempts:
+                    logger.info(
+                        "%s read attempt %s/%s returned no data; reopening port and retrying",
+                        sensor_name,
+                        attempt,
+                        attempts,
+                    )
 
-            try:
-                value = reader(instrument)
-                if value is None:
-                    self._record_failure(sensor_name, "read returned no data after reconnect")
-                else:
-                    self._record_success(sensor_name)
-                return value
-            except Exception as exc:
-                self._record_failure(sensor_name, f"read failed after reconnect: {exc}")
-                logger.warning(
-                    "%s read failed after reconnect; other sensors will continue: %s",
-                    sensor_name,
-                    exc,
-                )
-                return None
-            finally:
-                # close_port_after_each_call already releases the port; this
-                # drops the instrument so the next cycle reopens against the
-                # freshly resolved device node.
-                self._close_instrument(sensor_name)
+            self._record_failure(sensor_name, f"{last_reason} after {attempts} attempt(s)")
+            self._close_instrument(sensor_name)
+            return None
         except Exception as exc:  # pragma: no cover - defensive
             logger.warning("%s read wrapper failed: %s", sensor_name, exc)
             return None
@@ -923,7 +1068,7 @@ class SerialSensorPoller:
         }
 
         if runtime.sensor_read_plan:
-            due_items: list[tuple[int, int, str]] = []
+            due_items: list[tuple[int, int, int, str]] = []
             now = datetime.now(timezone.utc)
             for index, name in enumerate(runtime.sensor_read_sequence):
                 if name not in self.readers or not runtime.enabled.get(name, False):
@@ -940,8 +1085,12 @@ class SerialSensorPoller:
                     priority_value = int(priority) if priority is not None else 999
                 except Exception:
                     priority_value = 999
-                due_items.append((priority_value, index, name))
-            ordered_sensors = [name for _, _, name in sorted(due_items)]
+                # Tie-break on cadence so a fast sensor is not queued behind a
+                # slow one -- and behind its 30s relay stabilize -- on the
+                # cycles where both happen to come due together.
+                interval = self._effective_interval_seconds(runtime, name)
+                due_items.append((priority_value, interval, index, name))
+            ordered_sensors = [name for *_, name in sorted(due_items)]
         else:
             ordered_sensors = self._legacy_selected_sensors(runtime)
 
@@ -954,6 +1103,24 @@ class SerialSensorPoller:
         if not ordered_sensors:
             return None
 
+        # Sensors already in failure backoff are dropped here, before grouping,
+        # so their relay group is not powered (and 30s of stabilize burned) for
+        # a read that will be skipped anyway. They are still rescheduled, or
+        # they stay permanently overdue and stop the poller from ever sleeping.
+        now = datetime.now(timezone.utc)
+        ready_sensors: list[str] = []
+        for sensor_name in ordered_sensors:
+            if self._sensor_is_in_backoff(sensor_name):
+                logger.info("%s skipped this cycle because it is in retry backoff", sensor_name)
+                if not advisory_active:
+                    self._record_sensor_due(runtime, sensor_name, now, read_attempted=False)
+                continue
+            ready_sensors.append(sensor_name)
+        ordered_sensors = ready_sensors
+
+        if not ordered_sensors:
+            return None
+
         logger.info(
             "Sensor read cycle for %s: advisory_active=%s ordered_sensors=%s enabled=%s",
             self.settings.device_id,
@@ -962,7 +1129,6 @@ class SerialSensorPoller:
             runtime.enabled,
         )
 
-        now = datetime.now(timezone.utc)
         grouped_sensors = self._group_ordered_sensors(ordered_sensors)
         for group_index, (relay_group, sensors) in enumerate(grouped_sensors):
             pin = None if relay_group is None else self.relays.pins.get(relay_group)
@@ -983,9 +1149,6 @@ class SerialSensorPoller:
                     )
                     await asyncio.sleep(self.relays.stabilize_seconds)
                 for sensor_index, sensor_name in enumerate(sensors):
-                    if self._sensor_is_in_backoff(sensor_name):
-                        logger.info("%s skipped this cycle because it is in retry backoff", sensor_name)
-                        continue
                     logger.info("%s read started", sensor_name)
                     try:
                         results[sensor_name] = await self._read_sensor(sensor_name)

@@ -46,6 +46,13 @@ class Settings(BaseSettings):
     sensor_read_timeout_seconds: float = Field(default=6.0, alias="SENSOR_READ_TIMEOUT_SECONDS")
     # Consecutive failures before a sensor is put in backoff.
     sensor_failure_threshold: int = Field(default=3, alias="SENSOR_FAILURE_THRESHOLD")
+    # Attempts per sensor per cycle. Attempt 1 uses the cached handle; every
+    # later attempt reopens the port first. Two sensors sharing one relay (wind
+    # speed + wind direction) frequently need a second attempt because the
+    # second sensor is still settling when the first one finishes.
+    sensor_read_retries: int = Field(default=2, alias="SENSOR_READ_RETRIES")
+    # Pause before a retry, to let the RS-485 line and the sensor settle.
+    sensor_retry_delay_ms: int = Field(default=400, alias="SENSOR_RETRY_DELAY_MS")
     sensor_inter_read_delay_ms: int = Field(default=250, alias="SENSOR_INTER_READ_DELAY_MS")
     sensor_read_order: str = Field(
         default="wind_speed,wind_direction,soil,rain,solar",
@@ -82,6 +89,11 @@ class Settings(BaseSettings):
     relay_gpio_mode: str = Field(default="BCM", alias="RELAY_GPIO_MODE")
     relay_active_low: bool = Field(default=True, alias="RELAY_ACTIVE_LOW")
     relay_settle_seconds: float = Field(default=0.25, alias="RELAY_SETTLE_SECONDS")
+    # Floor applied on top of RELAY_SETTLE_SECONDS before the first read after a
+    # relay powers a sensor on. This floor is also the shortest cycle a relay
+    # group can physically achieve, so a sensor scheduled faster than this will
+    # be read at this cadence instead.
+    relay_min_stabilize_seconds: float = Field(default=30.0, alias="RELAY_MIN_STABILIZE_SECONDS")
     relay_wind_pin: int | None = Field(default=None, alias="RELAY_WIND_PIN")
     relay_soil_pin: int | None = Field(default=None, alias="RELAY_SOIL_PIN")
     relay_rain_pin: int | None = Field(default=None, alias="RELAY_RAIN_PIN")
