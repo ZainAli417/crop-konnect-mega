@@ -1,0 +1,95 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- HELPER FUNCTIONS ---
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isUser(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+
+    // Securely check if user is admin WITHOUT using the recursive get() in every rule
+    function isAdmin() {
+      return isAuth() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role.lower() == 'admin' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role.lower() == 'superadmin' ||
+        exists(/databases/$(database)/documents/admin/$(request.auth.uid))
+      );
+    }
+
+    function userRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role.lower();
+    }
+
+    function isRecruiter() {
+      return isAuth() && (userRole() == 'recruiter' || userRole() == 'employer');
+    }
+
+    function isJobSeeker() {
+      let role = userRole();
+      return isAuth() && (role == 'job_seeker' || role == 'jobseeker' || role == 'candidate' || role == 'job seeker');
+    }
+
+    // --- GLOBAL ADMIN OVERRIDE ---
+    // Allow admins to do ANYTHING in the database
+    match /{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // --- COLLECTION RULES (For non-admins) ---
+
+    match /users/{userId} {
+      allow read, write: if isUser(userId);
+    }
+
+    match /admin/{adminId} {
+      allow read, write: if isUser(adminId);
+    }
+
+    match /recruiter/{recruiterId} {
+      allow read, write: if isUser(recruiterId);
+
+      match /Posted_jobs/{jobId} {
+        allow read, write: if isUser(recruiterId);
+      }
+    }
+
+    match /Posted_jobs_public/{jobId} {
+      allow read: if isAuth();
+      allow create: if isRecruiter();
+      allow update: if isAuth();
+      allow delete: if (isRecruiter() && resource.data.recruiterUid == request.auth.uid);
+    }
+
+    match /Job_Seeker/{jobSeekerId} {
+      allow read: if isUser(jobSeekerId) || isRecruiter();
+      allow write: if isUser(jobSeekerId);
+
+      match /applied_jobs/{jobId} {
+        allow read, write: if isUser(jobSeekerId) || isRecruiter();
+      }
+
+      match /{allSubcollections=**} {
+        allow read, write: if isUser(jobSeekerId);
+      }
+    }
+
+    match /applications/{userId}/{document=**} {
+      allow read, write: if isUser(userId) || isRecruiter();
+    }
+
+    match /recruiter_requests/{requestId} {
+      allow read: if (isRecruiter() && resource.data.recruiter_id == request.auth.uid);
+      allow create: if isRecruiter();
+    }
+
+    // --- COLLECTION GROUP RULES ---
+    match /{path=**}/applied_jobs/{jobId} {
+      allow read: if isAuth() && (isRecruiter() && resource.data.recruiterUid == request.auth.uid);
+    }
+  }
+}
