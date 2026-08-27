@@ -1,0 +1,7057 @@
+{
+  "wheat": {
+    "crop": "Wheat",
+    "kb": "wheat",
+    "sow_window": "Mid-October",
+    "total_days": 180,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 70,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Booting / Heading",
+        "start_day": 71,
+        "end_day": 90,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "stem",
+        "focus": "The crop is switching to yield building. Protect it from any stress now — it sets your yield ceiling."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 91,
+        "end_day": 110,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Grain Set",
+        "start_day": 111,
+        "end_day": 120,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Grain Filling",
+        "start_day": 121,
+        "end_day": 140,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 141,
+        "end_day": 180,
+        "lower_moisture": 40,
+        "upper_moisture": 70,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "rice": {
+    "crop": "Rice",
+    "kb": "rice",
+    "sow_window": "Mid-June",
+    "total_days": 120,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 30,
+        "lower_moisture": 85,
+        "upper_moisture": 95,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 22,
+        "temp_opt_max": 34,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 31,
+        "end_day": 50,
+        "lower_moisture": 80,
+        "upper_moisture": 95,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 22,
+        "temp_opt_max": 34,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Panicle Initiation",
+        "start_day": 51,
+        "end_day": 70,
+        "lower_moisture": 90,
+        "upper_moisture": 95,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 22,
+        "temp_opt_max": 34,
+        "icon": "stem",
+        "focus": "The crop is switching to yield building. Protect it from any stress now — it sets your yield ceiling."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 71,
+        "end_day": 90,
+        "lower_moisture": 90,
+        "upper_moisture": 95,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 22,
+        "temp_opt_max": 34,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 91,
+        "end_day": 120,
+        "lower_moisture": 75,
+        "upper_moisture": 95,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 22,
+        "temp_opt_max": 34,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "maize": {
+    "crop": "Maize",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Flowering / Pollination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "barley": {
+    "crop": "Barley",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Tillering",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "oat": {
+    "crop": "Oat",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Tillering",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "oats": {
+    "crop": "Oats",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Tillering",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "rye": {
+    "crop": "Rye",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Tillering",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "Rye Grass": {
+    "crop": "Rye Grass",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Tillering",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Rapid Growth",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Pre-Cutting / Recovery",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "sorghum": {
+    "crop": "Sorghum (Jowar)",
+    "kb": "sorghum",
+    "sow_window": "Mid-June",
+    "total_days": 120,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 50,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 51,
+        "end_day": 70,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Grain Set",
+        "start_day": 71,
+        "end_day": 90,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Grain Filling",
+        "start_day": 91,
+        "end_day": 100,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 101,
+        "end_day": 120,
+        "lower_moisture": 40,
+        "upper_moisture": 70,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "pearl millet": {
+    "crop": "Pearl Millet",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Flowering / Pollination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "millet": {
+    "crop": "Millet",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Flowering / Pollination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "pulses": {
+    "crop": "Pulses",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "chickpea": {
+    "crop": "Chickpea (Gram)",
+    "kb": "chickpea",
+    "sow_window": "October",
+    "total_days": 180,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 60,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Branching / Bud",
+        "start_day": 61,
+        "end_day": 70,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "stem",
+        "focus": "The crop is switching to yield building. Protect it from any stress now — it sets your yield ceiling."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 71,
+        "end_day": 90,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Pod Set",
+        "start_day": 91,
+        "end_day": 110,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Pod Filling",
+        "start_day": 111,
+        "end_day": 130,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 131,
+        "end_day": 180,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "Gram Chickpea": {
+    "crop": "Gram Chickpea",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "Spring Potato": {
+    "crop": "Spring Potato",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Sprouting / Establishment",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Tuber / Root Bulking",
+        "lower_moisture": 75,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "lentil": {
+    "crop": "Lentil",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "soybean": {
+    "crop": "Soybean",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "mung": {
+    "crop": "Mung",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "black gram": {
+    "crop": "Black Gram",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "pigeon pea": {
+    "crop": "Pigeon Pea",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "Cowpea Guara": {
+    "crop": "Cowpea / Guara",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "groundnut": {
+    "crop": "Groundnut",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "groundnuts": {
+    "crop": "Groundnuts",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "guar": {
+    "crop": "Guar (Cluster Bean)",
+    "kb": "guar",
+    "sow_window": "Mid-June",
+    "total_days": 140,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 50,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 51,
+        "end_day": 70,
+        "lower_moisture": 65,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Pod Set",
+        "start_day": 71,
+        "end_day": 90,
+        "lower_moisture": 65,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Pod Filling",
+        "start_day": 91,
+        "end_day": 120,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 121,
+        "end_day": 140,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "broad beans": {
+    "crop": "Broad Beans",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "kidney beans": {
+    "crop": "Kidney Beans",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "french beans": {
+    "crop": "French Beans",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "cotton": {
+    "crop": "Cotton (Kharif)",
+    "kb": "cotton",
+    "sow_window": "Mid-April",
+    "total_days": 210,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 30,
+        "lower_moisture": 40,
+        "upper_moisture": 70,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 24,
+        "temp_opt_max": 36,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 31,
+        "end_day": 60,
+        "lower_moisture": 35,
+        "upper_moisture": 65,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 24,
+        "temp_opt_max": 36,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Squaring",
+        "start_day": 61,
+        "end_day": 90,
+        "lower_moisture": 35,
+        "upper_moisture": 65,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 24,
+        "temp_opt_max": 36,
+        "icon": "stem",
+        "focus": "The crop is switching to yield building. Protect it from any stress now — it sets your yield ceiling."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 91,
+        "end_day": 120,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 24,
+        "temp_opt_max": 36,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Boll Formation",
+        "start_day": 121,
+        "end_day": 180,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 24,
+        "temp_opt_max": 36,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 181,
+        "end_day": 210,
+        "lower_moisture": 30,
+        "upper_moisture": 60,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 24,
+        "temp_opt_max": 36,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "jute": {
+    "crop": "Jute",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering / Fibre Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "flax": {
+    "crop": "Flax",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering / Fibre Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "linseed": {
+    "crop": "Linseed",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering / Fibre Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "canola": {
+    "crop": "Canola",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "Rapeseed Toria": {
+    "crop": "Rapeseed / Toria",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "mustard": {
+    "crop": "Mustard",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "sesame": {
+    "crop": "Sesame",
+    "kb": "sesame",
+    "sow_window": "Mid-May",
+    "total_days": 150,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 50,
+        "lower_moisture": 40,
+        "upper_moisture": 70,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 51,
+        "end_day": 70,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Capsule Set",
+        "start_day": 71,
+        "end_day": 90,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Seed Filling",
+        "start_day": 91,
+        "end_day": 120,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 121,
+        "end_day": 150,
+        "lower_moisture": 35,
+        "upper_moisture": 65,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "sunflower": {
+    "crop": "Sunflower",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "potato": {
+    "crop": "Potato",
+    "kb": "potato",
+    "sow_window": "Mid-September",
+    "total_days": 150,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 70,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 60,
+        "lower_moisture": 65,
+        "upper_moisture": 90,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Tuber Initiation",
+        "start_day": 61,
+        "end_day": 70,
+        "lower_moisture": 65,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "stem",
+        "focus": "The crop is switching to yield building. Protect it from any stress now — it sets your yield ceiling."
+      },
+      {
+        "stage": "Tuber Bulking",
+        "start_day": 71,
+        "end_day": 80,
+        "lower_moisture": 75,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Tuber Filling",
+        "start_day": 81,
+        "end_day": 130,
+        "lower_moisture": 75,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 131,
+        "end_day": 150,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "sweet potato": {
+    "crop": "Sweet Potato",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Sprouting / Establishment",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      },
+      {
+        "stage": "Tuber / Root Bulking",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 30,
+        "upper_moisture": 60
+      }
+    ]
+  },
+  "cassava": {
+    "crop": "Cassava",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Sprouting / Establishment",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Tuber / Root Bulking",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      }
+    ]
+  },
+  "lotus roots": {
+    "crop": "Lotus Roots",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 80,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 75,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Bulking",
+        "lower_moisture": 85,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 70,
+        "upper_moisture": 95
+      }
+    ]
+  },
+  "Lotus Roots Bheeh": {
+    "crop": "Lotus Roots / Bheeh",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 80,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 75,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Bulking",
+        "lower_moisture": 85,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 70,
+        "upper_moisture": 95
+      }
+    ]
+  },
+  "cabbage": {
+    "crop": "Cabbage",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Leaf / Head Formation",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Harvest Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "cauliflower": {
+    "crop": "Cauliflower",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Leaf / Head Formation",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Harvest Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "carrot": {
+    "crop": "Carrot",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Sprouting / Establishment",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Tuber / Root Bulking",
+        "lower_moisture": 75,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "turnip": {
+    "crop": "Turnip",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Sprouting / Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Tuber / Root Bulking",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "radish": {
+    "crop": "Radish",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Sprouting / Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Tuber / Root Bulking",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "lettuce": {
+    "crop": "Lettuce",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 75,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Leaf / Head Formation",
+        "lower_moisture": 80,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Harvest Maturity",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "Lettuce Salad": {
+    "crop": "Lettuce / Salad",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 75,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Leaf / Head Formation",
+        "lower_moisture": 80,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Harvest Maturity",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "spinach": {
+    "crop": "Spinach",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 85,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 80,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Leaf / Head Formation",
+        "lower_moisture": 90,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Harvest Maturity",
+        "lower_moisture": 75,
+        "upper_moisture": 95
+      }
+    ]
+  },
+  "pumpkin": {
+    "crop": "Pumpkin",
+    "kb": "pumpkin",
+    "sow_window": "Mid-June",
+    "total_days": 90,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 70,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 22,
+        "temp_opt_max": 34,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 50,
+        "lower_moisture": 75,
+        "upper_moisture": 90,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 22,
+        "temp_opt_max": 34,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 51,
+        "end_day": 70,
+        "lower_moisture": 75,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 22,
+        "temp_opt_max": 34,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Fruit Set",
+        "start_day": 71,
+        "end_day": 80,
+        "lower_moisture": 75,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 22,
+        "temp_opt_max": 34,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 81,
+        "end_day": 90,
+        "lower_moisture": 70,
+        "upper_moisture": 90,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 22,
+        "temp_opt_max": 34,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "bottle gourd": {
+    "crop": "Bottle Gourd",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vine Growth",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "bitter gourd": {
+    "crop": "Bitter Gourd",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vine Growth",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "sponge gourd": {
+    "crop": "Sponge Gourd",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vine Growth",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "snake gourd": {
+    "crop": "Snake Gourd",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vine Growth",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "cucumber": {
+    "crop": "Cucumber",
+    "kb": "cucumber",
+    "sow_window": "Mid-May",
+    "total_days": 150,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 22,
+        "temp_opt_max": 34,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 50,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 22,
+        "temp_opt_max": 34,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 51,
+        "end_day": 70,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 22,
+        "temp_opt_max": 34,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Fruit Set",
+        "start_day": 71,
+        "end_day": 90,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 22,
+        "temp_opt_max": 34,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Fruit Development",
+        "start_day": 91,
+        "end_day": 120,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 22,
+        "temp_opt_max": 34,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 121,
+        "end_day": 150,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 22,
+        "temp_opt_max": 34,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "melon": {
+    "crop": "Melon",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vine Growth",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      }
+    ]
+  },
+  "watermelon": {
+    "crop": "Watermelon",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vine Growth",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "water melon": {
+    "crop": "Water Melon",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vine Growth",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "musk melon": {
+    "crop": "Musk Melon",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vine Growth",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      }
+    ]
+  },
+  "tinda": {
+    "crop": "Tinda",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vine Growth",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "tomato": {
+    "crop": "Tomato",
+    "kb": "tomato",
+    "sow_window": "Mid-November",
+    "total_days": 150,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 30,
+        "lower_moisture": 65,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 31,
+        "end_day": 60,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 61,
+        "end_day": 90,
+        "lower_moisture": 70,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Fruit Set",
+        "start_day": 91,
+        "end_day": 120,
+        "lower_moisture": 70,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 121,
+        "end_day": 150,
+        "lower_moisture": 65,
+        "upper_moisture": 90,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "brinjal": {
+    "crop": "Brinjal",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "Chillies": {
+    "crop": "Chillies",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 75,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 80,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 75,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "okra": {
+    "crop": "Okra",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "onion": {
+    "crop": "Onion",
+    "kb": "onion",
+    "sow_window": "Mid-November",
+    "total_days": 150,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 75,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 12,
+        "temp_opt_max": 28,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 60,
+        "lower_moisture": 70,
+        "upper_moisture": 90,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 12,
+        "temp_opt_max": 28,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Bulb Initiation",
+        "start_day": 61,
+        "end_day": 70,
+        "lower_moisture": 70,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 12,
+        "temp_opt_max": 28,
+        "icon": "stem",
+        "focus": "The crop is switching to yield building. Protect it from any stress now — it sets your yield ceiling."
+      },
+      {
+        "stage": "Bulb Expansion",
+        "start_day": 71,
+        "end_day": 80,
+        "lower_moisture": 80,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 12,
+        "temp_opt_max": 28,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Bulb Filling",
+        "start_day": 81,
+        "end_day": 110,
+        "lower_moisture": 80,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 12,
+        "temp_opt_max": 28,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 111,
+        "end_day": 150,
+        "lower_moisture": 65,
+        "upper_moisture": 90,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 12,
+        "temp_opt_max": 28,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "garlic": {
+    "crop": "Garlic",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination / Establishment",
+        "lower_moisture": 75,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Bulb Formation",
+        "lower_moisture": 80,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "ginger": {
+    "crop": "Ginger",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Sprouting / Establishment",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Rhizome Development",
+        "lower_moisture": 75,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "turmeric": {
+    "crop": "Turmeric",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Sprouting / Establishment",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Rhizome Development",
+        "lower_moisture": 75,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "coriander": {
+    "crop": "Coriander",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering / Seed Formation",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "fennel": {
+    "crop": "Fennel",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Flowering / Seed Formation",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "cumin": {
+    "crop": "Cumin",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Flowering / Seed Formation",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "black pepper": {
+    "crop": "Black Pepper",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment / Flush",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit / Capsule Development",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Harvest / Ripening",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "cardamom": {
+    "crop": "Cardamom",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment / Flush",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit / Capsule Development",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Harvest / Ripening",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "cloves": {
+    "crop": "Cloves",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment / Flush",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit / Capsule Development",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Harvest / Ripening",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "cinnamon": {
+    "crop": "Cinnamon",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment / Flush",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit / Capsule Development",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Harvest / Ripening",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "alfalfa": {
+    "crop": "Alfalfa (Lucerne)",
+    "kb": "alfalfa",
+    "sow_window": "Mid-September",
+    "total_days": 210,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 16,
+        "temp_opt_max": 34,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 70,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 16,
+        "temp_opt_max": 34,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Repeat Cuttings",
+        "start_day": 71,
+        "end_day": 140,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 34,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 141,
+        "end_day": 210,
+        "lower_moisture": 40,
+        "upper_moisture": 70,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 16,
+        "temp_opt_max": 34,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "lucerne": {
+    "crop": "Lucerne",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Branching / Tillering",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Rapid Growth",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Pre-Cutting / Recovery",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "berseem": {
+    "crop": "Berseem",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Branching / Tillering",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Rapid Growth",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pre-Cutting / Recovery",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "red clover": {
+    "crop": "Red Clover",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Branching / Tillering",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Rapid Growth",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pre-Cutting / Recovery",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "white clover": {
+    "crop": "White Clover",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Branching / Tillering",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Rapid Growth",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pre-Cutting / Recovery",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "niger kala til": {
+    "crop": "Niger Kala Til",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "cluster bean": {
+    "crop": "Cluster Bean",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "taramera": {
+    "crop": "Taramera",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "Taramera Mustard": {
+    "crop": "Taramera / Mustard",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "fenugreek": {
+    "crop": "Fenugreek",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Seed Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "cluster bean guar": {
+    "crop": "Cluster Bean Guar",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "mattar green": {
+    "crop": "Mattar Green",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "mattar": {
+    "crop": "Mattar",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "mung bean": {
+    "crop": "Mung Bean",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "beets": {
+    "crop": "Beets",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Sprouting / Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Tuber / Root Bulking",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "Beets Chukandar": {
+    "crop": "Beets / Chukandar",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Sprouting / Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Tuber / Root Bulking",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "mango": {
+    "crop": "Mango",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment / Flush",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set / Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "banana": {
+    "crop": "Banana",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 75,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set / Development",
+        "lower_moisture": 75,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "citrus": {
+    "crop": "Citrus",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Flush / Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set / Enlargement",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "guava": {
+    "crop": "Guava",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment / Flush",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set / Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "papaya": {
+    "crop": "Papaya",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment / Flush",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set / Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "pineapple": {
+    "crop": "Pineapple",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set / Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "apple": {
+    "crop": "Apple",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Bud Break / Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "peach": {
+    "crop": "Peach",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Bud Break / Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "apricot": {
+    "crop": "Apricot",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Bud Break / Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "mango basmati rice variant": {
+    "crop": "Mango Basmati Rice Variant",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Nursery / Establishment",
+        "lower_moisture": 85,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Tillering",
+        "lower_moisture": 80,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Panicle Initiation / Flowering",
+        "lower_moisture": 90,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Grain Filling / Maturity",
+        "lower_moisture": 75,
+        "upper_moisture": 95
+      }
+    ]
+  },
+  "jute fiber": {
+    "crop": "Jute Fiber",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering / Fibre Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "mustard raya": {
+    "crop": "Mustard Raya",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "sugar beet": {
+    "crop": "Sugar Beet",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Sprouting / Establishment",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Tuber / Root Bulking",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "niger": {
+    "crop": "Niger",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "safflower": {
+    "crop": "Safflower",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "caraway": {
+    "crop": "Caraway",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Flowering / Seed Formation",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "basmati rice": {
+    "crop": "Basmati Rice",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Nursery / Establishment",
+        "lower_moisture": 85,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Tillering",
+        "lower_moisture": 80,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Panicle Initiation / Flowering",
+        "lower_moisture": 90,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Grain Filling / Maturity",
+        "lower_moisture": 75,
+        "upper_moisture": 95
+      }
+    ]
+  },
+  "hybrid rice": {
+    "crop": "Hybrid Rice",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Nursery / Establishment",
+        "lower_moisture": 85,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Tillering",
+        "lower_moisture": 80,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Panicle Initiation / Flowering",
+        "lower_moisture": 90,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Grain Filling / Maturity",
+        "lower_moisture": 75,
+        "upper_moisture": 95
+      }
+    ]
+  },
+  "gajraj grass": {
+    "crop": "Gajraj Grass",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Tillering",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Rapid Growth",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Pre-Cutting / Recovery",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "rhodes gras": {
+    "crop": "Rhodes Gras",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Tillering",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Rapid Growth",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Pre-Cutting / Recovery",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "mott grass": {
+    "crop": "Mott Grass",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Tillering",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Rapid Growth",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Pre-Cutting / Recovery",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "khol khal": {
+    "crop": "Khol Khal",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Tillering",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Rapid Growth",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Pre-Cutting / Recovery",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "tinda vegetable": {
+    "crop": "Tinda Vegetable",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vine Growth",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "lotus bheeh": {
+    "crop": "Lotus Bheeh",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 80,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 75,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Bulking",
+        "lower_moisture": 85,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 70,
+        "upper_moisture": 95
+      }
+    ]
+  },
+  "mung others": {
+    "crop": "Mung Others",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "gajraj grass variant": {
+    "crop": "Gajraj Grass Variant",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Tillering",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Rapid Growth",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Pre-Cutting / Recovery",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "mong": {
+    "crop": "Mong",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "Mong Green gram": {
+    "crop": "Mong / Green Gram",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "cucurbits": {
+    "crop": "Cucurbits",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vine Growth",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "hemp": {
+    "crop": "Hemp",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering / Fibre Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "mash": {
+    "crop": "Mash",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "arum": {
+    "crop": "Arum",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 80,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 75,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Bulking",
+        "lower_moisture": 85,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 70,
+        "upper_moisture": 95
+      }
+    ]
+  },
+  "tori": {
+    "crop": "Tori",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vine Growth",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "rapeseed mustard": {
+    "crop": "Rapeseed Mustard",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "sugarbeet": {
+    "crop": "Sugarbeet",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Sprouting / Establishment",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Tuber / Root Bulking",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "alsi": {
+    "crop": "Alsi",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering / Fibre Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "castor": {
+    "crop": "Castor",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "quinoa": {
+    "crop": "Quinoa",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Flowering / Pollination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "strawberry": {
+    "crop": "Strawberry",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment / Flush",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set / Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "peas": {
+    "crop": "Peas",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "guar cluster": {
+    "crop": "Guar Cluster",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "fenno greek": {
+    "crop": "Fenno Greek",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Seed Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "Fenno Greek Methi": {
+    "crop": "Fenugreek / Methi",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Seed Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "raya": {
+    "crop": "Raya",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "jantar": {
+    "crop": "Jantar",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Branching / Tillering",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Rapid Growth",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pre-Cutting / Recovery",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "Jantar Sesbania": {
+    "crop": "Jantar / Sesbania",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Branching / Tillering",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Rapid Growth",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pre-Cutting / Recovery",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "cowpeas": {
+    "crop": "Cowpeas",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "napier grass": {
+    "crop": "Napier Grass",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Tillering",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Rapid Growth",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Pre-Cutting / Recovery",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "berseem clover": {
+    "crop": "Berseem Clover",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Branching / Tillering",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Rapid Growth",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pre-Cutting / Recovery",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "arum arvi": {
+    "crop": "Arum Arvi",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 80,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 75,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Bulking",
+        "lower_moisture": 85,
+        "upper_moisture": 95
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 70,
+        "upper_moisture": 95
+      }
+    ]
+  },
+  "bittergourd": {
+    "crop": "Bittergourd",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vine Growth",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "castoroil": {
+    "crop": "Castoroil",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "guar cluster beans": {
+    "crop": "Guar Cluster Beans",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "fenugreek methi": {
+    "crop": "Fenugreek Methi",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Seed Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "raya indian mustard": {
+    "crop": "Raya Indian Mustard",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "canola rapeseed": {
+    "crop": "Canola Rapeseed",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "tobacco": {
+    "crop": "Tobacco",
+    "kb": "tobacco",
+    "sow_window": "Mid-February",
+    "total_days": 180,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 30,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 31,
+        "end_day": 120,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 121,
+        "end_day": 180,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "masoor": {
+    "crop": "Masoor",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "castorseed": {
+    "crop": "Castorseed",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "sugarcane": {
+    "crop": "Sugarcane (Autumn)",
+    "kb": "sugarcane",
+    "sow_window": "September",
+    "total_days": 150,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 40,
+        "upper_moisture": 70,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 100,
+        "lower_moisture": 35,
+        "upper_moisture": 65,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Cane Formation",
+        "start_day": 101,
+        "end_day": 130,
+        "lower_moisture": 35,
+        "upper_moisture": 65,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "stem",
+        "focus": "The crop is switching to yield building. Protect it from any stress now — it sets your yield ceiling."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 131,
+        "end_day": 150,
+        "lower_moisture": 30,
+        "upper_moisture": 60,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "bajra": {
+    "crop": "Bajra",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Flowering / Pollination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "jowar": {
+    "crop": "Jowar",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Flowering / Pollination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "sesamum": {
+    "crop": "Sesamum",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Vegetative / Branching",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      },
+      {
+        "stage": "Flowering / Seed Filling",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 35,
+        "upper_moisture": 65
+      }
+    ]
+  },
+  "sunhemp": {
+    "crop": "Sunhemp",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Flowering / Fibre Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      }
+    ]
+  },
+  "guarseed": {
+    "crop": "Guarseed",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Pod Filling / Maturity",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "ladyfinger": {
+    "crop": "Ladyfinger",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "lufa": {
+    "crop": "Lufa",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vine Growth",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "shimla mirch": {
+    "crop": "Shimla Mirch",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 75,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Flowering / Fruit Set",
+        "lower_moisture": 80,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Development",
+        "lower_moisture": 75,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "pear": {
+    "crop": "Pear",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Bud Break / Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "pears": {
+    "crop": "Pears",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Bud Break / Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "plums": {
+    "crop": "Plums",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Bud Break / Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "pomegranate": {
+    "crop": "Pomegranate",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment / Flush",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set / Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "dates": {
+    "crop": "Dates",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set / Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "almonds": {
+    "crop": "Almonds",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Bud Break / Establishment",
+        "lower_moisture": 65,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "grapes": {
+    "crop": "Grapes",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Bud Break / Establishment",
+        "lower_moisture": 70,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 75,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Berry Development",
+        "lower_moisture": 75,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      }
+    ]
+  },
+  "phalsa": {
+    "crop": "Phalsa",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment / Flush",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set / Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "litchi": {
+    "crop": "Litchi",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Establishment / Flush",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set / Development",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "maize spring": {
+    "crop": "Maize Spring",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Germination",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      },
+      {
+        "stage": "Vegetative",
+        "lower_moisture": 45,
+        "upper_moisture": 75
+      },
+      {
+        "stage": "Flowering / Pollination",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Maturity",
+        "lower_moisture": 40,
+        "upper_moisture": 70
+      }
+    ]
+  },
+  "lemon": {
+    "crop": "Lemon",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Flush / Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set / Enlargement",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "musambi": {
+    "crop": "Musambi",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Flush / Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set / Enlargement",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "sweet lime": {
+    "crop": "Sweet Lime",
+    "basis": "relative soil moisture target (%) on a medium-textured soil baseline",
+    "stages": [
+      {
+        "stage": "Flush / Establishment",
+        "lower_moisture": 55,
+        "upper_moisture": 85
+      },
+      {
+        "stage": "Flowering",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Fruit Set / Enlargement",
+        "lower_moisture": 60,
+        "upper_moisture": 90
+      },
+      {
+        "stage": "Ripening",
+        "lower_moisture": 50,
+        "upper_moisture": 80
+      }
+    ]
+  },
+  "rapeseed_mustard": {
+    "crop": "Rapeseed & Mustard",
+    "kb": "mustard",
+    "sow_window": "Mid-October",
+    "total_days": 150,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 70,
+        "lower_moisture": 40,
+        "upper_moisture": 70,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Bud Formation",
+        "start_day": 71,
+        "end_day": 80,
+        "lower_moisture": 40,
+        "upper_moisture": 70,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "stem",
+        "focus": "The crop is switching to yield building. Protect it from any stress now — it sets your yield ceiling."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 81,
+        "end_day": 110,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Seed Set (Pods)",
+        "start_day": 111,
+        "end_day": 130,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Seed Filling",
+        "start_day": 131,
+        "end_day": 140,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 141,
+        "end_day": 150,
+        "lower_moisture": 35,
+        "upper_moisture": 65,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "pea": {
+    "crop": "Pea",
+    "kb": "peas",
+    "sow_window": "Mid-October",
+    "total_days": 120,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 60,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 61,
+        "end_day": 80,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Pod Set",
+        "start_day": 81,
+        "end_day": 100,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Pod Filling",
+        "start_day": 101,
+        "end_day": 110,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 111,
+        "end_day": 120,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "sugar_beet": {
+    "crop": "Sugar Beet",
+    "kb": "sugar beet",
+    "sow_window": "Mid-September",
+    "total_days": 180,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 60,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Root Initiation",
+        "start_day": 61,
+        "end_day": 70,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "stem",
+        "focus": "The crop is switching to yield building. Protect it from any stress now — it sets your yield ceiling."
+      },
+      {
+        "stage": "Root Expansion",
+        "start_day": 71,
+        "end_day": 80,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Root Bulking",
+        "start_day": 81,
+        "end_day": 130,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 131,
+        "end_day": 180,
+        "lower_moisture": 40,
+        "upper_moisture": 70,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "spring_maize": {
+    "crop": "Maize (Spring)",
+    "kb": "maize",
+    "sow_window": "Mid-February",
+    "total_days": 120,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 50,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 51,
+        "end_day": 80,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Grain Set",
+        "start_day": 81,
+        "end_day": 90,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Grain Filling",
+        "start_day": 91,
+        "end_day": 110,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 111,
+        "end_day": 120,
+        "lower_moisture": 40,
+        "upper_moisture": 70,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "early_cotton": {
+    "crop": "Cotton (Early / Feb)",
+    "kb": "cotton",
+    "sow_window": "Mid-February",
+    "total_days": 240,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 40,
+        "upper_moisture": 70,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 24,
+        "temp_opt_max": 36,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 70,
+        "lower_moisture": 35,
+        "upper_moisture": 65,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 24,
+        "temp_opt_max": 36,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Squaring",
+        "start_day": 71,
+        "end_day": 100,
+        "lower_moisture": 35,
+        "upper_moisture": 65,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 24,
+        "temp_opt_max": 36,
+        "icon": "stem",
+        "focus": "The crop is switching to yield building. Protect it from any stress now — it sets your yield ceiling."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 101,
+        "end_day": 130,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 24,
+        "temp_opt_max": 36,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Boll Formation",
+        "start_day": 131,
+        "end_day": 190,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 24,
+        "temp_opt_max": 36,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Boll Development",
+        "start_day": 191,
+        "end_day": 220,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 24,
+        "temp_opt_max": 36,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 221,
+        "end_day": 240,
+        "lower_moisture": 30,
+        "upper_moisture": 60,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 24,
+        "temp_opt_max": 36,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "spring_sugarcane": {
+    "crop": "Sugarcane (Spring)",
+    "kb": "sugarcane",
+    "sow_window": "Mid-February",
+    "total_days": 365,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 60,
+        "lower_moisture": 40,
+        "upper_moisture": 70,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 61,
+        "end_day": 240,
+        "lower_moisture": 35,
+        "upper_moisture": 65,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Cane Formation",
+        "start_day": 241,
+        "end_day": 300,
+        "lower_moisture": 35,
+        "upper_moisture": 65,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "stem",
+        "focus": "The crop is switching to yield building. Protect it from any stress now — it sets your yield ceiling."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 301,
+        "end_day": 365,
+        "lower_moisture": 30,
+        "upper_moisture": 60,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "rhodes_grass": {
+    "crop": "Rhodes Grass",
+    "kb": "rhodes gras",
+    "sow_window": "Mid-February",
+    "total_days": 180,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 30,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 16,
+        "temp_opt_max": 34,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 31,
+        "end_day": 90,
+        "lower_moisture": 40,
+        "upper_moisture": 70,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 16,
+        "temp_opt_max": 34,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 91,
+        "end_day": 120,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 34,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Seed Setting",
+        "start_day": 121,
+        "end_day": 150,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 34,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 151,
+        "end_day": 180,
+        "lower_moisture": 35,
+        "upper_moisture": 65,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 16,
+        "temp_opt_max": 34,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "spring_sunflower": {
+    "crop": "Sunflower (Spring)",
+    "kb": "sunflower",
+    "sow_window": "Mid-February",
+    "total_days": 180,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 30,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 31,
+        "end_day": 60,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Bud Formation",
+        "start_day": 61,
+        "end_day": 90,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "stem",
+        "focus": "The crop is switching to yield building. Protect it from any stress now — it sets your yield ceiling."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 91,
+        "end_day": 120,
+        "lower_moisture": 65,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Seed Set",
+        "start_day": 121,
+        "end_day": 150,
+        "lower_moisture": 65,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 151,
+        "end_day": 180,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "spring_soybean": {
+    "crop": "Soybean (Spring)",
+    "kb": "soybean",
+    "sow_window": "Mid-February",
+    "total_days": 180,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 30,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 31,
+        "end_day": 60,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 61,
+        "end_day": 120,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Pod Set",
+        "start_day": 121,
+        "end_day": 150,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 151,
+        "end_day": 180,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "chillies": {
+    "crop": "Chillies",
+    "kb": "chillies",
+    "sow_window": "Mid-February",
+    "total_days": 180,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 30,
+        "lower_moisture": 75,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 31,
+        "end_day": 60,
+        "lower_moisture": 70,
+        "upper_moisture": 90,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 61,
+        "end_day": 120,
+        "lower_moisture": 80,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Fruit Set",
+        "start_day": 121,
+        "end_day": 150,
+        "lower_moisture": 80,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 151,
+        "end_day": 180,
+        "lower_moisture": 75,
+        "upper_moisture": 90,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "mung_bean": {
+    "crop": "Mung Bean",
+    "kb": "mung bean",
+    "sow_window": "Mid-June",
+    "total_days": 100,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 30,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 31,
+        "end_day": 50,
+        "lower_moisture": 65,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Pod Set",
+        "start_day": 51,
+        "end_day": 70,
+        "lower_moisture": 65,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Pod Filling",
+        "start_day": 71,
+        "end_day": 90,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 91,
+        "end_day": 100,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "cowpea": {
+    "crop": "Cowpea",
+    "kb": "cowpeas",
+    "sow_window": "Mid-June",
+    "total_days": 120,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 30,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 31,
+        "end_day": 50,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 51,
+        "end_day": 90,
+        "lower_moisture": 65,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 91,
+        "end_day": 120,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "peanut": {
+    "crop": "Peanut (Groundnut)",
+    "kb": "groundnut",
+    "sow_window": "Mid-April",
+    "total_days": 150,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 50,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 51,
+        "end_day": 70,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Pod Set",
+        "start_day": 71,
+        "end_day": 90,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Seed Filling",
+        "start_day": 91,
+        "end_day": 120,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 121,
+        "end_day": 150,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "autumn_maize": {
+    "crop": "Maize (Autumn)",
+    "kb": "maize",
+    "sow_window": "Mid-July",
+    "total_days": 110,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 40,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 41,
+        "end_day": 50,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Grain Set",
+        "start_day": 51,
+        "end_day": 60,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Grain Filling",
+        "start_day": 61,
+        "end_day": 90,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 91,
+        "end_day": 110,
+        "lower_moisture": 40,
+        "upper_moisture": 70,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 15,
+        "temp_opt_max": 28,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "autumn_soybean": {
+    "crop": "Soybean (Autumn)",
+    "kb": "soybean",
+    "sow_window": "Mid-June",
+    "total_days": 120,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 50,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 51,
+        "end_day": 70,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Pod Set",
+        "start_day": 71,
+        "end_day": 90,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Pod Filling",
+        "start_day": 91,
+        "end_day": 100,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 101,
+        "end_day": 120,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 18,
+        "temp_opt_max": 32,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "autumn_sunflower": {
+    "crop": "Sunflower (Autumn)",
+    "kb": "sunflower",
+    "sow_window": "Mid-July",
+    "total_days": 90,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 60,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 40,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 41,
+        "end_day": 60,
+        "lower_moisture": 65,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Seed Set",
+        "start_day": 61,
+        "end_day": 70,
+        "lower_moisture": 65,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Seed Filling",
+        "start_day": 71,
+        "end_day": 80,
+        "lower_moisture": 65,
+        "upper_moisture": 90,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 81,
+        "end_day": 90,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 16,
+        "temp_opt_max": 32,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  },
+  "pearl_millet": {
+    "crop": "Pearl Millet (Bajra)",
+    "kb": "pearl millet",
+    "sow_window": "Mid-June",
+    "total_days": 165,
+    "basis": "relative soil-moisture target (%) on a medium-textured soil; day ranges = days after sowing",
+    "stages": [
+      {
+        "stage": "Establishment",
+        "start_day": 0,
+        "end_day": 20,
+        "lower_moisture": 50,
+        "upper_moisture": 80,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "high",
+        "k_demand": "medium",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "sprout",
+        "focus": "Lock in a strong, even stand. Keep the seedbed warm and evenly moist so every seed comes up."
+      },
+      {
+        "stage": "Vegetative Growth",
+        "start_day": 21,
+        "end_day": 50,
+        "lower_moisture": 45,
+        "upper_moisture": 75,
+        "sensitivity": "medium",
+        "n_demand": "high",
+        "p_demand": "medium",
+        "k_demand": "medium",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "leaf",
+        "focus": "Drive leaf and canopy growth. This is the main nitrogen window — feed it and keep moisture steady."
+      },
+      {
+        "stage": "Flowering",
+        "start_day": 51,
+        "end_day": 70,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "high",
+        "k_demand": "high",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "flower",
+        "focus": "Key yield window. Keep moisture in range and check heat stress daily."
+      },
+      {
+        "stage": "Grain Set",
+        "start_day": 71,
+        "end_day": 110,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "medium",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "pod",
+        "focus": "Fruit or grain is setting. Keep water steady and do not let potassium run low."
+      },
+      {
+        "stage": "Grain Filling",
+        "start_day": 111,
+        "end_day": 150,
+        "lower_moisture": 55,
+        "upper_moisture": 85,
+        "sensitivity": "high",
+        "n_demand": "low",
+        "p_demand": "medium",
+        "k_demand": "high",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "grain",
+        "focus": "Crop is filling weight. Keep water steady, support potassium, and ease nitrogen."
+      },
+      {
+        "stage": "Maturity & Harvest",
+        "start_day": 151,
+        "end_day": 165,
+        "lower_moisture": 40,
+        "upper_moisture": 70,
+        "sensitivity": "low",
+        "n_demand": "low",
+        "p_demand": "low",
+        "k_demand": "low",
+        "temp_opt_min": 22,
+        "temp_opt_max": 35,
+        "icon": "harvest",
+        "focus": "Crop is ripening. Reduce watering and prepare a clean harvest."
+      }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+name: ess_sensor_ck
+description: Crop Konnect live sensor monitoring app.
+publish_to: "none"
+version: 1.0.1+2
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  fl_chart: ^0.68.0
+  http: ^1.2.2
+  supabase_flutter: ^2.7.0
+  web_socket_channel: ^2.4.0
+  google_fonts: any
+  flutter_map: ^7.0.2
+  flutter_map_cancellable_tile_provider: any
+  latlong2: ^0.9.1
+  firebase_core: ^3.0.0
+  # ── Soil sampling (C-type RS-485 probe) ─────────────────────────────────────
+  # Ported from Crop Konnect UNO: reads the CWT NPK probe over a USB-C RS-485
+  # adapter and stamps each captured sample with its GPS location.
+  usb_serial: ^0.5.2
+  geolocator: ^13.0.1
+  geocoding: ^3.0.0
+  uuid: ^4.3.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/crop_moisture_ranges.json
+    - assets/dss_crop_knowledge.json
