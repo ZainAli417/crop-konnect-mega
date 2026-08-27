@@ -1,1 +1,0 @@
-"""CropConnect backend package."""
