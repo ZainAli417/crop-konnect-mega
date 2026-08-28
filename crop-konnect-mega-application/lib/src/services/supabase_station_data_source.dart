@@ -15,6 +15,7 @@ import '../models/station_trends.dart';
 import '../models/gps_reading.dart';
 import 'platform_http_client.dart';
 import 'station_data_source.dart';
+import 'station_status_builder.dart';
 
 class SupabaseStationDataSource implements StationDataSource {
   SupabaseStationDataSource({
@@ -138,23 +139,9 @@ class SupabaseStationDataSource implements StationDataSource {
       settings = null;
     }
 
-    final conditions = _buildConditions(latest);
-    final health = _buildSensorHealth(latest, settings);
-    final alerts = _buildAlerts(latest, health, conditions);
-
-    return MonitoringStatus(
-      deviceId: latest.deviceId,
-      stationName: latest.stationName,
-      lastUpdated: latest.recordedAt,
-      overallStatus: alerts.any((alert) => alert.severity == 'critical')
-          ? 'critical'
-          : alerts.any((alert) => alert.severity == 'warning')
-              ? 'attention'
-              : 'normal',
-      sensorHealth: health,
-      conditions: conditions,
-      alerts: alerts,
-      latest: latest,
+    return const StationStatusBuilder().build(
+      reading: latest,
+      enabled: StationStatusBuilder.enabledFromSettings(settings),
     );
   }
 
@@ -900,146 +887,6 @@ class SupabaseStationDataSource implements StationDataSource {
       );
     }
     throw StateError('Unsupported crop "$crop".');
-  }
-
-  Map<String, String> _buildConditions(SensorReading reading) {
-    return <String, String>{
-      'soil_moisture': reading.moist == null
-          ? 'unknown'
-          : reading.moist! < 20
-              ? 'low'
-              : reading.moist! > 60
-                  ? 'high'
-                  : 'normal',
-      'temperature': reading.temp == null
-          ? 'unknown'
-          : reading.temp! > 35
-              ? 'hot'
-              : reading.temp! < 15
-                  ? 'cool'
-                  : 'normal',
-      'rain': reading.rain != null && reading.rain! > 0
-          ? 'detected'
-          : 'not_detected',
-      'wind': reading.ws == null
-          ? 'unknown'
-          : reading.ws! > 10
-              ? 'high'
-              : reading.ws! > 5
-                  ? 'moderate'
-                  : 'calm',
-      'uv': reading.solar == null
-          ? 'unknown'
-          : reading.solar! > 700
-              ? 'high'
-              : reading.solar! > 300
-                  ? 'moderate'
-                  : 'low',
-      'ec': reading.ec == null
-          ? 'unknown'
-          : reading.ec! > 1800
-              ? 'high'
-              : 'normal',
-    };
-  }
-
-  Map<String, SensorHealth> _buildSensorHealth(
-    SensorReading reading,
-    StationSettings? settings,
-  ) {
-    final isStale =
-        DateTime.now().difference(reading.recordedAt).inMinutes > 10;
-
-    SensorHealth health(bool enabled) {
-      if (!enabled) {
-        return const SensorHealth(
-          status: 'disabled',
-          freshness: 'disabled',
-          lastUpdated: null,
-        );
-      }
-      return SensorHealth(
-        status: isStale ? 'stale' : 'online',
-        freshness: isStale ? 'stale' : 'fresh',
-        lastUpdated: reading.recordedAt,
-      );
-    }
-
-    final sensors = settings?.sensors;
-    return <String, SensorHealth>{
-      'wind': health(
-        (sensors?.windSpeedEnabled ?? false) ||
-            (sensors?.windDirectionEnabled ?? false),
-      ),
-      'soil': health(sensors?.soilEnabled ?? false),
-      'rain': health(sensors?.rainEnabled ?? false),
-      'uv': health(sensors?.uvEnabled ?? false),
-    };
-  }
-
-  List<MonitoringAlert> _buildAlerts(
-    SensorReading reading,
-    Map<String, SensorHealth> health,
-    Map<String, String> conditions,
-  ) {
-    final alerts = <MonitoringAlert>[];
-
-    if (health.values.any((item) => item.freshness == 'stale')) {
-      alerts.add(
-        MonitoringAlert(
-          type: 'stale_data',
-          severity: 'warning',
-          title: 'Data delay detected',
-          message: 'Latest cloud reading is older than the freshness window.',
-          timestamp: reading.recordedAt,
-        ),
-      );
-    }
-    if (conditions['soil_moisture'] == 'low') {
-      alerts.add(
-        MonitoringAlert(
-          type: 'low_moisture',
-          severity: 'warning',
-          title: 'Low soil moisture',
-          message: 'Soil moisture is below the basic monitoring threshold.',
-          timestamp: reading.recordedAt,
-        ),
-      );
-    }
-    if (conditions['temperature'] == 'hot') {
-      alerts.add(
-        MonitoringAlert(
-          type: 'high_temperature',
-          severity: 'warning',
-          title: 'High soil temperature',
-          message: 'Soil temperature is elevated and may increase crop stress.',
-          timestamp: reading.recordedAt,
-        ),
-      );
-    }
-    if (conditions['rain'] == 'detected') {
-      alerts.add(
-        MonitoringAlert(
-          type: 'rain_detected',
-          severity: 'info',
-          title: 'Rain detected',
-          message: 'Rainfall is present in the latest cloud reading.',
-          timestamp: reading.recordedAt,
-        ),
-      );
-    }
-    if (conditions['wind'] == 'high') {
-      alerts.add(
-        MonitoringAlert(
-          type: 'high_wind',
-          severity: 'warning',
-          title: 'High wind speed',
-          message: 'Wind speed is high and should be watched for operations.',
-          timestamp: reading.recordedAt,
-        ),
-      );
-    }
-    return alerts;
   }
 
   double? _average(List<Map<String, dynamic>> rows, String key) {

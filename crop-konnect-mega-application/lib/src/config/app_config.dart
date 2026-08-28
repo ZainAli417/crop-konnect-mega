@@ -39,6 +39,26 @@ class AppConfig {
     'CROPCONNECT_SENSOR_ENABLE_WEBSOCKET',
     defaultValue: false,
   );
+  // ── Fallback weather location ─────────────────────────────────────────────
+  // The station is solar powered and can be off-grid for days. Its site never
+  // moves, so when no GPS row is available these coordinates are used to look
+  // up substitute wind / rain / UV values.
+  static const double defaultFieldLatitude = 30.1575;
+  static const double defaultFieldLongitude = 71.5249;
+
+  static const String _fieldLatitudeOverride =
+      String.fromEnvironment('CROPCONNECT_FIELD_LATITUDE');
+  static const String _fieldLongitudeOverride =
+      String.fromEnvironment('CROPCONNECT_FIELD_LONGITUDE');
+
+  static double get fieldLatitude =>
+      double.tryParse(_fieldLatitudeOverride) ?? defaultFieldLatitude;
+  static double get fieldLongitude =>
+      double.tryParse(_fieldLongitudeOverride) ?? defaultFieldLongitude;
+
+  /// How often the controller re-checks whether substitute weather is needed.
+  static const Duration weatherFallbackCheckInterval = Duration(minutes: 15);
+
   static const Duration summaryRefreshInterval = Duration(seconds: 15);
   static const Duration monitoringRefreshInterval = Duration(seconds: 6);
   static const Duration trendsRefreshInterval = Duration(seconds: 15);

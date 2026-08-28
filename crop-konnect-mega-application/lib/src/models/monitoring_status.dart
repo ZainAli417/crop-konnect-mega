@@ -21,6 +21,22 @@ class MonitoringStatus {
   final List<MonitoringAlert> alerts;
   final SensorReading? latest;
 
+  MonitoringStatus copyWith({
+    Map<String, String>? conditions,
+    SensorReading? latest,
+  }) {
+    return MonitoringStatus(
+      deviceId: deviceId,
+      stationName: stationName,
+      lastUpdated: lastUpdated,
+      overallStatus: overallStatus,
+      sensorHealth: sensorHealth,
+      conditions: conditions ?? this.conditions,
+      alerts: alerts,
+      latest: latest ?? this.latest,
+    );
+  }
+
   factory MonitoringStatus.fromJson(Map<String, dynamic> json) {
     final rawHealth = (json['sensor_health'] as Map<String, dynamic>? ?? <String, dynamic>{});
     final rawConditions = (json['conditions'] as Map<String, dynamic>? ?? <String, dynamic>{});

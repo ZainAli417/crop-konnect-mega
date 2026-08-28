@@ -17,6 +17,9 @@ class SensorReading {
     required this.ph,
     required this.rain,
     required this.solar,
+    this.airTempC,
+    this.humidityPct,
+    this.uvIndex,
   });
 
   final int id;
@@ -36,6 +39,13 @@ class SensorReading {
   final double? ph;
   final double? rain;
   final double? solar;
+
+  // ── Values the station has no sensor for ──────────────────────────────────
+  // Null for anything the logger produced; populated only when the weather
+  // block is standing in for a station that has gone dark.
+  final double? airTempC;
+  final double? humidityPct;
+  final double? uvIndex;
 
   factory SensorReading.fromJson(Map<String, dynamic> json) {
     double? asDouble(dynamic value) {
@@ -66,6 +76,54 @@ class SensorReading {
       ph: asDouble(json['ph'] ?? json['soil_ph']),
       rain: asDouble(json['rain'] ?? json['rainfall']),
       solar: asDouble(json['solar'] ?? json['solar_radiation']),
+      airTempC: asDouble(json['air_temperature'] ?? json['temperature_2m']),
+      humidityPct: asDouble(json['humidity'] ?? json['relative_humidity']),
+      uvIndex: asDouble(json['uv_index']),
+    );
+  }
+
+  /// Copy with selected fields replaced. Passing null for a field keeps the
+  /// current value, so a caller only has to name what it is actually changing.
+  SensorReading copyWith({
+    DateTime? recordedAt,
+    DateTime? receivedAt,
+    double? ws,
+    double? wdDeg,
+    String? wdDir,
+    double? moist,
+    double? temp,
+    double? ec,
+    double? n,
+    double? p,
+    double? k,
+    double? ph,
+    double? rain,
+    double? solar,
+    double? airTempC,
+    double? humidityPct,
+    double? uvIndex,
+  }) {
+    return SensorReading(
+      id: id,
+      deviceId: deviceId,
+      stationName: stationName,
+      recordedAt: recordedAt ?? this.recordedAt,
+      receivedAt: receivedAt ?? this.receivedAt,
+      ws: ws ?? this.ws,
+      wdDeg: wdDeg ?? this.wdDeg,
+      wdDir: wdDir ?? this.wdDir,
+      moist: moist ?? this.moist,
+      temp: temp ?? this.temp,
+      ec: ec ?? this.ec,
+      n: n ?? this.n,
+      p: p ?? this.p,
+      k: k ?? this.k,
+      ph: ph ?? this.ph,
+      rain: rain ?? this.rain,
+      solar: solar ?? this.solar,
+      airTempC: airTempC ?? this.airTempC,
+      humidityPct: humidityPct ?? this.humidityPct,
+      uvIndex: uvIndex ?? this.uvIndex,
     );
   }
 }

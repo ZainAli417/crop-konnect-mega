@@ -14,9 +14,12 @@ import '../models/crop_timeline.dart';
 import '../models/farm.dart';
 import '../models/soil_sample.dart';
 import '../models/soil_weather_advisory.dart';
+import '../models/weather_fallback.dart';
+import '../models/weather_forecast.dart';
 import '../services/dss_crop_repository.dart';
 import '../services/crop_timeline_repository.dart';
 import '../services/dss_engine.dart';
+import '../services/open_meteo_weather_service.dart';
 import '../services/soil_sample_repository.dart';
 import '../services/soil_weather_advisory_service.dart';
 import '../services/station_data_source.dart';
@@ -51,6 +54,14 @@ class StationDashboardController extends ChangeNotifier {
   /// The farm backing this shell. Re-resolved by [syncFarms] once the farm
   /// list loads from Supabase.
   Farm farm;
+
+  /// What the station itself last reported. Everything the UI and the DSS
+  /// read goes through [latestReading] / [trends] / [monitoringStatus], which
+  /// are these values with the weather block substituted whenever the station
+  /// has gone dark — see [_applyWeatherOverlay].
+  SensorReading? _stationReading;
+  StationTrends? _stationTrends;
+  MonitoringStatus? _stationMonitoring;
 
   SensorReading? latestReading;
   StationSummary? summary;
@@ -175,6 +186,7 @@ class StationDashboardController extends ChangeNotifier {
   Timer? _irrigationTimer;
   Timer? _trendsTimer;
   Timer? _gpsTimer;
+  Timer? _weatherTimer;
   StreamSubscription<SensorReading>? _liveSubscription;
   StreamSubscription<SensorReading>? _realtimeSubscription;
   bool _refreshingFromStream = false;
@@ -187,11 +199,182 @@ class StationDashboardController extends ChangeNotifier {
   final SoilWeatherAdvisoryService _advisoryService =
       SoilWeatherAdvisoryService();
   final SoilSampleRepository _soilSampleRepository = const SoilSampleRepository();
+  final OpenMeteoWeatherService _weatherService = OpenMeteoWeatherService();
+  WeatherFallback? _weatherFallback;
+  Future<void>? _weatherRefreshInFlight;
+
+  // ── 14-day outlook (user-triggered) ───────────────────────────────────────
+  // Fetched only when the farmer asks for it, then held behind a cooldown so
+  // repeated taps cannot burn through the request budget.
+  WeatherForecast? weatherForecast;
+  bool isLoadingForecast = false;
+  String? forecastError;
+  Future<void>? _forecastInFlight;
   Future<void>? _advisoryRefreshInFlight;
 
   AppDataMode get mode => _client.mode;
 
   String get modeLabel => _client.modeLabel;
+
+  /// The device the substitute weather is stamped with, so a synthesised
+  /// reading is indistinguishable in shape from a real one.
+  String get _deviceId => farm.primaryLogger?.deviceId ?? AppConfig.deviceId;
+
+  /// True once the station's own weather block is too old to act on — either
+  /// it has never reported, or its last row predates the staleness window.
+  bool get _stationWeatherIsStale {
+    final recorded = _stationReading?.recordedAt;
+    if (recorded == null) return true;
+    return DateTime.now().difference(recorded) >
+        WeatherFallback.stalenessWindow;
+  }
+
+  /// The substitute set, but only while the station is actually dark. As soon
+  /// as a fresh row lands this returns null and the logger's own numbers are
+  /// published again.
+  WeatherFallback? get _activeFallback =>
+      _stationWeatherIsStale ? _weatherFallback : null;
+
+  /// Rebuild the published reading / trends / monitoring from the raw station
+  /// values plus, when needed, the substitute weather block. Soil is never
+  /// touched. Call this after anything assigns a raw value.
+  void _applyWeatherOverlay() {
+    final fallback = _activeFallback;
+    if (fallback == null) {
+      latestReading = _stationReading;
+      trends = _stationTrends;
+      monitoringStatus = _stationMonitoring;
+      return;
+    }
+
+    final merged = fallback.applyTo(
+      _stationReading,
+      deviceId: _deviceId,
+      stationName: farm.primaryLogger?.name ?? AppConfig.stationName,
+    );
+
+    latestReading = merged;
+    trends = fallback.applyToTrends(_stationTrends, deviceId: _deviceId);
+    // Health, conditions and alerts are re-derived from the merged reading, so
+    // the substituted weather drives them exactly as a live row would.
+    monitoringStatus = fallback.applyToMonitoring(
+      _stationMonitoring,
+      merged: merged,
+      settings: stationSettings,
+    );
+  }
+
+  /// Refresh the substitute weather when the station is dark and the set on
+  /// hand has aged past [WeatherFallback.refreshInterval]. No-op otherwise, so
+  /// this is safe to call from a short timer.
+  Future<void> _maybeRefreshWeather({bool notify = true}) async {
+    if (!_stationWeatherIsStale) {
+      return;
+    }
+    final existing = _weatherFallback;
+    if (existing != null && !existing.isExpiredAt(DateTime.now())) {
+      return;
+    }
+
+    final inFlight = _weatherRefreshInFlight;
+    if (inFlight != null) {
+      await inFlight;
+      return;
+    }
+
+    final request = _fetchWeatherFallback();
+    _weatherRefreshInFlight = request;
+    try {
+      await request;
+    } finally {
+      if (identical(_weatherRefreshInFlight, request)) {
+        _weatherRefreshInFlight = null;
+      }
+    }
+
+    _applyWeatherOverlay();
+    await refreshDss(notify: false);
+    if (notify) {
+      notifyListeners();
+    }
+  }
+
+  Future<void> _fetchWeatherFallback() async {
+    // The site never moves, so the last GPS row is as good as a live fix; the
+    // configured coordinates cover a station that has never sent one.
+    final gps = gpsReading;
+    final latitude = gps?.latitude ?? AppConfig.fieldLatitude;
+    final longitude = gps?.longitude ?? AppConfig.fieldLongitude;
+
+    try {
+      _weatherFallback = await _weatherService.fetch(
+        latitude: latitude,
+        longitude: longitude,
+      );
+    } catch (_) {
+      // Non-fatal: keep whatever set is already held and retry on the next
+      // tick rather than blanking the weather block.
+    }
+  }
+
+  /// How long a fetched outlook is held before the button offers a new pull.
+  /// A 14-day forecast is only revised a few times a day, so re-fetching more
+  /// often than this buys nothing and only spends request budget.
+  static const Duration forecastCooldown = Duration(hours: 6);
+
+  /// True when a new outlook may be requested — either none has been fetched
+  /// or the one on hand has aged out.
+  bool get canFetchForecast => forecastCooldownRemaining == Duration.zero;
+
+  /// Time left before another fetch is allowed; zero when one is allowed now.
+  Duration get forecastCooldownRemaining {
+    final fetchedAt = weatherForecast?.fetchedAt;
+    if (fetchedAt == null) return Duration.zero;
+    final elapsed = DateTime.now().difference(fetchedAt);
+    final remaining = forecastCooldown - elapsed;
+    return remaining.isNegative ? Duration.zero : remaining;
+  }
+
+  /// Pull the 14-day outlook for the field.
+  ///
+  /// No-op while one is in flight or while the cooldown is still running —
+  /// the held forecast stays available to view throughout. Pass
+  /// [force] only for an explicit user-driven retry after a failure.
+  Future<void> fetchWeatherForecast({bool force = false}) async {
+    final inFlight = _forecastInFlight;
+    if (inFlight != null) return inFlight;
+    if (!force && !canFetchForecast) return;
+
+    final request = _fetchForecastInternal();
+    _forecastInFlight = request;
+    try {
+      await request;
+    } finally {
+      if (identical(_forecastInFlight, request)) {
+        _forecastInFlight = null;
+      }
+    }
+  }
+
+  Future<void> _fetchForecastInternal() async {
+    isLoadingForecast = true;
+    forecastError = null;
+    notifyListeners();
+
+    try {
+      final gps = gpsReading;
+      weatherForecast = await _weatherService.fetchForecast(
+        latitude: gps?.latitude ?? AppConfig.fieldLatitude,
+        longitude: gps?.longitude ?? AppConfig.fieldLongitude,
+      );
+    } catch (error) {
+      // Keep any outlook already held rather than blanking the sheet.
+      forecastError = error.toString();
+    } finally {
+      isLoadingForecast = false;
+      notifyListeners();
+    }
+  }
 
   Future<void> start() async {
     await refreshAll();
@@ -217,6 +400,10 @@ class StationDashboardController extends ChangeNotifier {
         Timer.periodic(AppConfig.trendsRefreshInterval, (_) => refreshTrends());
     _gpsTimer = Timer.periodic(
         AppConfig.monitoringRefreshInterval, (_) => refreshGpsReading());
+    _weatherTimer = Timer.periodic(
+      AppConfig.weatherFallbackCheckInterval,
+      (_) => _maybeRefreshWeather(),
+    );
   }
 
   Future<void> refreshAll() async {
@@ -231,6 +418,7 @@ class StationDashboardController extends ChangeNotifier {
       refreshIrrigation(notify: false, updateDss: false),
       refreshGpsReading(notify: false),
     ]);
+    await _maybeRefreshWeather(notify: false);
     await refreshDss(notify: false);
 
     isLoading = false;
@@ -238,7 +426,8 @@ class StationDashboardController extends ChangeNotifier {
   }
 
   Future<void> _handleLiveReading(SensorReading reading) async {
-    latestReading = reading;
+    _stationReading = reading;
+    _applyWeatherOverlay();
     hasConnection = true;
     errorMessage = null;
 
@@ -263,7 +452,8 @@ class StationDashboardController extends ChangeNotifier {
 
   Future<void> refreshLatest({bool notify = true}) async {
     try {
-      latestReading = await _client.fetchLatestReading();
+      _stationReading = await _client.fetchLatestReading();
+      _applyWeatherOverlay();
       await refreshDss(notify: false);
       hasConnection = true;
       errorMessage = null;
@@ -298,8 +488,9 @@ class StationDashboardController extends ChangeNotifier {
   }) async {
     try {
       final status = await _client.fetchMonitoringStatus();
-      monitoringStatus = status;
-      latestReading = status.latest ?? latestReading;
+      _stationMonitoring = status;
+      _stationReading = status.latest ?? _stationReading;
+      _applyWeatherOverlay();
       if (updateDss) {
         await refreshDss(notify: false);
       }
@@ -320,7 +511,8 @@ class StationDashboardController extends ChangeNotifier {
     bool updateDss = true,
   }) async {
     try {
-      trends = await _client.fetchTrends();
+      _stationTrends = await _client.fetchTrends();
+      _applyWeatherOverlay();
       if (updateDss) {
         await refreshDss(notify: false);
       }
@@ -338,6 +530,9 @@ class StationDashboardController extends ChangeNotifier {
   Future<void> refreshSettings({bool notify = true}) async {
     try {
       stationSettings = await _client.fetchSettings();
+      // Which sensors are switched on feeds the health map, so a settings
+      // change has to re-derive it.
+      _applyWeatherOverlay();
       hasConnection = true;
       errorMessage = null;
     } catch (error) {
@@ -756,7 +951,12 @@ class StationDashboardController extends ChangeNotifier {
 
   Future<void> refreshGpsReading({bool notify = true}) async {
     try {
-      gpsReading = await _client.fetchLatestGpsReading();
+      final reading = await _client.fetchLatestGpsReading();
+      // The site does not move: a failed or empty lookup should not drop the
+      // fix we already have.
+      if (reading != null) {
+        gpsReading = reading;
+      }
       hasConnection = true;
       errorMessage = null;
     } catch (error) {
@@ -874,6 +1074,7 @@ class StationDashboardController extends ChangeNotifier {
     _irrigationTimer?.cancel();
     _trendsTimer?.cancel();
     _gpsTimer?.cancel();
+    _weatherTimer?.cancel();
     _liveSubscription?.cancel();
     _realtimeSubscription?.cancel();
     _liveStream?.dispose();

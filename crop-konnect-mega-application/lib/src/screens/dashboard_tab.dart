@@ -13,6 +13,7 @@ import '../models/sensor_reading.dart';
 import '../models/gps_reading.dart';
 import '../viewmodels/station_dashboard_controller.dart';
 import '../models/station_trends.dart';
+import '../widgets/weather_forecast_sheet.dart';
 import 'dart:math' as math;
 import 'package:flutter_map/flutter_map.dart';
 
@@ -308,6 +309,7 @@ class DashboardTab extends StatelessWidget {
                       reading: reading,
                       monitoring: monitoring,
                       trends: controller.trends,
+                      controller: controller,
                     ),
                   ),
                 ),
@@ -994,11 +996,16 @@ class _StatTileState extends State<_StatTile> {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _ResponsiveDataMatrix extends StatelessWidget {
-  const _ResponsiveDataMatrix(
-      {required this.reading, required this.monitoring, this.trends});
+  const _ResponsiveDataMatrix({
+    required this.reading,
+    required this.monitoring,
+    required this.controller,
+    this.trends,
+  });
   final SensorReading? reading;
   final MonitoringStatus? monitoring;
   final StationTrends? trends;
+  final StationDashboardController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -1024,6 +1031,7 @@ class _ResponsiveDataMatrix extends StatelessWidget {
               Expanded(
                 flex: 44,
                 child: Column(children: [
+                  WeatherPredictButton(controller: controller),
                   _SectionLabel(
                       title: 'SOIL NUTRIENTS', subtitle: 'NPK trend analysis'),
                   _NutrientTrendGraph(reading: reading, trends: trends),
@@ -1040,6 +1048,7 @@ class _ResponsiveDataMatrix extends StatelessWidget {
             subtitle: 'Root zone & canopy telemetry'),
         _SensorDataList(reading: reading, monitoring: monitoring),
         Container(height: 8, color: _T.bg),
+        WeatherPredictButton(controller: controller),
         _SectionLabel(title: 'SOIL NUTRIENTS', subtitle: 'NPK trend analysis'),
         _NutrientTrendGraph(reading: reading, trends: trends),
       ]);

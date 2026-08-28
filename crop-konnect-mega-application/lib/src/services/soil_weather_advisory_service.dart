@@ -96,16 +96,22 @@ class SoilWeatherAdvisoryService {
     };
   }
 
-  /// Builds the weather block. Wind is converted from m/s to km/h; any reading
-  /// the station does not report (air temperature, humidity, UV) is sent as 0.
+  /// Builds the weather block from the latest weather the app holds. Wind is
+  /// converted from m/s to km/h; anything still missing is sent as 0, exactly
+  /// as before.
+  ///
+  /// Air temperature, humidity and the UV index are only ever present when the
+  /// station has gone dark and its weather block has been substituted — the
+  /// logger has no sensor for them, so for a live station these stay 0 and the
+  /// payload is unchanged.
   Map<String, dynamic> _weatherStationPayload(SensorReading? r) {
     final ws = r?.ws;
     return <String, dynamic>{
-      'temperature': 0,
-      'humidity': 0,
+      'temperature': r?.airTempC ?? 0,
+      'humidity': r?.humidityPct ?? 0,
       'wind_speed_kmh':
           ws == null ? 0 : double.parse((ws * 3.6).toStringAsFixed(1)),
-      'uv': 0,
+      'uv': r?.uvIndex ?? 0,
       'rain': r?.rain ?? 0,
     };
   }
