@@ -1,2 +1,28 @@
 # Build output
 build/
+crop-konnect-mega-application/build/
+crop-konnect-mega-application/android/build/
+crop-konnect-mega-application/android/app/build/
+
+# Dart/Flutter tooling
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Environment / secrets
+.env
+*.env
+!.env.example
+
+# Python (backend)
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
